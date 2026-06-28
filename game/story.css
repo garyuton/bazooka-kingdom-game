@@ -67,18 +67,19 @@ button { font: inherit; }
 .character-layer {
   position: absolute;
   z-index: -2;
-  inset: 5% 0 20%;
+  inset: 0;
   pointer-events: none;
 }
 
 .character {
   position: absolute;
-  bottom: 0;
+  /* 85%の立ち絵を従来位置から約6%下げ、足元は画面内に残します。 */
+  bottom: 4svh;
   left: 50%;
   display: none;
-  width: min(78vw, 520px);
-  height: 75svh;
-  max-height: 100%;
+  width: min(100vw, 570px);
+  height: 85svh;
+  max-height: calc(100svh - 4svh);
   object-fit: contain;
   object-position: center bottom;
   filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.65));
@@ -252,12 +253,10 @@ button { font: inherit; }
 
 @media (min-width: 760px) {
   .advance-layer { padding-bottom: max(36px, env(safe-area-inset-bottom)); }
-  .character-layer { bottom: 18%; }
 }
 
 @media (max-height: 560px) {
   .dialogue-panel { min-height: 135px; padding-top: 30px; }
-  .character-layer { bottom: 22%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
