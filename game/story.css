@@ -1,13 +1,13 @@
-/* 物語画面の基本レイアウト。今後、背景・立ち絵・会話欄を追加できます。 */
+/* ---------- ノベル画面の共通設定 ---------- */
 :root {
   color-scheme: dark;
   font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
   --gold: #d8ad52;
+  --panel: rgba(4, 4, 8, 0.84);
+  --transition-duration: 420ms;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 html,
 body {
@@ -17,49 +17,195 @@ body {
 
 body {
   min-height: 100svh;
+  overflow: hidden;
   color: #fff;
   background: #000;
 }
 
-.story-screen {
+button { font: inherit; }
+
+.novel-game {
+  position: relative;
+  width: 100%;
   min-height: 100svh;
-  display: grid;
-  place-content: center;
-  gap: 32px;
-  padding: max(24px, env(safe-area-inset-top)) 24px max(24px, env(safe-area-inset-bottom));
-  text-align: center;
+  overflow: hidden;
+  isolation: isolate;
+  background: #000;
 }
 
-.story-placeholder {
-  margin: 0;
-  font-size: clamp(1.2rem, 6vw, 1.8rem);
-  letter-spacing: 0.12em;
-  animation: fade-in 1s ease-out both;
+/* ---------- 背景・キャラクターレイヤー ---------- */
+.background-layer {
+  position: absolute;
+  z-index: -3;
+  inset: 0;
+  background-color: #000;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
-.back-button {
-  min-height: 48px;
-  padding: 10px 24px;
-  border: 1px solid var(--gold);
+.character-layer {
+  position: absolute;
+  z-index: -2;
+  inset: 8% 0 20%;
+  pointer-events: none;
+}
+
+.character {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  display: none;
+  width: min(64vw, 460px);
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.65));
+}
+
+.character.is-visible { display: block; }
+.character--left { transform: translateX(-88%); }
+.character--center { transform: translateX(-50%); z-index: 1; }
+.character--right { transform: translateX(-12%); }
+
+/* シーン更新時に画面全体を暗転させます。 */
+.scene-fader {
+  position: absolute;
+  z-index: 8;
+  inset: 0;
+  background: #000;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--transition-duration) ease, visibility var(--transition-duration) ease;
+}
+
+.scene-fader.is-dark {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ---------- 操作・会話UI ---------- */
+.game-controls {
+  position: absolute;
+  z-index: 10;
+  top: max(14px, env(safe-area-inset-top));
+  right: max(14px, env(safe-area-inset-right));
+}
+
+.control-button {
+  min-height: 40px;
+  padding: 8px 14px;
+  border: 1px solid rgba(216, 173, 82, 0.72);
   border-radius: 2px;
   color: #fff;
-  background: rgba(40, 27, 8, 0.72);
-  font: inherit;
+  background: rgba(0, 0, 0, 0.62);
   cursor: pointer;
 }
 
-.back-button:focus-visible {
-  outline: 3px solid #fff;
-  outline-offset: 3px;
+.advance-layer {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  padding:
+    24px
+    max(16px, env(safe-area-inset-right))
+    max(22px, env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
+  border: 0;
+  color: inherit;
+  text-align: left;
+  background: linear-gradient(transparent 45%, rgba(0, 0, 0, 0.54));
+  cursor: pointer;
 }
 
-@keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+.dialogue-panel {
+  position: relative;
+  width: min(100%, 760px);
+  min-height: clamp(170px, 27svh, 240px);
+  margin-inline: auto;
+  padding: clamp(34px, 6vw, 48px) clamp(20px, 5vw, 38px) 28px;
+  border: 1px solid rgba(216, 173, 82, 0.72);
+  border-radius: 5px;
+  background: var(--panel);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.56);
+}
+
+.speaker-name {
+  position: absolute;
+  top: -20px;
+  left: 18px;
+  min-width: 120px;
+  max-width: calc(100% - 36px);
+  margin: 0;
+  padding: 8px 18px;
+  overflow: hidden;
+  border: 1px solid var(--gold);
+  color: #1c1305;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: var(--gold);
+  font-weight: 700;
+}
+
+.speaker-name:empty { display: none; }
+
+.dialogue-text {
+  margin: 0;
+  font-size: clamp(1rem, 4.2vw, 1.3rem);
+  line-height: 1.9;
+  letter-spacing: 0.04em;
+  white-space: pre-wrap;
+}
+
+.advance-mark {
+  position: absolute;
+  right: 16px;
+  bottom: 10px;
+  color: var(--gold);
+  font-size: 0.72rem;
+  opacity: 0;
+}
+
+.advance-layer[data-state="ready"] .advance-mark {
+  opacity: 1;
+  animation: bounce 1s ease-in-out infinite;
+}
+
+.error-message {
+  position: absolute;
+  z-index: 20;
+  inset: 42% 20px auto;
+  margin: 0;
+  color: #ffd3d3;
+  text-align: center;
+}
+
+.control-button:focus-visible,
+.advance-layer:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: -4px;
+}
+
+@keyframes bounce {
+  50% { transform: translateY(4px); }
+}
+
+@media (min-width: 760px) {
+  .advance-layer { padding-bottom: max(36px, env(safe-area-inset-bottom)); }
+  .character-layer { bottom: 18%; }
+}
+
+@media (max-height: 560px) {
+  .dialogue-panel { min-height: 135px; padding-top: 30px; }
+  .character-layer { bottom: 22%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .story-placeholder {
-    animation: none;
-  }
+  :root { --transition-duration: 1ms; }
+  .advance-mark { animation: none !important; }
 }

@@ -1,0 +1,33 @@
+{
+  "meta": {
+    "id": "story01",
+    "title": "第一章",
+    "version": 1
+  },
+  "defaults": {
+    "background": null,
+    "bgm": null
+  },
+  "scenes": [
+    {
+      "id": "opening-01",
+      "background": null,
+      "characters": [],
+      "speaker": "ナレーション",
+      "text": "ここから物語が始まる。",
+      "bgm": null,
+      "se": null,
+      "choices": null
+    },
+    {
+      "id": "opening-02",
+      "background": null,
+      "characters": [],
+      "speaker": "主人公",
+      "text": "これは、一匹の守護豚との出会いの物語。",
+      "bgm": null,
+      "se": null,
+      "choices": null
+    }
+  ]
+}
