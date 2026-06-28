@@ -5,7 +5,7 @@
     "version": 1
   },
   "defaults": {
-    "background": "../assets/backgrounds/castle-hall.jpg",
+    "background": "assets/backgrounds/castle1.png",
     "bgm": null
   },
   "scenes": [
@@ -15,7 +15,7 @@
         {
           "position": "center",
           "name": "ロマ子姫",
-          "src": "../assets/characters/romako-princess.png"
+          "src": "assets/characters/ROMACO.PNG"
         }
       ],
       "speaker": "ロマ子姫",
@@ -29,7 +29,7 @@
         {
           "position": "center",
           "name": "ロマ子姫",
-          "src": "../assets/characters/romako-princess.png"
+          "src": "assets/characters/ROMACO.PNG"
         }
       ],
       "speaker": "ロマ子姫",
