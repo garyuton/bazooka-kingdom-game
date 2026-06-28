@@ -3,38 +3,28 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#150e24">
-  <title>バズーカ王国物語</title>
+  <meta name="theme-color" content="#000000">
+  <meta name="description" content="スマートフォン向けADVゲーム『バズーカ王国物語』">
+  <title>バズーカ王国物語｜第一章</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main class="game-shell" aria-live="polite">
-    <section id="title-screen" class="screen title-screen is-active" aria-labelledby="game-title">
-      <div class="title-glow" aria-hidden="true"></div>
-      <div class="title-copy">
-        <p class="title-kicker">BAZOOKA KINGDOM</p>
-        <h1 id="game-title">バズーカ<br>王国物語</h1>
+  <!-- タイトル画像は CSS の背景として読み込み、コンテンツと分離しています。 -->
+  <main class="title-screen">
+    <section class="title-panel" aria-labelledby="game-title">
+      <header class="title-header">
+        <p class="title-ornament" aria-hidden="true">◆</p>
+        <h1 id="game-title">バズーカ王国物語</h1>
         <p class="chapter">第一章</p>
-      </div>
+      </header>
 
-      <nav class="menu" aria-label="メインメニュー">
-        <button id="start-button" class="menu-button menu-button--primary" type="button">はじめから</button>
-        <button class="menu-button" type="button" disabled>つづき</button>
-        <button class="menu-button" type="button" disabled>設定</button>
+      <nav class="title-menu" aria-label="タイトルメニュー">
+        <button id="start-button" class="menu-button" type="button">はじめから</button>
+        <button class="menu-button" type="button" disabled aria-describedby="coming-soon">つづき</button>
+        <button class="menu-button" type="button" disabled aria-describedby="coming-soon">設定</button>
       </nav>
-      <p class="version">© バズーカ王国</p>
-    </section>
 
-    <section id="novel-screen" class="screen novel-screen" aria-label="物語">
-      <div id="scene-label" class="scene-label"></div>
-      <button id="back-button" class="back-button" type="button" aria-label="タイトルへ戻る">←</button>
-      <div class="novel-gradient" aria-hidden="true"></div>
-      <button id="dialogue-box" class="dialogue-box" type="button" aria-label="次へ進む">
-        <span id="speaker" class="speaker"></span>
-        <span id="dialogue" class="dialogue">読み込み中…</span>
-        <span class="next-mark" aria-hidden="true">▼</span>
-      </button>
-      <p id="load-error" class="load-error" role="alert"></p>
+      <p id="coming-soon" class="visually-hidden">この機能は準備中です</p>
     </section>
   </main>
 

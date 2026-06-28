@@ -1,224 +1,179 @@
+/* ---------- 基本設定 ---------- */
 :root {
   color-scheme: dark;
   font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
-  --title-background: linear-gradient(155deg, rgba(10, 7, 22, .28), rgba(15, 7, 25, .88)),
-    radial-gradient(circle at 50% 24%, #785330 0, #33213c 34%, #130d20 72%);
-  --novel-background: linear-gradient(180deg, rgba(10, 10, 25, .15), rgba(7, 5, 15, .7)),
-    radial-gradient(circle at 50% 25%, #536174, #25283a 46%, #11111d 80%);
-  --gold: #f4d486;
-  --panel: rgba(12, 9, 25, .88);
+  --gold: #d8ad52;
+  --gold-light: #f6dda0;
+  --panel-bg: rgba(0, 0, 0, 0.72);
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
-html, body {
+html,
+body {
   min-height: 100%;
   margin: 0;
 }
 
 body {
   min-height: 100svh;
+  color: #fff;
+  background: #000;
+}
+
+button {
+  font: inherit;
+}
+
+/* ---------- タイトル画面 ---------- */
+.title-screen {
+  min-height: 100svh;
   display: grid;
   place-items: center;
-  overflow: hidden;
-  color: #fffaf0;
-  background: #080611;
-}
-
-button { font: inherit; }
-
-.game-shell {
-  position: relative;
-  width: min(100vw, 540px);
-  height: 100svh;
-  max-height: 960px;
-  overflow: hidden;
-  background: #130d20;
-  box-shadow: 0 0 60px rgba(0, 0, 0, .7);
-}
-
-.screen {
-  position: absolute;
-  inset: 0;
-  display: none;
-  min-height: 100%;
-}
-
-.screen.is-active { display: flex; }
-
-.title-screen {
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  padding: max(10vh, 72px) 9% max(3vh, 24px);
-  text-align: center;
-  background: var(--title-background);
+  padding:
+    max(24px, env(safe-area-inset-top))
+    max(20px, env(safe-area-inset-right))
+    max(24px, env(safe-area-inset-bottom))
+    max(20px, env(safe-area-inset-left));
+  /* 画像が存在しない場合は background-color の黒が表示されます。 */
+  background-color: #000;
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.58)),
+    url("../assets/backgrounds/title.jpg");
   background-position: center;
   background-size: cover;
+  background-repeat: no-repeat;
 }
 
-.title-screen::before {
-  content: "";
-  position: absolute;
-  inset: 18px;
-  border: 1px solid rgba(244, 212, 134, .28);
-  pointer-events: none;
+.title-panel {
+  width: min(100%, 390px);
+  padding: clamp(36px, 9vw, 56px) clamp(22px, 7vw, 42px);
+  border: 1px solid rgba(216, 173, 82, 0.55);
+  border-radius: 4px;
+  text-align: center;
+  background: var(--panel-bg);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.65), inset 0 0 30px rgba(216, 173, 82, 0.06);
+  opacity: 0;
+  animation: fade-in 1.2s ease-out 0.15s forwards;
 }
 
-.title-glow {
-  position: absolute;
-  top: 7%;
-  width: 70%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: rgba(255, 203, 108, .14);
-  filter: blur(36px);
+.title-header {
+  margin-bottom: clamp(32px, 8vh, 56px);
 }
 
-.title-copy { position: relative; }
-
-.title-kicker {
-  margin: 0 0 1.2rem;
+.title-ornament {
+  margin: 0 0 12px;
   color: var(--gold);
-  font: 600 clamp(.64rem, 2.5vw, .8rem)/1.2 sans-serif;
-  letter-spacing: .32em;
+  font-size: 0.8rem;
 }
 
 h1 {
   margin: 0;
-  color: #fff7db;
-  font-size: clamp(2.8rem, 13vw, 4.8rem);
-  font-weight: 800;
-  line-height: .98;
-  letter-spacing: .06em;
-  text-shadow: 0 3px 0 #583416, 0 8px 24px rgba(0, 0, 0, .8);
+  color: #fff;
+  font-size: clamp(2rem, 9.5vw, 3.25rem);
+  line-height: 1.25;
+  letter-spacing: 0.08em;
+  text-indent: 0.08em;
+  text-shadow: 0 3px 12px #000;
 }
 
 .chapter {
-  display: inline-block;
-  margin: 1.5rem 0 0;
-  padding: .45rem 2.4rem;
-  border-block: 1px solid rgba(244, 212, 134, .55);
-  color: var(--gold);
-  font-size: clamp(1rem, 4vw, 1.35rem);
-  letter-spacing: .4em;
-  text-indent: .4em;
+  margin: 20px auto 0;
+  color: #fff;
+  font-size: clamp(1rem, 4.5vw, 1.25rem);
+  letter-spacing: 0.45em;
+  text-indent: 0.45em;
 }
 
-.menu {
-  z-index: 1;
-  width: min(100%, 320px);
+/* ---------- メニュー ---------- */
+.title-menu {
   display: grid;
-  gap: .7rem;
+  gap: 14px;
 }
 
 .menu-button {
+  position: relative;
   width: 100%;
   min-height: 52px;
-  border: 1px solid rgba(244, 212, 134, .42);
-  border-radius: 3px;
-  color: #fffaf0;
-  background: rgba(16, 10, 29, .72);
-  letter-spacing: .22em;
-  cursor: pointer;
-  transition: transform .18s ease, background .18s ease;
-}
-
-.menu-button--primary { background: linear-gradient(90deg, #6d411e, #a06e31, #6d411e); }
-.menu-button:not(:disabled):active { transform: scale(.98); }
-.menu-button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
-.menu-button:disabled { opacity: .4; cursor: not-allowed; }
-
-.version {
-  z-index: 1;
-  margin: 1rem 0 0;
-  color: rgba(255, 255, 255, .42);
-  font: .65rem sans-serif;
-}
-
-.novel-screen {
-  align-items: flex-end;
-  padding: 5% 5% max(5%, env(safe-area-inset-bottom));
-  background: var(--scene-background, var(--novel-background));
-  background-position: center;
-  background-size: cover;
-}
-
-.novel-gradient { position: absolute; inset: 45% 0 0; background: linear-gradient(transparent, rgba(0,0,0,.65)); }
-
-.scene-label {
-  position: absolute;
-  top: max(4%, env(safe-area-inset-top));
-  left: 5%;
-  max-width: 70%;
-  padding: .5rem .8rem;
-  border-left: 2px solid var(--gold);
-  color: rgba(255,255,255,.8);
-  background: rgba(0,0,0,.3);
-  font-size: .78rem;
-}
-
-.back-button {
-  position: absolute;
-  z-index: 2;
-  top: max(3%, env(safe-area-inset-top));
-  right: 5%;
-  width: 42px;
-  height: 42px;
-  border: 1px solid rgba(255,255,255,.35);
-  border-radius: 50%;
-  color: white;
-  background: rgba(0,0,0,.38);
-  cursor: pointer;
-}
-
-.dialogue-box {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  min-height: 28%;
-  padding: 2.2rem 1.35rem 1.5rem;
-  border: 1px solid rgba(244, 212, 134, .68);
-  border-radius: 6px;
-  color: #fff;
-  text-align: left;
-  background: var(--panel);
-  box-shadow: 0 12px 35px rgba(0,0,0,.45);
-  cursor: pointer;
-}
-
-.speaker {
-  position: absolute;
-  top: -1rem;
-  left: 1rem;
-  min-width: 7rem;
-  padding: .45rem 1rem;
+  padding: 10px 20px;
   border: 1px solid var(--gold);
-  color: #241509;
-  text-align: center;
-  background: var(--gold);
-  font-weight: 700;
+  border-radius: 2px;
+  color: #fff;
+  background: rgba(40, 27, 8, 0.72);
+  letter-spacing: 0.18em;
+  text-indent: 0.18em;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
-.speaker:empty { display: none; }
-.dialogue { display: block; font-size: clamp(1rem, 4.3vw, 1.25rem); line-height: 1.9; }
-.next-mark { position: absolute; right: 1rem; bottom: .65rem; color: var(--gold); font-size: .7rem; animation: bounce 1s infinite; }
-.load-error { position: absolute; inset: 42% 10% auto; z-index: 3; color: #ffe0e0; text-align: center; }
+.menu-button:not(:disabled):hover,
+.menu-button:not(:disabled):focus-visible {
+  color: #1a1103;
+  background: var(--gold-light);
+}
 
-@keyframes bounce { 50% { transform: translateY(4px); } }
+.menu-button:not(:disabled):active {
+  transform: scale(0.98);
+}
 
-@media (min-width: 541px) and (min-height: 700px) {
-  .game-shell { height: min(100svh, 960px); aspect-ratio: 9 / 16; }
+.menu-button:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+
+.menu-button:disabled {
+  border-color: rgba(216, 173, 82, 0.45);
+  opacity: 0.48;
+  cursor: not-allowed;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- 演出・画面幅調整 ---------- */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-height: 620px) {
-  .title-screen { padding-top: 9vh; }
-  h1 { font-size: 2.7rem; }
-  .chapter { margin-top: .8rem; }
-  .menu { gap: .4rem; }
-  .menu-button { min-height: 44px; }
+  .title-panel {
+    padding-block: 24px;
+  }
+
+  .title-header {
+    margin-bottom: 24px;
+  }
+
+  .menu-button {
+    min-height: 44px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .next-mark { animation: none; }
+  .title-panel {
+    opacity: 1;
+    animation: none;
+  }
+
+  .menu-button {
+    transition: none;
+  }
 }
