@@ -12,11 +12,19 @@
   <main id="novel-game" class="novel-game" aria-label="ノベルゲーム">
     <!-- 背景と立ち絵を別レイヤーにし、個別に差し替えられる構造です。 -->
     <div id="background-layer" class="background-layer" aria-hidden="true"></div>
+    <div id="background-placeholder" class="background-placeholder" aria-hidden="true">
+      <span>BAZOOKA KINGDOM</span>
+    </div>
 
     <div id="character-layer" class="character-layer" aria-hidden="true">
       <img id="character-left" class="character character--left" alt="">
       <img id="character-center" class="character character--center" alt="">
       <img id="character-right" class="character character--right" alt="">
+      <div id="character-placeholder" class="character-placeholder">
+        <span class="placeholder-crown">♛</span>
+        <span class="placeholder-face">●</span>
+        <span id="character-placeholder-name" class="placeholder-name"></span>
+      </div>
     </div>
 
     <div id="scene-fader" class="scene-fader" aria-hidden="true"></div>

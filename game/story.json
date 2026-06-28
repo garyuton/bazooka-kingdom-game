@@ -1,0 +1,55 @@
+{
+  "meta": {
+    "id": "sample-conversation",
+    "title": "バズーカ王国へようこそ",
+    "version": 1
+  },
+  "defaults": {
+    "background": "../assets/backgrounds/castle-hall.jpg",
+    "bgm": null
+  },
+  "scenes": [
+    {
+      "id": "welcome-01",
+      "characters": [
+        {
+          "position": "center",
+          "name": "ロマ子姫",
+          "src": "../assets/characters/romako-princess.png"
+        }
+      ],
+      "speaker": "ロマ子姫",
+      "text": "「ようこそ、バズーカ王国へ。」",
+      "se": null,
+      "choices": null
+    },
+    {
+      "id": "welcome-02",
+      "characters": [
+        {
+          "position": "center",
+          "name": "ロマ子姫",
+          "src": "../assets/characters/romako-princess.png"
+        }
+      ],
+      "speaker": "ロマ子姫",
+      "text": "「あなたがガリュ㌧ですね。」",
+      "se": null,
+      "choices": null
+    },
+    {
+      "id": "welcome-03",
+      "characters": [
+        {
+          "position": "center",
+          "name": "ガリュ㌧",
+          "src": "../assets/characters/garyuton.png"
+        }
+      ],
+      "speaker": "ガリュ㌧",
+      "text": "「わしの名はガリュ㌧。」",
+      "se": null,
+      "choices": null
+    }
+  ]
+}

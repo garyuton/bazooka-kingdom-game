@@ -8,7 +8,7 @@
  */
 
 const CONFIG = {
-  scenarioUrl: "scenario/story01.json",
+  scenarioUrl: "story.json",
   typeInterval: 38,
   transitionDuration: 420,
 };
@@ -16,12 +16,15 @@ const CONFIG = {
 const elements = {
   game: document.querySelector("#novel-game"),
   background: document.querySelector("#background-layer"),
+  backgroundPlaceholder: document.querySelector("#background-placeholder"),
   fader: document.querySelector("#scene-fader"),
   advance: document.querySelector("#advance-layer"),
   speaker: document.querySelector("#speaker-name"),
   dialogue: document.querySelector("#dialogue-text"),
   error: document.querySelector("#error-message"),
   back: document.querySelector("#back-button"),
+  characterPlaceholder: document.querySelector("#character-placeholder"),
+  characterPlaceholderName: document.querySelector("#character-placeholder-name"),
   characters: {
     left: document.querySelector("#character-left"),
     center: document.querySelector("#character-center"),
@@ -29,11 +32,15 @@ const elements = {
   },
 };
 
+let backgroundRequestId = 0;
+
 const state = {
   scenario: null,
   sceneIndex: 0,
   isTyping: false,
   isTransitioning: false,
+  interactionId: 0,
+  handledInteractionId: -1,
   typingTimer: null,
   fullText: "",
 };
@@ -65,11 +72,34 @@ const audioManager = {
 const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
 
 function setBackground(source) {
-  elements.background.style.backgroundImage = source ? `url("${source}")` : "none";
+  const requestId = ++backgroundRequestId;
+  elements.backgroundPlaceholder.classList.remove("is-hidden");
+
+  if (!source) {
+    elements.background.style.backgroundImage = "none";
+    return;
+  }
+
+  const image = new Image();
+  image.addEventListener("load", () => {
+    if (requestId !== backgroundRequestId) return;
+    elements.background.style.backgroundImage = `url("${source}")`;
+    elements.backgroundPlaceholder.classList.add("is-hidden");
+  });
+  image.addEventListener("error", () => {
+    if (requestId !== backgroundRequestId) return;
+    elements.background.style.backgroundImage = "none";
+    elements.backgroundPlaceholder.classList.remove("is-hidden");
+  });
+  image.src = source;
 }
 
 /** left / center / right の3枠へ立ち絵を配置します。 */
 function setCharacters(characters = []) {
+  const centerCharacter = characters.find((item) => item.position === "center");
+  elements.characterPlaceholderName.textContent = centerCharacter?.name || "";
+  elements.characterPlaceholder.classList.toggle("is-visible", Boolean(centerCharacter));
+
   for (const [position, image] of Object.entries(elements.characters)) {
     const character = characters.find((item) => item.position === position);
     image.classList.toggle("is-visible", Boolean(character?.src));
@@ -195,14 +225,34 @@ async function loadScenario() {
   }
 }
 
-elements.advance.addEventListener("click", advanceStory);
+// 1回のタップからclickが複数回届いても、シーンを1つだけ進めます。
+elements.advance.addEventListener("pointerdown", () => {
+  state.interactionId += 1;
+});
+elements.advance.addEventListener("click", (event) => {
+  // detail=0 はEnter/Spaceなどのキーボード操作です。
+  if (event.detail === 0) state.interactionId += 1;
+  if (state.handledInteractionId === state.interactionId) return;
+  state.handledInteractionId = state.interactionId;
+  advanceStory();
+});
 elements.back.addEventListener("click", () => {
   window.location.href = "index.html";
 });
 
 // 画像が存在しない場合は、その立ち絵だけを非表示にします。
 Object.values(elements.characters).forEach((image) => {
-  image.addEventListener("error", () => image.classList.remove("is-visible"));
+  image.addEventListener("load", () => {
+    if (image === elements.characters.center) {
+      elements.characterPlaceholder.classList.remove("is-visible");
+    }
+  });
+  image.addEventListener("error", () => {
+    image.classList.remove("is-visible");
+    if (image === elements.characters.center && image.src) {
+      elements.characterPlaceholder.classList.add("is-visible");
+    }
+  });
 });
 
 loadScenario();
