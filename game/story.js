@@ -164,7 +164,8 @@ async function renderScene(index, useTransition = true) {
   const defaults = state.scenario.defaults || {};
   setBackground(scene.background ?? defaults.background ?? null);
   setCharacters(scene.characters || []);
-  elements.speaker.textContent = scene.speaker || "";
+  // イベントCGなど、話者情報を保持しつつ名前欄だけ隠す演出に対応します。
+  elements.speaker.textContent = scene.hideName ? "" : (scene.speaker || "");
   audioManager.playBgm(scene.bgm ?? defaults.bgm ?? null);
   audioManager.playSe(scene.se ?? null);
 
@@ -195,9 +196,16 @@ async function advanceStory() {
     return;
   }
 
+  // nextSceneId があれば章・場所をまたぐ明示的な遷移を優先します。
+  const currentScene = state.scenario.scenes[state.sceneIndex];
+  const linkedIndex = currentScene.nextSceneId
+    ? state.scenario.scenes.findIndex((scene) => scene.id === currentScene.nextSceneId)
+    : -1;
+  const nextIndex = linkedIndex >= 0 ? linkedIndex : state.sceneIndex + 1;
+
   // 全文表示後のタップで、次のセリフへ進みます。
-  if (state.sceneIndex < state.scenario.scenes.length - 1) {
-    state.sceneIndex += 1;
+  if (nextIndex < state.scenario.scenes.length) {
+    state.sceneIndex = nextIndex;
     await renderScene(state.sceneIndex);
     return;
   }
@@ -216,8 +224,12 @@ async function loadScenario() {
     }
 
     state.scenario = scenario;
-    state.sceneIndex = 0;
-    await renderScene(0, false);
+    const requestedSceneId = new URLSearchParams(window.location.search).get("scene");
+    const requestedIndex = requestedSceneId
+      ? scenario.scenes.findIndex((scene) => scene.id === requestedSceneId)
+      : -1;
+    state.sceneIndex = requestedIndex >= 0 ? requestedIndex : 0;
+    await renderScene(state.sceneIndex, false);
   } catch (error) {
     elements.dialogue.textContent = "シナリオを読み込めませんでした。";
     elements.error.textContent = "ローカルサーバー経由で開いてください。";

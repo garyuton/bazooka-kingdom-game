@@ -2,7 +2,7 @@
   "meta": {
     "id": "sample-conversation",
     "title": "バズーカ王国へようこそ",
-    "version": 1
+    "version": 2
   },
   "defaults": {
     "background": "assets/backgrounds/castle1.png",
@@ -48,6 +48,108 @@
       ],
       "speaker": "ガリュ㌧",
       "text": "「わしの名はガリュ㌧。」",
+      "se": null,
+      "choices": null
+    },
+    {
+      "id": "rain-rescue-01",
+      "background": "資産/イベント/rain_rescue.png?v=20260630",
+      "characters": [],
+      "speaker": "王妃",
+      "hideName": true,
+      "text": "「……今度の子は、どうでしょうね？」",
+      "se": null,
+      "choices": null
+    },
+    {
+      "id": "rain-rescue-02",
+      "background": "資産/イベント/rain_rescue.png?v=20260630",
+      "characters": [],
+      "speaker": "国王",
+      "hideName": true,
+      "text": "「分からぬ。」",
+      "se": null,
+      "choices": null
+    },
+    {
+      "id": "rain-rescue-03",
+      "background": "資産/イベント/rain_rescue.png?v=20260630",
+      "characters": [],
+      "speaker": "国王",
+      "hideName": true,
+      "text": "「だが。」",
+      "se": null,
+      "choices": null
+    },
+    {
+      "id": "rain-rescue-04",
+      "background": "資産/イベント/rain_rescue.png?v=20260630",
+      "characters": [],
+      "speaker": "国王",
+      "hideName": true,
+      "text": "「あの方の言葉を。」",
+      "se": null,
+      "choices": null
+    },
+    {
+      "id": "rain-rescue-05",
+      "background": "資産/イベント/rain_rescue.png?v=20260630",
+      "characters": [],
+      "speaker": "国王",
+      "hideName": true,
+      "text": "「信じよう。」",
+      "se": null,
+      "choices": null
+    },
+    {
+      "id": "rain-rescue-06",
+      "background": "資産/イベント/rain_rescue.png?v=20260630",
+      "characters": [],
+      "speaker": "ガリュ㌧",
+      "hideName": true,
+      "text": "「……その夜は、冷たい雨が石畳を打ちつけておった。」",
+      "se": null,
+      "choices": null
+    },
+    {
+      "id": "rain-rescue-07",
+      "background": "資産/イベント/rain_rescue.png?v=20260630",
+      "characters": [],
+      "speaker": "ガリュ㌧",
+      "hideName": true,
+      "text": "「まるで天が涙を流しておるかのようにな。」",
+      "se": null,
+      "choices": null
+    },
+    {
+      "id": "rain-rescue-08",
+      "background": "資産/イベント/rain_rescue.png?v=20260630",
+      "characters": [],
+      "speaker": "ガリュ㌧",
+      "hideName": true,
+      "text": "「巡幸の馬車が通りかかり、王と妃が見つけたのは、雨の中で倒れていた年端もいかぬ少年じゃった。」",
+      "se": null,
+      "choices": null
+    },
+    {
+      "id": "rain-rescue-09",
+      "background": "資産/イベント/rain_rescue.png?v=20260630",
+      "characters": [],
+      "speaker": "ガリュ㌧",
+      "hideName": true,
+      "text": "「これが、すべての始まりであった。」",
+      "nextSceneId": "servants-quarters-01",
+      "se": null,
+      "choices": null
+    },
+    {
+      "id": "servants-quarters-01",
+      "scene": "servants-quarters",
+      "background": "assets/backgrounds/servants-quarters.png",
+      "characters": [],
+      "speaker": "",
+      "hideName": true,
+      "text": "―― 下男宿舎 ――",
       "se": null,
       "choices": null
     }
