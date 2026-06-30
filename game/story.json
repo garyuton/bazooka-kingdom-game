@@ -169,7 +169,7 @@
     {
       "id": "scene3",
       "scene": "scene3",
-      "background": "../assets/bg/underground_corridor.png",
+      "background": "../assets/bg/servants_dormitory_morning.png?v=20260701",
       "characters": [],
       "speaker": "",
       "hideName": true,
