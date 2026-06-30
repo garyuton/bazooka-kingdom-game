@@ -171,9 +171,20 @@
       "scene": "scene3",
       "background": "../assets/bg/servants_dormitory_morning.png?v=20260701",
       "characters": [],
-      "speaker": "",
-      "hideName": true,
-      "text": "―― Scene3 ――",
+      "speaker": "ガリュ㌧",
+      "hideName": false,
+      "text": "「少年が目を覚ましたのは、城の下男宿舎じゃった。」",
+      "se": null,
+      "choices": null
+    },
+    {
+      "id": "scene3-02",
+      "scene": "scene3",
+      "background": "../assets/bg/servants_dormitory_morning.png?v=20260701",
+      "characters": [],
+      "speaker": "ガリュ㌧",
+      "hideName": false,
+      "text": "「豪華ではない。じゃが、雨風をしのげる屋根があり、温かい寝床があった。」",
       "se": null,
       "choices": null
     }
