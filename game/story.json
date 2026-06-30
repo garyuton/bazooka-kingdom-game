@@ -5,7 +5,7 @@
     "version": 2
   },
   "defaults": {
-    "background": "assets/backgrounds/castle1.png",
+    "background": "../assets/bg/castle_outside.png",
     "bgm": null
   },
   "scenes": [
@@ -15,7 +15,7 @@
         {
           "position": "center",
           "name": "ロマ子姫",
-          "src": "assets/characters/ROMACO-removebg-preview.png?v=20260628"
+          "src": "../assets/characters/romao.png?v=20260701"
         }
       ],
       "speaker": "ロマ子姫",
@@ -29,7 +29,7 @@
         {
           "position": "center",
           "name": "ロマ子姫",
-          "src": "assets/characters/ROMACO-removebg-preview.png?v=20260628"
+          "src": "../assets/characters/romao.png?v=20260701"
         }
       ],
       "speaker": "ロマ子姫",
@@ -53,7 +53,7 @@
     },
     {
       "id": "rain-rescue-01",
-      "background": "資産/イベント/rain_rescue.png?v=20260630-2",
+      "background": "../assets/cg/rescue_event.png?v=20260701",
       "characters": [],
       "speaker": "王妃",
       "hideName": true,
@@ -63,7 +63,7 @@
     },
     {
       "id": "rain-rescue-02",
-      "background": "資産/イベント/rain_rescue.png?v=20260630-2",
+      "background": "../assets/cg/rescue_event.png?v=20260701",
       "characters": [],
       "speaker": "国王",
       "hideName": true,
@@ -73,7 +73,7 @@
     },
     {
       "id": "rain-rescue-03",
-      "background": "資産/イベント/rain_rescue.png?v=20260630-2",
+      "background": "../assets/cg/rescue_event.png?v=20260701",
       "characters": [],
       "speaker": "国王",
       "hideName": true,
@@ -83,7 +83,7 @@
     },
     {
       "id": "rain-rescue-04",
-      "background": "資産/イベント/rain_rescue.png?v=20260630-2",
+      "background": "../assets/cg/rescue_event.png?v=20260701",
       "characters": [],
       "speaker": "国王",
       "hideName": true,
@@ -93,7 +93,7 @@
     },
     {
       "id": "rain-rescue-05",
-      "background": "資産/イベント/rain_rescue.png?v=20260630-2",
+      "background": "../assets/cg/rescue_event.png?v=20260701",
       "characters": [],
       "speaker": "国王",
       "hideName": true,
@@ -103,7 +103,7 @@
     },
     {
       "id": "rain-rescue-06",
-      "background": "資産/イベント/rain_rescue.png?v=20260630-2",
+      "background": "../assets/cg/rescue_event.png?v=20260701",
       "characters": [],
       "speaker": "ガリュ㌧",
       "hideName": true,
@@ -113,7 +113,7 @@
     },
     {
       "id": "rain-rescue-07",
-      "background": "資産/イベント/rain_rescue.png?v=20260630-2",
+      "background": "../assets/cg/rescue_event.png?v=20260701",
       "characters": [],
       "speaker": "ガリュ㌧",
       "hideName": true,
@@ -123,7 +123,7 @@
     },
     {
       "id": "rain-rescue-08",
-      "background": "資産/イベント/rain_rescue.png?v=20260630-2",
+      "background": "../assets/cg/rescue_event.png?v=20260701",
       "characters": [],
       "speaker": "ガリュ㌧",
       "hideName": true,
@@ -133,23 +133,47 @@
     },
     {
       "id": "rain-rescue-09",
-      "background": "資産/イベント/rain_rescue.png?v=20260630-2",
+      "background": "../assets/cg/rescue_event.png?v=20260701",
       "characters": [],
       "speaker": "ガリュ㌧",
       "hideName": true,
       "text": "「これが、すべての始まりであった。」",
-      "nextSceneId": "servants-quarters-01",
+      "nextSceneId": "castle-morning-01",
       "se": null,
       "choices": null
     },
     {
-      "id": "servants-quarters-01",
-      "scene": "servants-quarters",
-      "background": "assets/backgrounds/servants-quarters.png",
+      "id": "castle-morning-01",
+      "scene": "castle-morning",
+      "background": "../assets/bg/castle_outside.png?v=20260701",
+      "characters": [],
+      "speaker": "ガリュ㌧",
+      "hideName": true,
+      "text": "「その日、王国はいつもと変わらぬ朝を迎えておった。」",
+      "se": null,
+      "choices": null
+    },
+    {
+      "id": "castle-morning-02",
+      "scene": "castle-morning",
+      "background": "../assets/bg/castle_outside.png?v=20260701",
+      "characters": [],
+      "speaker": "ガリュ㌧",
+      "hideName": true,
+      "text": "「誰もまだ、この国の運命が大きく動き始めることを知らなかった。」",
+      "autoAdvanceMs": 3000,
+      "nextSceneId": "scene3",
+      "se": null,
+      "choices": null
+    },
+    {
+      "id": "scene3",
+      "scene": "scene3",
+      "background": "../assets/bg/underground_corridor.png",
       "characters": [],
       "speaker": "",
       "hideName": true,
-      "text": "―― 下男宿舎 ――",
+      "text": "―― Scene3 ――",
       "se": null,
       "choices": null
     }

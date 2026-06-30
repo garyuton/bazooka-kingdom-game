@@ -42,6 +42,7 @@ const state = {
   interactionId: 0,
   handledInteractionId: -1,
   typingTimer: null,
+  autoAdvanceTimer: null,
   fullText: "",
 };
 
@@ -70,6 +71,22 @@ const audioManager = {
 };
 
 const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+
+function clearAutoAdvance() {
+  clearTimeout(state.autoAdvanceTimer);
+  state.autoAdvanceTimer = null;
+}
+
+/** 全文表示後、JSONで指定された時間だけ待って次のシーンへ進みます。 */
+function scheduleAutoAdvance() {
+  clearAutoAdvance();
+  const scene = state.scenario?.scenes[state.sceneIndex];
+  if (!scene?.autoAdvanceMs) return;
+
+  state.autoAdvanceTimer = setTimeout(() => {
+    if (!state.isTyping && !state.isTransitioning) advanceStory();
+  }, scene.autoAdvanceMs);
+}
 
 function setBackground(source) {
   const requestId = ++backgroundRequestId;
@@ -119,11 +136,13 @@ function finishTyping() {
   state.isTyping = false;
   elements.dialogue.textContent = state.fullText;
   elements.advance.dataset.state = "ready";
+  scheduleAutoAdvance();
 }
 
 /** Unicode文字を1文字ずつ表示し、タイプライター演出を行います。 */
 function typeDialogue(text) {
   clearTimeout(state.typingTimer);
+  clearAutoAdvance();
   state.fullText = text;
   state.isTyping = true;
   elements.advance.dataset.state = "typing";
@@ -155,6 +174,7 @@ async function renderScene(index, useTransition = true) {
 
   state.isTransitioning = true;
   clearTimeout(state.typingTimer);
+  clearAutoAdvance();
 
   if (useTransition) {
     elements.fader.classList.add("is-dark");
@@ -189,6 +209,7 @@ async function renderScene(index, useTransition = true) {
 
 async function advanceStory() {
   if (state.isTransitioning || !state.scenario) return;
+  clearAutoAdvance();
 
   // 文字送り中の最初のタップは、現在のセリフを全文表示します。
   if (state.isTyping) {
