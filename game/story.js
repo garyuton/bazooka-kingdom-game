@@ -20,6 +20,7 @@ const elements = {
   fader: document.querySelector("#scene-fader"),
   advance: document.querySelector("#advance-layer"),
   speaker: document.querySelector("#speaker-name"),
+  narratorIcon: document.querySelector("#narrator-icon"),
   dialogue: document.querySelector("#dialogue-text"),
   error: document.querySelector("#error-message"),
   back: document.querySelector("#back-button"),
@@ -43,15 +44,23 @@ const state = {
   handledInteractionId: -1,
   typingTimer: null,
   autoAdvanceTimer: null,
+  seTimer: null,
   fullText: "",
 };
 
 /** BGMとSEを管理する小さな窓口。JSONにパスを指定すると再生できます。 */
 const audioManager = {
   bgm: new Audio(),
+  pendingSe: null,
 
   playBgm(source) {
-    if (!source || this.bgm.dataset.source === source) return;
+    if (!source) {
+      this.bgm.pause();
+      this.bgm.removeAttribute("src");
+      delete this.bgm.dataset.source;
+      return;
+    }
+    if (this.bgm.dataset.source === source) return;
     this.bgm.pause();
     this.bgm = new Audio(source);
     this.bgm.dataset.source = source;
@@ -66,7 +75,69 @@ const audioManager = {
     if (!source) return;
     const se = new Audio(source);
     se.volume = 0.8;
-    se.play().catch(() => {});
+    se.play().then(() => {
+      this.pendingSe = null;
+    }).catch(() => {
+      // 自動再生が制限された場合は、次のタップで再試行します。
+      this.pendingSe = source;
+    });
+  },
+
+  resumePendingSe() {
+    if (!this.pendingSe) return;
+    const source = this.pendingSe;
+    this.pendingSe = null;
+    this.playSe(source);
+  },
+};
+
+/** 雨などの環境音をBGMとは別にループ管理します。 */
+const ambienceManager = {
+  audio: new Audio(),
+  requestedSource: null,
+
+  prepare(source) {
+    if (!source) return;
+    if (this.audio.dataset.source !== source) {
+      this.stop();
+      this.audio = new Audio(source);
+      this.audio.dataset.source = source;
+      this.audio.loop = true;
+      this.audio.volume = 0;
+    }
+    this.audio.play().then(() => {
+      elements.game.dataset.ambienceState = "prepared";
+    }).catch(() => {
+      elements.game.dataset.ambienceState = "pending";
+    });
+  },
+
+  set(source) {
+    this.requestedSource = source || null;
+    elements.game.dataset.ambience = this.requestedSource || "none";
+    if (!this.requestedSource) {
+      this.stop();
+      return;
+    }
+
+    this.prepare(this.requestedSource);
+    this.audio.volume = 0.42;
+    if (!this.audio.paused) elements.game.dataset.ambienceState = "playing";
+  },
+
+  resume() {
+    if (!this.requestedSource || !this.audio.paused) return Promise.resolve();
+    return this.audio.play().then(() => {
+      this.audio.volume = 0.42;
+      elements.game.dataset.ambienceState = "playing";
+    });
+  },
+
+  stop() {
+    this.audio.pause();
+    this.audio.currentTime = 0;
+    this.audio.volume = 0;
+    elements.game.dataset.ambienceState = "stopped";
   },
 };
 
@@ -75,6 +146,11 @@ const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, mill
 function clearAutoAdvance() {
   clearTimeout(state.autoAdvanceTimer);
   state.autoAdvanceTimer = null;
+}
+
+function clearScheduledSe() {
+  clearTimeout(state.seTimer);
+  state.seTimer = null;
 }
 
 /** 全文表示後、JSONで指定された時間だけ待って次のシーンへ進みます。 */
@@ -94,6 +170,8 @@ function setBackground(source) {
 
   if (!source) {
     elements.background.style.backgroundImage = "none";
+    // background: null は意図的な黒画面として扱います。
+    elements.backgroundPlaceholder.classList.add("is-hidden");
     return;
   }
 
@@ -140,7 +218,7 @@ function finishTyping() {
 }
 
 /** Unicode文字を1文字ずつ表示し、タイプライター演出を行います。 */
-function typeDialogue(text) {
+function typeDialogue(text, interval = CONFIG.typeInterval) {
   clearTimeout(state.typingTimer);
   clearAutoAdvance();
   state.fullText = text;
@@ -161,7 +239,7 @@ function typeDialogue(text) {
       return;
     }
 
-    state.typingTimer = setTimeout(typeNext, CONFIG.typeInterval);
+    state.typingTimer = setTimeout(typeNext, interval);
   };
 
   typeNext();
@@ -175,19 +253,46 @@ async function renderScene(index, useTransition = true) {
   state.isTransitioning = true;
   clearTimeout(state.typingTimer);
   clearAutoAdvance();
+  clearScheduledSe();
+
+  const transitionDuration = scene.transitionDurationMs ?? CONFIG.transitionDuration;
 
   if (useTransition) {
+    elements.fader.style.transitionDuration = `${transitionDuration}ms`;
     elements.fader.classList.add("is-dark");
-    await wait(CONFIG.transitionDuration);
+    if (scene.revealOnly) {
+      // 黒画面を一度描画してから背景を差し替え、ゆっくり物語世界を現します。
+      await wait(50);
+    } else {
+      await wait(transitionDuration);
+    }
   }
 
   const defaults = state.scenario.defaults || {};
-  setBackground(scene.background ?? defaults.background ?? null);
+  const background = Object.hasOwn(scene, "background")
+    ? scene.background
+    : (defaults.background ?? null);
+  setBackground(background);
   setCharacters(scene.characters || []);
+  elements.narratorIcon.classList.toggle("is-visible", Boolean(scene.icon));
+  if (scene.icon) {
+    elements.narratorIcon.src = scene.icon;
+    elements.narratorIcon.alt = scene.iconAlt || "語り手";
+  } else {
+    elements.narratorIcon.removeAttribute("src");
+    elements.narratorIcon.alt = "";
+  }
   // イベントCGなど、話者情報を保持しつつ名前欄だけ隠す演出に対応します。
   elements.speaker.textContent = scene.hideName ? "" : (scene.speaker || "");
   audioManager.playBgm(scene.bgm ?? defaults.bgm ?? null);
-  audioManager.playSe(scene.se ?? null);
+  ambienceManager.set(scene.ambience ?? defaults.ambience ?? null);
+  if (scene.se) {
+    if (scene.seDelayMs) {
+      state.seTimer = setTimeout(() => audioManager.playSe(scene.se), scene.seDelayMs);
+    } else {
+      audioManager.playSe(scene.se);
+    }
+  }
 
   // choices はv0.3以降で選択肢UIへ渡すため、シーンデータに予約しています。
   elements.game.dataset.hasChoices = String(Boolean(scene.choices?.length));
@@ -199,11 +304,12 @@ async function renderScene(index, useTransition = true) {
   elements.fader.classList.remove("is-dark");
   // フェードイン完了までは入力を受けず、連続タップによる読み飛ばしを防ぎます。
   if (useTransition) {
-    await wait(CONFIG.transitionDuration);
+    await wait(transitionDuration);
+    elements.fader.style.removeProperty("transition-duration");
   }
 
   // 背景と立ち絵が見えてから文字送りを始めます。
-  typeDialogue(state.fullText);
+  typeDialogue(state.fullText, scene.typeInterval ?? CONFIG.typeInterval);
   state.isTransitioning = false;
 }
 
@@ -226,6 +332,8 @@ async function advanceStory() {
 
   // 全文表示後のタップで、次のセリフへ進みます。
   if (nextIndex < state.scenario.scenes.length) {
+    audioManager.playSe(currentScene.advanceSe ?? null);
+    ambienceManager.prepare(currentScene.advanceAmbience ?? null);
     state.sceneIndex = nextIndex;
     await renderScene(state.sceneIndex);
     return;
@@ -261,8 +369,12 @@ async function loadScenario() {
 // 1回のタップからclickが複数回届いても、シーンを1つだけ進めます。
 elements.advance.addEventListener("pointerdown", () => {
   state.interactionId += 1;
+  audioManager.resumePendingSe();
+  ambienceManager.resume().catch(() => {});
 });
 elements.advance.addEventListener("click", (event) => {
+  audioManager.resumePendingSe();
+  ambienceManager.resume().catch(() => {});
   // detail=0 はEnter/Spaceなどのキーボード操作です。
   if (event.detail === 0) state.interactionId += 1;
   if (state.handledInteractionId === state.interactionId) return;

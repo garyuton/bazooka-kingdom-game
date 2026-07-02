@@ -255,6 +255,28 @@ button { font: inherit; }
   .advance-layer { padding-bottom: max(36px, env(safe-area-inset-bottom)); }
 }
 
+/* 読み聞かせ場面では、立ち絵の代わりに語り手の小さなアイコンを添えます。 */
+.narrator-icon {
+  position: absolute;
+  top: 50%;
+  left: clamp(14px, 4vw, 26px);
+  display: none;
+  width: clamp(58px, 18vw, 86px);
+  height: clamp(58px, 18vw, 86px);
+  padding: 4px;
+  border: 1px solid rgba(216, 173, 82, 0.65);
+  border-radius: 50%;
+  object-fit: contain;
+  background: rgba(0, 0, 0, 0.55);
+  transform: translateY(-50%);
+}
+
+.narrator-icon.is-visible { display: block; }
+
+.dialogue-panel:has(.narrator-icon.is-visible) .dialogue-text {
+  padding-left: clamp(74px, 23vw, 106px);
+}
+
 @media (max-height: 560px) {
   .dialogue-panel { min-height: 135px; padding-top: 30px; }
 }
