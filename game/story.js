@@ -8,7 +8,7 @@
  */
 
 const CONFIG = {
-  scenarioUrl: "story.json",
+  scenarioUrl: "story.json?v=20260703",
   typeInterval: 38,
   transitionDuration: 420,
 };
