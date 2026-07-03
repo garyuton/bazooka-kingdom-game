@@ -8,7 +8,7 @@
  */
 
 const CONFIG = {
-  scenarioUrl: "story.json?v=20260703",
+  scenarioUrl: "story.json?v=20260704",
   typeInterval: 38,
   transitionDuration: 420,
 };
@@ -17,13 +17,21 @@ const elements = {
   game: document.querySelector("#novel-game"),
   background: document.querySelector("#background-layer"),
   backgroundPlaceholder: document.querySelector("#background-placeholder"),
+  characterLayer: document.querySelector("#character-layer"),
+  effect: document.querySelector("#scene-effect"),
   fader: document.querySelector("#scene-fader"),
   advance: document.querySelector("#advance-layer"),
   speaker: document.querySelector("#speaker-name"),
   narratorIcon: document.querySelector("#narrator-icon"),
   dialogue: document.querySelector("#dialogue-text"),
+  dialoguePanel: document.querySelector(".dialogue-panel"),
   error: document.querySelector("#error-message"),
   back: document.querySelector("#back-button"),
+  nameEntry: document.querySelector("#name-entry"),
+  nameEntryForm: document.querySelector("#name-entry-form"),
+  playerNameInput: document.querySelector("#player-name-input"),
+  chapterEnd: document.querySelector("#chapter-end"),
+  chapterEndBack: document.querySelector("#chapter-end-back"),
   characterPlaceholder: document.querySelector("#character-placeholder"),
   characterPlaceholderName: document.querySelector("#character-placeholder-name"),
   characters: {
@@ -46,6 +54,10 @@ const state = {
   autoAdvanceTimer: null,
   seTimer: null,
   fullText: "",
+  currentLogicalScene: null,
+  variables: {
+    playerName: "ガリュウ",
+  },
 };
 
 /** BGMとSEを管理する小さな窓口。JSONにパスを指定すると再生できます。 */
@@ -153,6 +165,47 @@ function clearScheduledSe() {
   state.seTimer = null;
 }
 
+function formatText(value = "") {
+  return String(value).replaceAll("{playerName}", state.variables.playerName);
+}
+
+function setNarratorIcon(source, alt = "ガリュ㌧") {
+  elements.narratorIcon.classList.toggle("is-visible", Boolean(source));
+  if (source) {
+    elements.narratorIcon.src = source;
+    elements.narratorIcon.alt = alt;
+  } else {
+    elements.narratorIcon.removeAttribute("src");
+    elements.narratorIcon.alt = "";
+  }
+}
+
+function setSceneEffect(effect, characterGlow = false) {
+  elements.effect.className = "scene-effect";
+  if (effect) elements.effect.classList.add(`is-${effect}`);
+  elements.characterLayer.classList.toggle("has-glow", characterGlow);
+}
+
+function getNextIndex(scene) {
+  const linkedIndex = scene.nextSceneId
+    ? state.scenario.scenes.findIndex((item) => item.id === scene.nextSceneId)
+    : -1;
+  return linkedIndex >= 0 ? linkedIndex : state.sceneIndex + 1;
+}
+
+function showNameEntry() {
+  elements.dialoguePanel.classList.add("is-hidden");
+  elements.nameEntry.hidden = false;
+  elements.playerNameInput.value = state.variables.playerName;
+  elements.playerNameInput.focus();
+}
+
+function showChapterEnd() {
+  elements.dialoguePanel.classList.add("is-hidden");
+  elements.back.hidden = true;
+  elements.chapterEnd.hidden = false;
+}
+
 /** 全文表示後、JSONで指定された時間だけ待って次のシーンへ進みます。 */
 function scheduleAutoAdvance() {
   clearAutoAdvance();
@@ -250,6 +303,9 @@ async function renderScene(index, useTransition = true) {
   const scene = state.scenario.scenes[index];
   if (!scene) return;
 
+  const logicalScene = scene.scene || scene.id;
+  const isNewLogicalScene = state.currentLogicalScene !== logicalScene;
+
   state.isTransitioning = true;
   clearTimeout(state.typingTimer);
   clearAutoAdvance();
@@ -269,23 +325,37 @@ async function renderScene(index, useTransition = true) {
   }
 
   const defaults = state.scenario.defaults || {};
-  const background = Object.hasOwn(scene, "background")
-    ? scene.background
-    : (defaults.background ?? null);
-  setBackground(background);
-  setCharacters(scene.characters || []);
-  elements.narratorIcon.classList.toggle("is-visible", Boolean(scene.icon));
-  if (scene.icon) {
-    elements.narratorIcon.src = scene.icon;
-    elements.narratorIcon.alt = scene.iconAlt || "語り手";
-  } else {
-    elements.narratorIcon.removeAttribute("src");
-    elements.narratorIcon.alt = "";
+  if (isNewLogicalScene) {
+    setCharacters([]);
+    setNarratorIcon(null);
+    setSceneEffect(null, false);
   }
+  state.currentLogicalScene = logicalScene;
+
+  if (Object.hasOwn(scene, "background")) {
+    setBackground(scene.background);
+  } else if (isNewLogicalScene) {
+    setBackground(defaults.background ?? null);
+  }
+  if (Object.hasOwn(scene, "characters")) setCharacters(scene.characters || []);
+  if (Object.hasOwn(scene, "icon")) setNarratorIcon(scene.icon, scene.iconAlt);
+  if (Object.hasOwn(scene, "effect") || Object.hasOwn(scene, "characterGlow")) {
+    setSceneEffect(scene.effect || null, Boolean(scene.characterGlow));
+  }
+
+  elements.back.hidden = logicalScene === "scene000";
   // イベントCGなど、話者情報を保持しつつ名前欄だけ隠す演出に対応します。
-  elements.speaker.textContent = scene.hideName ? "" : (scene.speaker || "");
-  audioManager.playBgm(scene.bgm ?? defaults.bgm ?? null);
-  ambienceManager.set(scene.ambience ?? defaults.ambience ?? null);
+  elements.speaker.textContent = scene.hideName ? "" : formatText(scene.speaker || "");
+  if (Object.hasOwn(scene, "bgm")) {
+    audioManager.playBgm(scene.bgm);
+  } else if (isNewLogicalScene) {
+    audioManager.playBgm(defaults.bgm ?? null);
+  }
+  if (Object.hasOwn(scene, "ambience")) {
+    ambienceManager.set(scene.ambience);
+  } else if (isNewLogicalScene) {
+    ambienceManager.set(defaults.ambience ?? null);
+  }
   if (scene.se) {
     if (scene.seDelayMs) {
       state.seTimer = setTimeout(() => audioManager.playSe(scene.se), scene.seDelayMs);
@@ -296,7 +366,7 @@ async function renderScene(index, useTransition = true) {
 
   // choices はv0.3以降で選択肢UIへ渡すため、シーンデータに予約しています。
   elements.game.dataset.hasChoices = String(Boolean(scene.choices?.length));
-  state.fullText = scene.text || "";
+  state.fullText = formatText(scene.text || "");
   state.isTyping = false;
   elements.dialogue.textContent = "";
   elements.advance.dataset.state = "transitioning";
@@ -308,7 +378,24 @@ async function renderScene(index, useTransition = true) {
     elements.fader.style.removeProperty("transition-duration");
   }
 
+  if (scene.startDelayMs) {
+    elements.dialoguePanel.classList.add("is-hidden");
+    await wait(scene.startDelayMs);
+  }
+
+  if (scene.action === "nameInput") {
+    state.isTransitioning = false;
+    showNameEntry();
+    return;
+  }
+  if (scene.action === "chapterEnd") {
+    state.isTransitioning = false;
+    showChapterEnd();
+    return;
+  }
+
   // 背景と立ち絵が見えてから文字送りを始めます。
+  elements.dialoguePanel.classList.remove("is-hidden");
   typeDialogue(state.fullText, scene.typeInterval ?? CONFIG.typeInterval);
   state.isTransitioning = false;
 }
@@ -325,17 +412,17 @@ async function advanceStory() {
 
   // nextSceneId があれば章・場所をまたぐ明示的な遷移を優先します。
   const currentScene = state.scenario.scenes[state.sceneIndex];
-  const linkedIndex = currentScene.nextSceneId
-    ? state.scenario.scenes.findIndex((scene) => scene.id === currentScene.nextSceneId)
-    : -1;
-  const nextIndex = linkedIndex >= 0 ? linkedIndex : state.sceneIndex + 1;
+  if (currentScene.action) return;
+  const nextIndex = getNextIndex(currentScene);
 
   // 全文表示後のタップで、次のセリフへ進みます。
   if (nextIndex < state.scenario.scenes.length) {
     audioManager.playSe(currentScene.advanceSe ?? null);
     ambienceManager.prepare(currentScene.advanceAmbience ?? null);
     state.sceneIndex = nextIndex;
-    await renderScene(state.sceneIndex);
+    const nextScene = state.scenario.scenes[nextIndex];
+    const changesLogicalScene = (nextScene.scene || nextScene.id) !== (currentScene.scene || currentScene.id);
+    await renderScene(state.sceneIndex, changesLogicalScene || Boolean(currentScene.forceTransition));
     return;
   }
 
@@ -383,6 +470,22 @@ elements.advance.addEventListener("click", (event) => {
 });
 elements.back.addEventListener("click", () => {
   window.location.href = "index.html";
+});
+elements.chapterEndBack.addEventListener("click", () => {
+  window.location.href = "index.html";
+});
+elements.nameEntryForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const enteredName = elements.playerNameInput.value.trim() || "ガリュウ";
+  state.variables.playerName = enteredName;
+  localStorage.setItem("bazookaKingdom.playerName", enteredName);
+  elements.nameEntry.hidden = true;
+
+  const currentScene = state.scenario.scenes[state.sceneIndex];
+  const nextIndex = getNextIndex(currentScene);
+  if (nextIndex >= state.scenario.scenes.length) return;
+  state.sceneIndex = nextIndex;
+  await renderScene(nextIndex, false);
 });
 
 // 画像が存在しない場合は、その立ち絵だけを非表示にします。

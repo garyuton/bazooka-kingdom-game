@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#000000">
   <meta name="description" content="バズーカ王国物語 ノベルゲーム画面">
   <title>物語｜バズーカ王国物語</title>
-  <link rel="stylesheet" href="story.css?v=20260703">
+  <link rel="stylesheet" href="story.css?v=20260704">
 </head>
 <body>
   <main id="novel-game" class="novel-game" aria-label="ノベルゲーム">
@@ -27,6 +27,8 @@
       </div>
     </div>
 
+    <div id="scene-effect" class="scene-effect" aria-hidden="true"></div>
+
     <div id="scene-fader" class="scene-fader" aria-hidden="true"></div>
 
     <header class="game-controls">
@@ -44,8 +46,25 @@
     </button>
 
     <p id="error-message" class="error-message" role="alert"></p>
+
+    <section id="name-entry" class="modal-overlay" hidden aria-labelledby="name-entry-title">
+      <form id="name-entry-form" class="modal-card">
+        <h2 id="name-entry-title">主人公の名前を入力してください</h2>
+        <input id="player-name-input" name="playerName" type="text" value="ガリュウ" maxlength="12" autocomplete="off">
+        <button type="submit">決定</button>
+      </form>
+    </section>
+
+    <section id="chapter-end" class="chapter-end" hidden aria-labelledby="chapter-end-title">
+      <div class="chapter-end__card">
+        <h2 id="chapter-end-title">第一章 完</h2>
+        <p>次章へつづく</p>
+        <button id="chapter-end-back" type="button">タイトルへ戻る</button>
+        <small>第二章は未実装です</small>
+      </div>
+    </section>
   </main>
 
-  <script src="story.js?v=20260703"></script>
+  <script src="story.js?v=20260704"></script>
 </body>
 </html>

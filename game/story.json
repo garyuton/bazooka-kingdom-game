@@ -1,298 +1,722 @@
 {
   "meta": {
-    "id": "sample-conversation",
-    "title": "バズーカ王国へようこそ",
-    "version": 2
+    "id": "bazooka-kingdom-complete-chapter-1",
+    "title": "バズーカ王国物語 Complete Edition 第一章 雨の日の朝",
+    "version": 3
   },
   "defaults": {
-    "background": "../assets/bg/castle_outside.png",
-    "bgm": null
+    "background": null,
+    "bgm": null,
+    "ambience": null
   },
   "scenes": [
     {
-      "id": "scene-000-01",
-      "scene": "scene-000",
-      "background": null,
-      "characters": [],
-      "icon": "../assets/characters/garyuton.png?v=20260702",
-      "iconAlt": "ガリュ㌧",
-      "speaker": "",
-      "hideName": true,
+      "id": "scene000-01",
+      "scene": "scene000",
       "text": "わし、ガリュ㌧。",
-      "typeInterval": 72,
+      "speaker": "",
+      "hideName": true,
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧",
+      "background": null,
+      "characters": [],
       "bgm": null,
       "ambience": null,
+      "startDelayMs": 2000,
+      "typeInterval": 72,
       "se": "../assets/se/page_turn.wav?v=20260703",
-      "seDelayMs": 2000,
-      "choices": null
+      "seDelayMs": 2000
     },
     {
-      "id": "scene-000-02",
-      "scene": "scene-000",
-      "background": null,
-      "characters": [],
-      "icon": "../assets/characters/garyuton.png?v=20260702",
-      "iconAlt": "ガリュ㌧",
+      "id": "scene000-02",
+      "scene": "scene000",
+      "text": "今日は、ひとつの昔話を聞かせよう。",
       "speaker": "",
       "hideName": true,
-      "text": "今日は、ひとつの物語を語ろう。",
-      "typeInterval": 72,
-      "bgm": null,
-      "ambience": null,
-      "se": null,
-      "choices": null
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧",
+      "typeInterval": 65
     },
     {
-      "id": "scene-000-03",
-      "scene": "scene-000",
-      "background": null,
-      "characters": [],
-      "icon": "../assets/characters/garyuton.png?v=20260702",
-      "iconAlt": "ガリュ㌧",
-      "speaker": "",
-      "hideName": true,
+      "id": "scene000-03",
+      "scene": "scene000",
       "text": "これは、ずっと昔のお話じゃ。",
-      "typeInterval": 72,
-      "bgm": null,
-      "ambience": null,
-      "se": null,
-      "choices": null
-    },
-    {
-      "id": "scene-000-04",
-      "scene": "scene-000",
-      "background": null,
-      "characters": [],
-      "icon": "../assets/characters/garyuton.png?v=20260702",
-      "iconAlt": "ガリュ㌧",
       "speaker": "",
       "hideName": true,
-      "text": "よければ、少しだけ耳を貸してくれんかの。",
-      "typeInterval": 72,
-      "bgm": null,
-      "ambience": null,
-      "se": null,
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧",
+      "typeInterval": 65
+    },
+    {
+      "id": "scene000-04",
+      "scene": "scene000",
+      "text": "さぁ、ページをめくろうかの。",
+      "speaker": "",
+      "hideName": true,
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧",
+      "typeInterval": 65,
       "advanceSe": "../assets/se/page_turn.wav?v=20260703",
       "advanceAmbience": "../assets/se/rain_loop.wav?v=20260703",
-      "nextSceneId": "chapter1-opening-01",
-      "choices": null
+      "nextSceneId": "scene001-01"
     },
     {
-      "id": "chapter1-opening-01",
-      "scene": "chapter1-opening",
-      "background": "../assets/bg/castle_exterior_rain.png?v=20260703",
+      "id": "scene001-01",
+      "scene": "scene001",
+      "text": "あの日も、こんな雨じゃった。",
+      "speaker": "",
+      "hideName": true,
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧",
+      "background": "../assets/bg/castle_outside.png?v=20260704",
       "characters": [],
-      "speaker": "ガリュ㌧",
-      "text": "「あの日、冷たい雨が王国を包んでおった。」",
+      "bgm": null,
+      "ambience": "../assets/se/rain_loop.wav?v=20260703",
+      "startDelayMs": 5000,
       "transitionDurationMs": 3000,
-      "revealOnly": true,
-      "bgm": null,
-      "ambience": "../assets/se/rain_loop.wav?v=20260703",
-      "se": null,
-      "choices": null
+      "revealOnly": true
     },
     {
-      "id": "chapter1-opening-02",
-      "scene": "chapter1-opening",
-      "background": "../assets/bg/castle_exterior_rain.png?v=20260703",
-      "characters": [],
-      "speaker": "ガリュ㌧",
-      "text": "「誰もまだ、この雨が一人の少年の運命を変えるとは知らなかった。」",
-      "bgm": null,
-      "ambience": "../assets/se/rain_loop.wav?v=20260703",
-      "se": null,
-      "choices": null
-    },
-    {
-      "id": "chapter1-opening-03",
-      "scene": "chapter1-opening",
-      "background": "../assets/bg/castle_exterior_rain.png?v=20260703",
-      "characters": [],
-      "speaker": "ガリュ㌧",
-      "text": "「そして、王の巡幸が始まる。」",
-      "bgm": null,
-      "ambience": "../assets/se/rain_loop.wav?v=20260703",
-      "se": null,
-      "choices": null
-    },
-    {
-      "id": "welcome-01",
-      "characters": [
-        {
-          "position": "center",
-          "name": "ロマ子姫",
-          "src": "../assets/characters/romao.png?v=20260701"
-        }
-      ],
-      "speaker": "ロマ子姫",
-      "text": "「ようこそ、バズーカ王国へ。」",
-      "se": null,
-      "choices": null
-    },
-    {
-      "id": "welcome-02",
-      "characters": [
-        {
-          "position": "center",
-          "name": "ロマ子姫",
-          "src": "../assets/characters/romao.png?v=20260701"
-        }
-      ],
-      "speaker": "ロマ子姫",
-      "text": "「あなたがガリュ㌧ですね。」",
-      "se": null,
-      "choices": null
-    },
-    {
-      "id": "welcome-03",
-      "characters": [
-        {
-          "position": "center",
-          "name": "ガリュ㌧",
-          "src": "../assets/characters/garyuton.png"
-        }
-      ],
-      "speaker": "ガリュ㌧",
-      "text": "「わしの名はガリュ㌧。」",
-      "se": null,
-      "choices": null
-    },
-    {
-      "id": "rain-rescue-01",
-      "background": "../assets/cg/rescue_event.png?v=20260701",
-      "characters": [],
-      "speaker": "王妃",
+      "id": "scene001-02",
+      "scene": "scene001",
+      "text": "冷たい雨が、王都を静かに包んでおった。",
+      "speaker": "",
       "hideName": true,
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧"
+    },
+    {
+      "id": "scene001-03",
+      "scene": "scene001",
+      "text": "誰もまだ、この雨が一人の少年の運命を変えるとは知らなんだ。",
+      "speaker": "",
+      "hideName": true,
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧",
+      "forceTransition": true,
+      "nextSceneId": "scene002-01"
+    },
+    {
+      "id": "scene002-01",
+      "scene": "scene002",
       "text": "「……今度の子は、どうでしょうね？」",
-      "se": null,
-      "choices": null
+      "background": "../assets/cg/rain_rescue.png?v=20260704",
+      "characters": [],
+      "icon": null,
+      "speaker": "王妃",
+      "bgm": null,
+      "ambience": "../assets/se/rain_loop.wav?v=20260703"
     },
     {
-      "id": "rain-rescue-02",
-      "background": "../assets/cg/rescue_event.png?v=20260701",
-      "characters": [],
-      "speaker": "国王",
-      "hideName": true,
+      "id": "scene002-02",
+      "scene": "scene002",
       "text": "「分からぬ。」",
-      "se": null,
-      "choices": null
+      "speaker": "国王"
     },
     {
-      "id": "rain-rescue-03",
-      "background": "../assets/cg/rescue_event.png?v=20260701",
-      "characters": [],
-      "speaker": "国王",
-      "hideName": true,
+      "id": "scene002-03",
+      "scene": "scene002",
       "text": "「だが。」",
-      "se": null,
-      "choices": null
+      "speaker": "国王"
     },
     {
-      "id": "rain-rescue-04",
-      "background": "../assets/cg/rescue_event.png?v=20260701",
-      "characters": [],
-      "speaker": "国王",
-      "hideName": true,
+      "id": "scene002-04",
+      "scene": "scene002",
       "text": "「あの方の言葉を。」",
-      "se": null,
-      "choices": null
+      "speaker": "国王"
     },
     {
-      "id": "rain-rescue-05",
-      "background": "../assets/cg/rescue_event.png?v=20260701",
-      "characters": [],
-      "speaker": "国王",
-      "hideName": true,
+      "id": "scene002-05",
+      "scene": "scene002",
       "text": "「信じよう。」",
-      "se": null,
-      "choices": null
+      "speaker": "国王"
     },
     {
-      "id": "rain-rescue-06",
-      "background": "../assets/cg/rescue_event.png?v=20260701",
-      "characters": [],
-      "speaker": "ガリュ㌧",
+      "id": "scene002-06",
+      "scene": "scene002",
+      "text": "こうして、名もなき少年は王城へ連れて行かれたのじゃ。",
+      "speaker": "",
       "hideName": true,
-      "text": "「……その夜は、冷たい雨が石畳を打ちつけておった。」",
-      "se": null,
-      "choices": null
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧"
     },
     {
-      "id": "rain-rescue-07",
-      "background": "../assets/cg/rescue_event.png?v=20260701",
-      "characters": [],
-      "speaker": "ガリュ㌧",
+      "id": "scene002-07",
+      "scene": "scene002",
+      "text": "人々はそれを、王の慈悲と呼んだ。",
+      "speaker": "",
       "hideName": true,
-      "text": "「まるで天が涙を流しておるかのようにな。」",
-      "se": null,
-      "choices": null
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧"
     },
     {
-      "id": "rain-rescue-08",
-      "background": "../assets/cg/rescue_event.png?v=20260701",
-      "characters": [],
-      "speaker": "ガリュ㌧",
+      "id": "scene002-08",
+      "scene": "scene002",
+      "text": "じゃが、その奥には、ひとつの古き約束があったのじゃ。",
+      "speaker": "",
       "hideName": true,
-      "text": "「巡幸の馬車が通りかかり、王と妃が見つけたのは、雨の中で倒れていた年端もいかぬ少年じゃった。」",
-      "se": null,
-      "choices": null
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧",
+      "forceTransition": true,
+      "nextSceneId": "scene003-01"
     },
     {
-      "id": "rain-rescue-09",
-      "background": "../assets/cg/rescue_event.png?v=20260701",
-      "characters": [],
-      "speaker": "ガリュ㌧",
+      "id": "scene003-01",
+      "scene": "scene003",
+      "text": "少年が目を覚ましたのは、城の下男宿舎じゃった。",
+      "speaker": "",
       "hideName": true,
-      "text": "「これが、すべての始まりであった。」",
-      "nextSceneId": "castle-morning-01",
-      "se": null,
-      "choices": null
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧",
+      "background": "../assets/bg/servants_dormitory_morning.png?v=20260704",
+      "characters": [],
+      "bgm": null,
+      "ambience": null
     },
     {
-      "id": "castle-morning-01",
-      "scene": "castle-morning",
-      "background": "../assets/bg/castle_outside.png?v=20260701",
-      "characters": [],
-      "speaker": "ガリュ㌧",
+      "id": "scene003-02",
+      "scene": "scene003",
+      "text": "豪華ではない。",
+      "speaker": "",
       "hideName": true,
-      "text": "「その日、王国はいつもと変わらぬ朝を迎えておった。」",
-      "se": null,
-      "choices": null
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧"
     },
     {
-      "id": "castle-morning-02",
-      "scene": "castle-morning",
-      "background": "../assets/bg/castle_outside.png?v=20260701",
-      "characters": [],
-      "speaker": "ガリュ㌧",
+      "id": "scene003-03",
+      "scene": "scene003",
+      "text": "じゃが、雨風をしのげる屋根があり、温かい寝床があった。",
+      "speaker": "",
       "hideName": true,
-      "text": "「誰もまだ、この国の運命が大きく動き始めることを知らなかった。」",
-      "autoAdvanceMs": 3000,
-      "nextSceneId": "scene3",
-      "se": null,
-      "choices": null
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧"
     },
     {
-      "id": "scene3",
-      "scene": "scene3",
-      "background": "../assets/bg/servants_dormitory_morning.png?v=20260701",
-      "characters": [],
-      "speaker": "ガリュ㌧",
-      "hideName": false,
-      "text": "「少年が目を覚ましたのは、城の下男宿舎じゃった。」",
-      "se": null,
-      "choices": null
+      "id": "scene003-04",
+      "scene": "scene003",
+      "text": "孤児であった少年にとっては、それだけで十分すぎる場所じゃった。",
+      "speaker": "",
+      "hideName": true,
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧"
     },
     {
-      "id": "scene3-02",
-      "scene": "scene3",
-      "background": "../assets/bg/servants_dormitory_morning.png?v=20260701",
+      "id": "scene003-05",
+      "scene": "scene003",
+      "text": "「起きたか。」",
+      "speaker": "下男A",
+      "icon": null
+    },
+    {
+      "id": "scene003-06",
+      "scene": "scene003",
+      "text": "「ほら、朝飯。」",
+      "speaker": "下男B"
+    },
+    {
+      "id": "scene003-07",
+      "scene": "scene003",
+      "text": "「冷める前に食えよ。」",
+      "speaker": "下男B"
+    },
+    {
+      "id": "scene003-08-name",
+      "scene": "scene003",
+      "text": "",
+      "speaker": "",
+      "action": "nameInput"
+    },
+    {
+      "id": "scene003-09",
+      "scene": "scene003",
+      "text": "「{playerName}か。」",
+      "speaker": "下男A"
+    },
+    {
+      "id": "scene003-10",
+      "scene": "scene003",
+      "text": "「今日からお前も仲間だ。」",
+      "speaker": "下男A"
+    },
+    {
+      "id": "scene003-11",
+      "scene": "scene003",
+      "text": "「よろしくな、{playerName}！」",
+      "speaker": "下男B"
+    },
+    {
+      "id": "scene003-12",
+      "scene": "scene003",
+      "text": "「……はい。」",
+      "speaker": "主人公"
+    },
+    {
+      "id": "scene003-13",
+      "scene": "scene003",
+      "text": "この短い返事から、少年の新しい日々が始まったのじゃ。",
+      "speaker": "",
+      "hideName": true,
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧",
+      "forceTransition": true,
+      "nextSceneId": "scene004-01"
+    },
+    {
+      "id": "scene004-01",
+      "scene": "scene004",
+      "text": "少年はよく働いた。",
+      "speaker": "",
+      "hideName": true,
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧",
+      "background": "../assets/bg/servants_dormitory_morning.png?v=20260704",
       "characters": [],
-      "speaker": "ガリュ㌧",
-      "hideName": false,
-      "text": "「豪華ではない。じゃが、雨風をしのげる屋根があり、温かい寝床があった。」",
-      "se": null,
-      "choices": null
+      "bgm": null,
+      "ambience": null
+    },
+    {
+      "id": "scene004-02",
+      "scene": "scene004",
+      "text": "掃除。",
+      "speaker": "",
+      "hideName": true,
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧"
+    },
+    {
+      "id": "scene004-03",
+      "scene": "scene004",
+      "text": "薪運び。",
+      "speaker": "",
+      "hideName": true,
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧"
+    },
+    {
+      "id": "scene004-04",
+      "scene": "scene004",
+      "text": "馬小屋の世話。",
+      "speaker": "",
+      "hideName": true,
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧"
+    },
+    {
+      "id": "scene004-05",
+      "scene": "scene004",
+      "text": "できることは多くなかったが、それでも毎日を懸命に生きておった。",
+      "speaker": "",
+      "hideName": true,
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧"
+    },
+    {
+      "id": "scene004-06",
+      "scene": "scene004",
+      "text": "誰かの役に立つ。",
+      "speaker": "",
+      "hideName": true,
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧"
+    },
+    {
+      "id": "scene004-07",
+      "scene": "scene004",
+      "text": "それは、少年にとって初めて知る喜びでもあった。",
+      "speaker": "",
+      "hideName": true,
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧"
+    },
+    {
+      "id": "scene004-08",
+      "scene": "scene004",
+      "text": "「おい、{playerName}！」",
+      "speaker": "下男A",
+      "icon": null
+    },
+    {
+      "id": "scene004-09",
+      "scene": "scene004",
+      "text": "「今日も助かったぞ。」",
+      "speaker": "下男A"
+    },
+    {
+      "id": "scene004-10",
+      "scene": "scene004",
+      "text": "「……ありがとうございます。」",
+      "speaker": "主人公"
+    },
+    {
+      "id": "scene004-11",
+      "scene": "scene004",
+      "text": "「お前、口数は少ないけど根性あるよな。」",
+      "speaker": "下男B"
+    },
+    {
+      "id": "scene004-12",
+      "scene": "scene004",
+      "text": "「ま、下男としては合格だ。」",
+      "speaker": "下男A"
+    },
+    {
+      "id": "scene004-13",
+      "scene": "scene004",
+      "text": "「……はい。」",
+      "speaker": "主人公",
+      "nextSceneId": "scene005-01"
+    },
+    {
+      "id": "scene005-01",
+      "scene": "scene005",
+      "text": "「よお、お前ら！」",
+      "background": "../assets/bg/servants_dormitory_morning.png?v=20260704",
+      "characters": [
+        {
+          "position": "center",
+          "name": "ロマオ",
+          "src": "../assets/characters/romao.png?v=20260704"
+        }
+      ],
+      "icon": null,
+      "speaker": "ロマオ",
+      "bgm": null,
+      "ambience": null
+    },
+    {
+      "id": "scene005-02",
+      "scene": "scene005",
+      "text": "「ロマオ王子！」",
+      "speaker": "下男A"
+    },
+    {
+      "id": "scene005-03",
+      "scene": "scene005",
+      "text": "「旅の準備をしていてな。」",
+      "speaker": "ロマオ"
+    },
+    {
+      "id": "scene005-04",
+      "scene": "scene005",
+      "text": "「地下から荷を運び出したいんだが、人手が足りない。」",
+      "speaker": "ロマオ"
+    },
+    {
+      "id": "scene005-05",
+      "scene": "scene005",
+      "text": "「お任せください！」",
+      "speaker": "下男B"
+    },
+    {
+      "id": "scene005-06",
+      "scene": "scene005",
+      "text": "「助かる。」",
+      "speaker": "ロマオ"
+    },
+    {
+      "id": "scene005-07",
+      "scene": "scene005",
+      "text": "「ん？」",
+      "speaker": "ロマオ"
+    },
+    {
+      "id": "scene005-08",
+      "scene": "scene005",
+      "text": "「{playerName}、お前も来るか？」",
+      "speaker": "ロマオ"
+    },
+    {
+      "id": "scene005-09",
+      "scene": "scene005",
+      "text": "「……はい。」",
+      "speaker": "主人公"
+    },
+    {
+      "id": "scene005-10",
+      "scene": "scene005",
+      "text": "「よし。じゃあ頼んだ。」",
+      "speaker": "ロマオ"
+    },
+    {
+      "id": "scene005-11",
+      "scene": "scene005",
+      "text": "軽い一言じゃった。",
+      "speaker": "",
+      "hideName": true,
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧"
+    },
+    {
+      "id": "scene005-12",
+      "scene": "scene005",
+      "text": "じゃが、その一言が、少年を運命の地下へ導くことになるのじゃ。",
+      "speaker": "",
+      "hideName": true,
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧",
+      "forceTransition": true,
+      "nextSceneId": "scene006-01"
+    },
+    {
+      "id": "scene006-01",
+      "scene": "scene006",
+      "text": "「こっちだ！」",
+      "background": "../assets/bg/underground_corridor.png?v=20260704",
+      "characters": [],
+      "icon": null,
+      "speaker": "下男A",
+      "bgm": null,
+      "ambience": null,
+      "startDelayMs": 3000
+    },
+    {
+      "id": "scene006-02",
+      "scene": "scene006",
+      "text": "「遅れるなよ！」",
+      "speaker": "下男B"
+    },
+    {
+      "id": "scene006-03",
+      "scene": "scene006",
+      "text": "「……はい。」",
+      "speaker": "主人公"
+    },
+    {
+      "id": "scene006-04",
+      "scene": "scene006",
+      "text": "「荷は奥だ！」",
+      "speaker": "下男A",
+      "effect": "dim"
+    },
+    {
+      "id": "scene006-05",
+      "scene": "scene006",
+      "text": "「急げ急げ！」",
+      "speaker": "下男B"
+    },
+    {
+      "id": "scene006-06",
+      "scene": "scene006",
+      "text": "「……あれ？」",
+      "speaker": "主人公"
+    },
+    {
+      "id": "scene006-07",
+      "scene": "scene006",
+      "text": "「みんな……？」",
+      "speaker": "主人公"
+    },
+    {
+      "id": "scene006-08",
+      "scene": "scene006",
+      "text": "地下は冷たく、暗かった。",
+      "speaker": "",
+      "hideName": true,
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧",
+      "startDelayMs": 2000
+    },
+    {
+      "id": "scene006-09",
+      "scene": "scene006",
+      "text": "水滴の音だけが、やけに大きく響いておった。",
+      "speaker": "",
+      "hideName": true,
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧"
+    },
+    {
+      "id": "scene006-10",
+      "scene": "scene006",
+      "text": "まったく、わしが見ていても、ぞっとするほどの孤独じゃった。",
+      "speaker": "",
+      "hideName": true,
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧"
+    },
+    {
+      "id": "scene006-11",
+      "scene": "scene006",
+      "text": "「……だ、誰か……」",
+      "speaker": "主人公",
+      "icon": null,
+      "nextSceneId": "scene007-01"
+    },
+    {
+      "id": "scene007-01",
+      "scene": "scene007",
+      "text": "「……光？」",
+      "background": "../assets/bg/underground_corridor.png?v=20260704",
+      "characters": [],
+      "icon": null,
+      "speaker": "主人公",
+      "bgm": null,
+      "ambience": null,
+      "effect": "glow"
+    },
+    {
+      "id": "scene007-02",
+      "scene": "scene007",
+      "text": "「何だろう……」",
+      "speaker": "主人公"
+    },
+    {
+      "id": "scene007-03",
+      "scene": "scene007",
+      "text": "「……君は、誰なの？」",
+      "speaker": "主人公",
+      "nextSceneId": "scene008-01"
+    },
+    {
+      "id": "scene008-01",
+      "scene": "scene008",
+      "text": "「僕、バズ㌧！」",
+      "background": "../assets/bg/underground_corridor.png?v=20260704",
+      "characters": [
+        {
+          "position": "center",
+          "name": "バズ㌧",
+          "src": "../assets/characters/bazuton.png?v=20260704"
+        }
+      ],
+      "icon": null,
+      "speaker": "バズ㌧",
+      "bgm": null,
+      "ambience": null,
+      "effect": "glow",
+      "characterGlow": true
+    },
+    {
+      "id": "scene008-02",
+      "scene": "scene008",
+      "text": "「…………。」",
+      "speaker": "主人公"
+    },
+    {
+      "id": "scene008-03",
+      "scene": "scene008",
+      "text": "「……バズ㌧？」",
+      "speaker": "主人公"
+    },
+    {
+      "id": "scene008-04",
+      "scene": "scene008",
+      "text": "「僕、バズ㌧！」",
+      "speaker": "バズ㌧"
+    },
+    {
+      "id": "scene008-05",
+      "scene": "scene008",
+      "text": "「それしか……言えないの？」",
+      "speaker": "主人公"
+    },
+    {
+      "id": "scene008-06",
+      "scene": "scene008",
+      "text": "「僕、バズ㌧！」",
+      "speaker": "バズ㌧"
+    },
+    {
+      "id": "scene008-07",
+      "scene": "scene008",
+      "text": "「……そっか。」",
+      "speaker": "主人公"
+    },
+    {
+      "id": "scene008-08",
+      "scene": "scene008",
+      "text": "「よろしく、バズ㌧。」",
+      "speaker": "主人公"
+    },
+    {
+      "id": "scene008-09",
+      "scene": "scene008",
+      "text": "「僕、バズ㌧！」",
+      "speaker": "バズ㌧"
+    },
+    {
+      "id": "scene008-10",
+      "scene": "scene008",
+      "text": "こうして、名もなき少年とバズ㌧は出会った。",
+      "speaker": "",
+      "hideName": true,
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧"
+    },
+    {
+      "id": "scene008-11",
+      "scene": "scene008",
+      "text": "この小さな出会いが、やがて王国の運命を大きく変えることになる。",
+      "speaker": "",
+      "hideName": true,
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧"
+    },
+    {
+      "id": "scene008-12",
+      "scene": "scene008",
+      "text": "じゃが、それはまだ少し先のお話じゃ。",
+      "speaker": "",
+      "hideName": true,
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧",
+      "forceTransition": true,
+      "nextSceneId": "scene009-01"
+    },
+    {
+      "id": "scene009-01",
+      "scene": "scene009",
+      "text": "第一章。",
+      "speaker": "",
+      "hideName": true,
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧",
+      "background": null,
+      "characters": [],
+      "bgm": null,
+      "ambience": null,
+      "effect": null
+    },
+    {
+      "id": "scene009-02",
+      "scene": "scene009",
+      "text": "雨の日の朝。",
+      "speaker": "",
+      "hideName": true,
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧"
+    },
+    {
+      "id": "scene009-03",
+      "scene": "scene009",
+      "text": "これにて、おしまいなのじゃ。",
+      "speaker": "",
+      "hideName": true,
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧"
+    },
+    {
+      "id": "scene009-04",
+      "scene": "scene009",
+      "text": "次のページでは、少年と姫の出会いを語るとしよう。",
+      "speaker": "",
+      "hideName": true,
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧"
+    },
+    {
+      "id": "scene009-05",
+      "scene": "scene009",
+      "text": "「僕、バズ㌧！」",
+      "speaker": "バズ㌧",
+      "icon": null
+    },
+    {
+      "id": "scene009-end",
+      "scene": "scene009",
+      "text": "",
+      "speaker": "",
+      "action": "chapterEnd"
     }
   ]
 }

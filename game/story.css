@@ -251,6 +251,89 @@ button { font: inherit; }
   50% { transform: translateY(4px); }
 }
 
+/* ---------- 第一章で使用する追加演出 ---------- */
+.character-layer.has-glow .character {
+  filter:
+    drop-shadow(0 0 14px rgba(255, 224, 126, 0.9))
+    drop-shadow(0 12px 18px rgba(0, 0, 0, 0.65));
+}
+
+.scene-effect {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  transition: background 1.2s ease, opacity 1.2s ease;
+}
+
+.scene-effect.is-dim { background: rgba(0, 0, 0, 0.34); }
+.scene-effect.is-glow {
+  background: radial-gradient(circle at 50% 43%, rgba(255, 224, 132, 0.3), transparent 24%);
+}
+
+.dialogue-panel {
+  transition: opacity 0.9s ease, visibility 0.9s ease;
+}
+
+.dialogue-panel.is-hidden {
+  visibility: hidden;
+  opacity: 0;
+}
+
+/* ---------- 名前入力・章末 ---------- */
+.modal-overlay,
+.chapter-end {
+  position: absolute;
+  z-index: 30;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.78);
+}
+
+.modal-overlay[hidden],
+.chapter-end[hidden] { display: none; }
+
+.modal-card,
+.chapter-end__card {
+  width: min(100%, 440px);
+  padding: 28px 24px;
+  border: 1px solid var(--gold);
+  color: #fff;
+  text-align: center;
+  background: rgba(8, 8, 14, 0.96);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.72);
+}
+
+.modal-card h2,
+.chapter-end__card h2 { margin: 0 0 22px; font-size: 1.25rem; }
+
+.modal-card input {
+  width: 100%;
+  margin-bottom: 18px;
+  padding: 12px;
+  border: 1px solid rgba(216, 173, 82, 0.75);
+  color: #111;
+  background: #fff;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.modal-card button,
+.chapter-end__card button {
+  min-width: 180px;
+  padding: 11px 20px;
+  border: 1px solid #f4d184;
+  color: #1c1305;
+  background: var(--gold);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.chapter-end__card p { margin: 0 0 30px; font-size: 1.1rem; }
+.chapter-end__card small { display: block; margin-top: 18px; color: #c8c8cc; }
+
 @media (min-width: 760px) {
   .advance-layer { padding-bottom: max(36px, env(safe-area-inset-bottom)); }
 }
