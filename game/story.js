@@ -8,7 +8,7 @@
  */
 
 const CONFIG = {
-  scenarioUrl: "story.json?v=20260704",
+  scenarioUrl: "story.json?v=20260704-audio1",
   typeInterval: 38,
   transitionDuration: 420,
 };
@@ -83,23 +83,23 @@ const audioManager = {
     });
   },
 
-  playSe(source) {
+  playSe(source, volume = 0.8) {
     if (!source) return;
     const se = new Audio(source);
-    se.volume = 0.8;
+    se.volume = volume;
     se.play().then(() => {
       this.pendingSe = null;
     }).catch(() => {
       // 自動再生が制限された場合は、次のタップで再試行します。
-      this.pendingSe = source;
+      this.pendingSe = { source, volume };
     });
   },
 
   resumePendingSe() {
     if (!this.pendingSe) return;
-    const source = this.pendingSe;
+    const { source, volume } = this.pendingSe;
     this.pendingSe = null;
-    this.playSe(source);
+    this.playSe(source, volume);
   },
 };
 
@@ -124,7 +124,7 @@ const ambienceManager = {
     });
   },
 
-  set(source) {
+  set(source, volume = 0.28) {
     this.requestedSource = source || null;
     elements.game.dataset.ambience = this.requestedSource || "none";
     if (!this.requestedSource) {
@@ -133,14 +133,15 @@ const ambienceManager = {
     }
 
     this.prepare(this.requestedSource);
-    this.audio.volume = 0.42;
+    this.audio.volume = volume;
+    this.audio.dataset.volume = String(volume);
     if (!this.audio.paused) elements.game.dataset.ambienceState = "playing";
   },
 
   resume() {
     if (!this.requestedSource || !this.audio.paused) return Promise.resolve();
     return this.audio.play().then(() => {
-      this.audio.volume = 0.42;
+      this.audio.volume = Number(this.audio.dataset.volume || 0.28);
       elements.game.dataset.ambienceState = "playing";
     });
   },
@@ -352,15 +353,15 @@ async function renderScene(index, useTransition = true) {
     audioManager.playBgm(defaults.bgm ?? null);
   }
   if (Object.hasOwn(scene, "ambience")) {
-    ambienceManager.set(scene.ambience);
+    ambienceManager.set(scene.ambience, scene.ambienceVolume);
   } else if (isNewLogicalScene) {
     ambienceManager.set(defaults.ambience ?? null);
   }
   if (scene.se) {
     if (scene.seDelayMs) {
-      state.seTimer = setTimeout(() => audioManager.playSe(scene.se), scene.seDelayMs);
+      state.seTimer = setTimeout(() => audioManager.playSe(scene.se, scene.seVolume), scene.seDelayMs);
     } else {
-      audioManager.playSe(scene.se);
+      audioManager.playSe(scene.se, scene.seVolume);
     }
   }
 
@@ -417,7 +418,7 @@ async function advanceStory() {
 
   // 全文表示後のタップで、次のセリフへ進みます。
   if (nextIndex < state.scenario.scenes.length) {
-    audioManager.playSe(currentScene.advanceSe ?? null);
+    audioManager.playSe(currentScene.advanceSe ?? null, currentScene.advanceSeVolume);
     ambienceManager.prepare(currentScene.advanceAmbience ?? null);
     state.sceneIndex = nextIndex;
     const nextScene = state.scenario.scenes[nextIndex];

@@ -24,7 +24,7 @@
       "ambience": null,
       "startDelayMs": 2000,
       "typeInterval": 72,
-      "se": "../assets/se/page_turn.wav?v=20260703",
+      "se": "../assets/audio/se/page_turn_01.mp3?v=20260704",
       "seDelayMs": 2000
     },
     {
@@ -56,8 +56,8 @@
       "icon": "../assets/characters/garyuton.png?v=20260704",
       "iconAlt": "ガリュ㌧",
       "typeInterval": 65,
-      "advanceSe": "../assets/se/page_turn.wav?v=20260703",
-      "advanceAmbience": "../assets/se/rain_loop.wav?v=20260703",
+      "advanceSe": "../assets/audio/se/page_turn_01.mp3?v=20260704",
+      "advanceAmbience": "../assets/audio/ambience/rain_loop_01.mp3?v=20260704",
       "nextSceneId": "scene001-01"
     },
     {
@@ -71,10 +71,13 @@
       "background": "../assets/bg/castle_outside.png?v=20260704",
       "characters": [],
       "bgm": null,
-      "ambience": "../assets/se/rain_loop.wav?v=20260703",
+      "ambience": "../assets/audio/ambience/rain_loop_01.mp3?v=20260704",
       "startDelayMs": 5000,
       "transitionDurationMs": 3000,
-      "revealOnly": true
+      "revealOnly": true,
+      "ambienceVolume": 0.22,
+      "se": "../assets/audio/ambience/bell_far_01.mp3?v=20260704",
+      "seVolume": 0.24
     },
     {
       "id": "scene001-02",
@@ -105,7 +108,8 @@
       "icon": null,
       "speaker": "王妃",
       "bgm": null,
-      "ambience": "../assets/se/rain_loop.wav?v=20260703"
+      "ambience": "../assets/audio/ambience/rain_loop_01.mp3?v=20260704",
+      "ambienceVolume": 0.22
     },
     {
       "id": "scene002-02",
@@ -171,7 +175,9 @@
       "background": "../assets/bg/servants_dormitory_morning.png?v=20260704",
       "characters": [],
       "bgm": null,
-      "ambience": null
+      "ambience": null,
+      "se": "../assets/audio/se/footstep_stone_01.mp3?v=20260704",
+      "seVolume": 0.72
     },
     {
       "id": "scene003-02",
@@ -466,8 +472,9 @@
       "icon": null,
       "speaker": "下男A",
       "bgm": null,
-      "ambience": null,
-      "startDelayMs": 3000
+      "ambience": "../assets/audio/ambience/water_drop_01.mp3?v=20260704",
+      "startDelayMs": 3000,
+      "ambienceVolume": 0.18
     },
     {
       "id": "scene006-02",
@@ -551,8 +558,9 @@
       "icon": null,
       "speaker": "主人公",
       "bgm": null,
-      "ambience": null,
-      "effect": "glow"
+      "ambience": "../assets/audio/ambience/water_drop_01.mp3?v=20260704",
+      "effect": "glow",
+      "ambienceVolume": 0.18
     },
     {
       "id": "scene007-02",
@@ -582,9 +590,12 @@
       "icon": null,
       "speaker": "バズ㌧",
       "bgm": null,
-      "ambience": null,
+      "ambience": "../assets/audio/ambience/water_drop_01.mp3?v=20260704",
       "effect": "glow",
-      "characterGlow": true
+      "characterGlow": true,
+      "ambienceVolume": 0.18,
+      "se": "../assets/audio/se/bazuton_light_01.mp3?v=20260704",
+      "seVolume": 0.72
     },
     {
       "id": "scene008-02",
