@@ -8,7 +8,7 @@
  */
 
 const CONFIG = {
-  scenarioUrl: "story.json?v=20260704-audio1",
+  scenarioUrl: "story.json?v=20260704-audio2",
   typeInterval: 38,
   transitionDuration: 420,
 };
@@ -107,6 +107,7 @@ const audioManager = {
 const ambienceManager = {
   audio: new Audio(),
   requestedSource: null,
+  fadeTimer: null,
 
   prepare(source) {
     if (!source) return;
@@ -125,6 +126,8 @@ const ambienceManager = {
   },
 
   set(source, volume = 0.28) {
+    clearInterval(this.fadeTimer);
+    this.fadeTimer = null;
     this.requestedSource = source || null;
     elements.game.dataset.ambience = this.requestedSource || "none";
     if (!this.requestedSource) {
@@ -147,10 +150,31 @@ const ambienceManager = {
   },
 
   stop() {
+    clearInterval(this.fadeTimer);
+    this.fadeTimer = null;
     this.audio.pause();
     this.audio.currentTime = 0;
     this.audio.volume = 0;
     elements.game.dataset.ambienceState = "stopped";
+  },
+
+  /** 場所を離れる際、環境音を滑らかに消してから停止します。 */
+  fadeOut(duration = 800) {
+    clearInterval(this.fadeTimer);
+    this.fadeTimer = null;
+    if (this.audio.paused || this.audio.volume <= 0 || duration <= 0) {
+      this.stop();
+      return;
+    }
+
+    const startVolume = this.audio.volume;
+    const startedAt = performance.now();
+    elements.game.dataset.ambienceState = "fading-out";
+    this.fadeTimer = setInterval(() => {
+      const progress = Math.min((performance.now() - startedAt) / duration, 1);
+      this.audio.volume = startVolume * (1 - progress);
+      if (progress >= 1) this.stop();
+    }, 40);
   },
 };
 
@@ -420,6 +444,9 @@ async function advanceStory() {
   if (nextIndex < state.scenario.scenes.length) {
     audioManager.playSe(currentScene.advanceSe ?? null, currentScene.advanceSeVolume);
     ambienceManager.prepare(currentScene.advanceAmbience ?? null);
+    if (currentScene.ambienceFadeOutMs) {
+      ambienceManager.fadeOut(currentScene.ambienceFadeOutMs);
+    }
     state.sceneIndex = nextIndex;
     const nextScene = state.scenario.scenes[nextIndex];
     const changesLogicalScene = (nextScene.scene || nextScene.id) !== (currentScene.scene || currentScene.id);

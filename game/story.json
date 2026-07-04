@@ -175,9 +175,8 @@
       "background": "../assets/bg/servants_dormitory_morning.png?v=20260704",
       "characters": [],
       "bgm": null,
-      "ambience": null,
-      "se": "../assets/audio/se/footstep_stone_01.mp3?v=20260704",
-      "seVolume": 0.72
+      "ambience": "../assets/audio/ambience/birds_morning_01.mp3?v=20260704",
+      "ambienceVolume": 0.22
     },
     {
       "id": "scene003-02",
@@ -265,6 +264,7 @@
       "icon": "../assets/characters/garyuton.png?v=20260704",
       "iconAlt": "ガリュ㌧",
       "forceTransition": true,
+      "ambienceFadeOutMs": 800,
       "nextSceneId": "scene004-01"
     },
     {
@@ -474,7 +474,9 @@
       "bgm": null,
       "ambience": "../assets/audio/ambience/water_drop_01.mp3?v=20260704",
       "startDelayMs": 3000,
-      "ambienceVolume": 0.18
+      "ambienceVolume": 0.18,
+      "se": "../assets/audio/se/footstep_stone_01.mp3?v=20260704",
+      "seVolume": 0.72
     },
     {
       "id": "scene006-02",
@@ -573,6 +575,8 @@
       "scene": "scene007",
       "text": "「……君は、誰なの？」",
       "speaker": "主人公",
+      "advanceSe": "../assets/audio/se/bazuton_light_01.mp3?v=20260704",
+      "advanceSeVolume": 0.72,
       "nextSceneId": "scene008-01"
     },
     {
@@ -593,9 +597,7 @@
       "ambience": "../assets/audio/ambience/water_drop_01.mp3?v=20260704",
       "effect": "glow",
       "characterGlow": true,
-      "ambienceVolume": 0.18,
-      "se": "../assets/audio/se/bazuton_light_01.mp3?v=20260704",
-      "seVolume": 0.72
+      "ambienceVolume": 0.18
     },
     {
       "id": "scene008-02",
