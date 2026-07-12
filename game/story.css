@@ -270,6 +270,18 @@ button { font: inherit; }
 .scene-effect.is-glow {
   background: radial-gradient(circle at 50% 43%, rgba(255, 224, 132, 0.3), transparent 24%);
 }
+.novel-game:has(.scene-effect.is-shake) .background-layer,
+.novel-game:has(.scene-effect.is-shake) .character-layer {
+  animation: carriage-shake 0.46s ease-in-out 1;
+}
+
+@keyframes carriage-shake {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  18% { transform: translate3d(-5px, 2px, 0); }
+  36% { transform: translate3d(4px, -2px, 0); }
+  54% { transform: translate3d(-3px, 1px, 0); }
+  72% { transform: translate3d(2px, 0, 0); }
+}
 
 .dialogue-panel {
   transition: opacity 0.9s ease, visibility 0.9s ease;

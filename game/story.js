@@ -8,7 +8,7 @@
  */
 
 const CONFIG = {
-  scenarioUrl: "story.json?v=20260704-audio2",
+  scenarioUrl: "story.json?v=20260712-opening",
   typeInterval: 38,
   transitionDuration: 420,
 };
@@ -64,6 +64,7 @@ const state = {
 const audioManager = {
   bgm: new Audio(),
   pendingSe: null,
+  sceneSes: [],
 
   playBgm(source) {
     if (!source) {
@@ -83,23 +84,37 @@ const audioManager = {
     });
   },
 
-  playSe(source, volume = 0.8) {
+  playSe(source, volume = 0.8, options = {}) {
     if (!source) return;
     const se = new Audio(source);
     se.volume = volume;
+    if (options.trackScene) {
+      this.sceneSes.push(se);
+    }
     se.play().then(() => {
       this.pendingSe = null;
     }).catch(() => {
       // 自動再生が制限された場合は、次のタップで再試行します。
-      this.pendingSe = { source, volume };
+      this.pendingSe = { source, volume, options };
     });
   },
 
   resumePendingSe() {
     if (!this.pendingSe) return;
-    const { source, volume } = this.pendingSe;
+    const { source, volume, options } = this.pendingSe;
     this.pendingSe = null;
-    this.playSe(source, volume);
+    this.playSe(source, volume, options);
+  },
+
+  stopSceneSe() {
+    this.sceneSes.forEach((se) => {
+      se.pause();
+      se.removeAttribute("src");
+    });
+    this.sceneSes = [];
+    if (this.pendingSe?.options?.trackScene) {
+      this.pendingSe = null;
+    }
   },
 };
 
@@ -351,6 +366,7 @@ async function renderScene(index, useTransition = true) {
 
   const defaults = state.scenario.defaults || {};
   if (isNewLogicalScene) {
+    audioManager.stopSceneSe();
     setCharacters([]);
     setNarratorIcon(null);
     setSceneEffect(null, false);
@@ -383,9 +399,9 @@ async function renderScene(index, useTransition = true) {
   }
   if (scene.se) {
     if (scene.seDelayMs) {
-      state.seTimer = setTimeout(() => audioManager.playSe(scene.se, scene.seVolume), scene.seDelayMs);
+      state.seTimer = setTimeout(() => audioManager.playSe(scene.se, scene.seVolume, { trackScene: true }), scene.seDelayMs);
     } else {
-      audioManager.playSe(scene.se, scene.seVolume);
+      audioManager.playSe(scene.se, scene.seVolume, { trackScene: true });
     }
   }
 

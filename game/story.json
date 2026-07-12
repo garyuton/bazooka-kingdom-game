@@ -22,15 +22,12 @@
       "characters": [],
       "bgm": null,
       "ambience": null,
-      "startDelayMs": 2000,
-      "typeInterval": 72,
-      "se": "../assets/audio/se/page_turn_01.mp3?v=20260704",
-      "seDelayMs": 2000
+      "typeInterval": 72
     },
     {
       "id": "scene000-02",
       "scene": "scene000",
-      "text": "今日は、ひとつの昔話を聞かせよう。",
+      "text": "今宵は、ひとつの昔話を聞かせよう。",
       "speaker": "",
       "hideName": true,
       "icon": "../assets/characters/garyuton.png?v=20260704",
@@ -40,7 +37,7 @@
     {
       "id": "scene000-03",
       "scene": "scene000",
-      "text": "これは、ずっと昔のお話じゃ。",
+      "text": "これは、雨の夜に拾われた少年と、小さな守護豚の物語じゃ。",
       "speaker": "",
       "hideName": true,
       "icon": "../assets/characters/garyuton.png?v=20260704",
@@ -56,33 +53,32 @@
       "icon": "../assets/characters/garyuton.png?v=20260704",
       "iconAlt": "ガリュ㌧",
       "typeInterval": 65,
-      "advanceSe": "../assets/audio/se/page_turn_01.mp3?v=20260704",
-      "advanceAmbience": "../assets/audio/ambience/rain_loop_01.mp3?v=20260704",
+      "advanceSe": "../assets/audio/se/page_turn_01.mp3?v=20260712-opening",
+      "advanceAmbience": "../assets/audio/ambience/rain_loop_01.mp3?v=20260712-rain",
       "nextSceneId": "scene001-01"
     },
     {
       "id": "scene001-01",
       "scene": "scene001",
-      "text": "あの日も、こんな雨じゃった。",
+      "text": "その夜、王と王妃を乗せた馬車は、冷たい雨の中を進んでおった。",
       "speaker": "",
       "hideName": true,
       "icon": "../assets/characters/garyuton.png?v=20260704",
       "iconAlt": "ガリュ㌧",
-      "background": "../assets/bg/castle_outside.png?v=20260704",
+      "background": "../assets/cg/scene_royal_carriage_rain_01.png?v=20260712",
       "characters": [],
       "bgm": null,
-      "ambience": "../assets/audio/ambience/rain_loop_01.mp3?v=20260704",
-      "startDelayMs": 5000,
-      "transitionDurationMs": 3000,
+      "ambience": "../assets/audio/ambience/rain_loop_01.mp3?v=20260712-rain",
+      "transitionDurationMs": 2600,
       "revealOnly": true,
-      "ambienceVolume": 0.22,
+      "ambienceVolume": 0.18,
       "se": "../assets/audio/ambience/bell_far_01.mp3?v=20260704",
-      "seVolume": 0.24
+      "seVolume": 0.18
     },
     {
       "id": "scene001-02",
       "scene": "scene001",
-      "text": "冷たい雨が、王都を静かに包んでおった。",
+      "text": "ただの巡幸ではない。",
       "speaker": "",
       "hideName": true,
       "icon": "../assets/characters/garyuton.png?v=20260704",
@@ -91,78 +87,108 @@
     {
       "id": "scene001-03",
       "scene": "scene001",
-      "text": "誰もまだ、この雨が一人の少年の運命を変えるとは知らなんだ。",
+      "text": "二人は、いつか現れるという“運命の子”を探しておったのじゃ。",
       "speaker": "",
       "hideName": true,
       "icon": "../assets/characters/garyuton.png?v=20260704",
       "iconAlt": "ガリュ㌧",
+      "autoAdvanceMs": 1600,
       "forceTransition": true,
-      "nextSceneId": "scene002-01"
+      "nextSceneId": "scene002a-01"
     },
     {
-      "id": "scene002-01",
-      "scene": "scene002",
-      "text": "「……今度の子は、どうでしょうね？」",
-      "background": "../assets/cg/rain_rescue.png?v=20260704",
+      "id": "scene002a-01",
+      "scene": "scene002a",
+      "text": "「……いつの日か、運命の子は現れるのでしょうか。」",
+      "background": "../assets/cg/scene_king_queen_carriage_interior_01.png?v=20260712",
       "characters": [],
       "icon": null,
       "speaker": "王妃",
       "bgm": null,
-      "ambience": "../assets/audio/ambience/rain_loop_01.mp3?v=20260704",
-      "ambienceVolume": 0.22
+      "ambience": "../assets/audio/ambience/rain_loop_01.mp3?v=20260712-rain",
+      "ambienceVolume": 0.18
     },
     {
-      "id": "scene002-02",
-      "scene": "scene002",
-      "text": "「分からぬ。」",
-      "speaker": "国王"
+      "id": "scene002a-02",
+      "scene": "scene002a",
+      "text": "「あの方のお言葉を……今も信じておられるのですね。」",
+      "speaker": "王妃",
+      "startDelayMs": 900
     },
     {
-      "id": "scene002-03",
-      "scene": "scene002",
-      "text": "「だが。」",
-      "speaker": "国王"
+      "id": "scene002a-03",
+      "scene": "scene002a",
+      "text": "「豚のおじさんは、嘘をつかぬ。」",
+      "speaker": "王"
     },
     {
-      "id": "scene002-04",
-      "scene": "scene002",
-      "text": "「あの方の言葉を。」",
-      "speaker": "国王"
-    },
-    {
-      "id": "scene002-05",
-      "scene": "scene002",
-      "text": "「信じよう。」",
-      "speaker": "国王"
-    },
-    {
-      "id": "scene002-06",
-      "scene": "scene002",
-      "text": "こうして、名もなき少年は王城へ連れて行かれたのじゃ。",
+      "id": "scene002a-04",
+      "scene": "scene002a",
+      "text": "『豚のおじさん』……。",
       "speaker": "",
       "hideName": true,
       "icon": "../assets/characters/garyuton.png?v=20260704",
       "iconAlt": "ガリュ㌧"
     },
     {
-      "id": "scene002-07",
-      "scene": "scene002",
-      "text": "人々はそれを、王の慈悲と呼んだ。",
+      "id": "scene002a-05",
+      "scene": "scene002a",
+      "text": "その話は、まだ少し早いの。",
       "speaker": "",
       "hideName": true,
       "icon": "../assets/characters/garyuton.png?v=20260704",
       "iconAlt": "ガリュ㌧"
     },
     {
-      "id": "scene002-08",
-      "scene": "scene002",
-      "text": "じゃが、その奥には、ひとつの古き約束があったのじゃ。",
+      "id": "scene002a-06",
+      "scene": "scene002a",
+      "text": "じゃが、王があれほど信じるには、それだけの理由があったということじゃ。",
       "speaker": "",
       "hideName": true,
       "icon": "../assets/characters/garyuton.png?v=20260704",
       "iconAlt": "ガリュ㌧",
-      "forceTransition": true,
-      "nextSceneId": "scene003-01"
+      "nextSceneId": "scene002b-01"
+    },
+    {
+      "id": "scene002b-01",
+      "scene": "scene002b",
+      "text": "馬車が、雨の石畳の上で急に止まった。",
+      "background": "../assets/cg/scene_king_queen_carriage_interior_01.png?v=20260712",
+      "characters": [],
+      "icon": null,
+      "speaker": "",
+      "hideName": true,
+      "bgm": null,
+      "ambience": "../assets/audio/ambience/rain_loop_01.mp3?v=20260712-rain",
+      "ambienceVolume": 0.18,
+      "effect": "shake"
+    },
+    {
+      "id": "scene002b-02",
+      "scene": "scene002b",
+      "text": "「陛下！」",
+      "speaker": "御者",
+      "effect": null
+    },
+    {
+      "id": "scene002b-03",
+      "scene": "scene002b",
+      "text": "「あそこに……子どもが！」",
+      "speaker": "御者"
+    },
+    {
+      "id": "scene002b-04",
+      "scene": "scene002b",
+      "text": "雨の向こうに、ひとりの少年が倒れておった。",
+      "speaker": "",
+      "hideName": true,
+      "background": "../assets/cg/scene_child_found_in_rain_01.png?v=20260712",
+      "characters": [],
+      "icon": null,
+      "bgm": null,
+      "ambience": "../assets/audio/ambience/rain_loop_01.mp3?v=20260712-rain",
+      "ambienceVolume": 0.18,
+      "action": "pause"
     },
     {
       "id": "scene003-01",
