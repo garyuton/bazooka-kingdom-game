@@ -18,7 +18,7 @@
       "hideName": true,
       "icon": "../assets/characters/garyuton.png?v=20260704",
       "iconAlt": "ガリュ㌧",
-      "background": null,
+      "background": "../assets/images/book/book_closed_01.png?v=20260713-book",
       "characters": [],
       "bgm": null,
       "ambience": null,
@@ -55,6 +55,12 @@
       "typeInterval": 65,
       "advanceSe": "../assets/audio/se/page_turn_01.mp3?v=20260712-opening",
       "advanceAmbience": "../assets/audio/ambience/rain_loop_01.mp3?v=20260712-rain",
+      "bookTransition": {
+        "closed": "../assets/images/book/book_closed_01.png?v=20260713-book",
+        "open": "../assets/images/book/book_open_01.png?v=20260713-book",
+        "crossFadeMs": 600,
+        "holdMs": 1000
+      },
       "nextSceneId": "scene001-01"
     },
     {

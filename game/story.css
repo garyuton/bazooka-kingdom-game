@@ -64,6 +64,43 @@ button { font: inherit; }
   opacity: 0;
 }
 
+.book-transition {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  background: #000;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.book-transition.is-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.book-transition__image {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.book-transition__image--closed {
+  opacity: 1;
+}
+
+.book-transition__image--open {
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.book-transition.is-open .book-transition__image--open {
+  opacity: 1;
+}
+
 .character-layer {
   position: absolute;
   z-index: -2;

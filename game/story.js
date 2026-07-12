@@ -8,7 +8,7 @@
  */
 
 const CONFIG = {
-  scenarioUrl: "story.json?v=20260712-opening",
+  scenarioUrl: "story.json?v=20260713-book",
   typeInterval: 38,
   transitionDuration: 420,
 };
@@ -17,6 +17,9 @@ const elements = {
   game: document.querySelector("#novel-game"),
   background: document.querySelector("#background-layer"),
   backgroundPlaceholder: document.querySelector("#background-placeholder"),
+  bookTransition: document.querySelector("#book-transition"),
+  bookTransitionClosed: document.querySelector("#book-transition-closed"),
+  bookTransitionOpen: document.querySelector("#book-transition-open"),
   characterLayer: document.querySelector("#character-layer"),
   effect: document.querySelector("#scene-effect"),
   fader: document.querySelector("#scene-fader"),
@@ -282,6 +285,43 @@ function setBackground(source) {
   image.src = source;
 }
 
+function preloadImage(source) {
+  return new Promise((resolve) => {
+    if (!source) {
+      resolve();
+      return;
+    }
+    const image = new Image();
+    image.addEventListener("load", resolve, { once: true });
+    image.addEventListener("error", resolve, { once: true });
+    image.src = source;
+  });
+}
+
+async function playBookTransition(transition) {
+  if (!transition?.closed || !transition?.open) return;
+
+  await Promise.all([preloadImage(transition.closed), preloadImage(transition.open)]);
+  elements.dialoguePanel.classList.add("is-hidden");
+  setNarratorIcon(null);
+
+  elements.bookTransitionClosed.style.backgroundImage = `url("${transition.closed}")`;
+  elements.bookTransitionOpen.style.backgroundImage = `url("${transition.open}")`;
+  elements.bookTransition.classList.remove("is-open");
+  elements.bookTransition.classList.add("is-visible");
+
+  await wait(80);
+  elements.bookTransition.classList.add("is-open");
+  await wait(transition.crossFadeMs ?? 600);
+  await wait(transition.holdMs ?? 1000);
+}
+
+function clearBookTransition() {
+  elements.bookTransition.classList.remove("is-visible", "is-open");
+  elements.bookTransitionClosed.style.backgroundImage = "";
+  elements.bookTransitionOpen.style.backgroundImage = "";
+}
+
 /** left / center / right の3枠へ立ち絵を配置します。 */
 function setCharacters(characters = []) {
   const centerCharacter = characters.find((item) => item.position === "center");
@@ -367,6 +407,7 @@ async function renderScene(index, useTransition = true) {
   const defaults = state.scenario.defaults || {};
   if (isNewLogicalScene) {
     audioManager.stopSceneSe();
+    clearBookTransition();
     setCharacters([]);
     setNarratorIcon(null);
     setSceneEffect(null, false);
@@ -462,6 +503,10 @@ async function advanceStory() {
     ambienceManager.prepare(currentScene.advanceAmbience ?? null);
     if (currentScene.ambienceFadeOutMs) {
       ambienceManager.fadeOut(currentScene.ambienceFadeOutMs);
+    }
+    if (currentScene.bookTransition) {
+      state.isTransitioning = true;
+      await playBookTransition(currentScene.bookTransition);
     }
     state.sceneIndex = nextIndex;
     const nextScene = state.scenario.scenes[nextIndex];
