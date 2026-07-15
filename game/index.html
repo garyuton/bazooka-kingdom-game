@@ -9,19 +9,19 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- タイトル画像は CSS の背景として読み込み、コンテンツと分離しています。 -->
   <main class="title-screen">
-    <section class="title-panel" aria-labelledby="game-title">
+    <section class="title-content" aria-labelledby="game-title">
       <header class="title-header">
-        <p class="title-ornament" aria-hidden="true">◆</p>
         <h1 id="game-title">バズーカ王国物語</h1>
         <p class="chapter">第一章</p>
       </header>
 
       <nav class="title-menu" aria-label="タイトルメニュー">
-        <button id="start-button" class="menu-button" type="button">はじめから</button>
-        <button class="menu-button" type="button" disabled aria-describedby="coming-soon">つづき</button>
-        <button class="menu-button" type="button" disabled aria-describedby="coming-soon">設定</button>
+        <button id="start-button" class="menu-button menu-button--start" type="button">物語を始める</button>
+        <div class="sub-menu">
+          <button class="menu-button menu-button--sub" type="button" disabled aria-describedby="coming-soon">つづきから</button>
+          <button class="menu-button menu-button--sub" type="button" disabled aria-describedby="coming-soon">設定</button>
+        </div>
       </nav>
 
       <p id="coming-soon" class="visually-hidden">この機能は準備中です</p>

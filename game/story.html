@@ -6,12 +6,13 @@
   <meta name="theme-color" content="#000000">
   <meta name="description" content="バズーカ王国物語 ノベルゲーム画面">
   <title>物語｜バズーカ王国物語</title>
-  <link rel="stylesheet" href="story.css?v=20260713-book">
+  <link rel="stylesheet" href="story.css?v=20260716-second-act">
 </head>
 <body>
   <main id="novel-game" class="novel-game" aria-label="ノベルゲーム">
     <!-- 背景と立ち絵を別レイヤーにし、個別に差し替えられる構造です。 -->
     <div id="background-layer" class="background-layer" aria-hidden="true"></div>
+    <div id="background-crossfade" class="background-crossfade" aria-hidden="true"></div>
     <div id="background-placeholder" class="background-placeholder" aria-hidden="true">
       <span>BAZOOKA KINGDOM</span>
     </div>
@@ -53,8 +54,8 @@
 
     <section id="name-entry" class="modal-overlay" hidden aria-labelledby="name-entry-title">
       <form id="name-entry-form" class="modal-card">
-        <h2 id="name-entry-title">主人公の名前を入力してください</h2>
-        <input id="player-name-input" name="playerName" type="text" value="ガリュウ" maxlength="12" autocomplete="off">
+        <h2 id="name-entry-title">あなたの名前を入力してください</h2>
+        <input id="player-name-input" name="playerName" type="text" value="ガリュウ" maxlength="12" autocomplete="off" required>
         <button type="submit">決定</button>
       </form>
     </section>
@@ -67,8 +68,15 @@
         <small>第二章は未実装です</small>
       </div>
     </section>
+
+    <section id="ending-roll" class="ending-roll" hidden aria-live="polite" aria-label="第一章エンディング">
+      <div id="ending-visual" class="ending-roll__visual" aria-hidden="true"></div>
+      <div id="ending-glow" class="ending-roll__glow" aria-hidden="true"></div>
+      <div id="ending-content" class="ending-roll__content"></div>
+      <button id="ending-skip" class="ending-roll__skip" type="button" hidden>SKIP</button>
+    </section>
   </main>
 
-  <script src="story.js?v=20260713-book"></script>
+  <script src="story.js?v=20260716-second-act"></script>
 </body>
 </html>

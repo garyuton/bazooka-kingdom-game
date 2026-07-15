@@ -8,7 +8,7 @@
  */
 
 const CONFIG = {
-  scenarioUrl: "story.json?v=20260713-book",
+  scenarioUrl: "story.json?v=20260716-second-act",
   typeInterval: 38,
   transitionDuration: 420,
 };
@@ -16,6 +16,7 @@ const CONFIG = {
 const elements = {
   game: document.querySelector("#novel-game"),
   background: document.querySelector("#background-layer"),
+  backgroundCrossfade: document.querySelector("#background-crossfade"),
   backgroundPlaceholder: document.querySelector("#background-placeholder"),
   bookTransition: document.querySelector("#book-transition"),
   bookTransitionClosed: document.querySelector("#book-transition-closed"),
@@ -35,6 +36,11 @@ const elements = {
   playerNameInput: document.querySelector("#player-name-input"),
   chapterEnd: document.querySelector("#chapter-end"),
   chapterEndBack: document.querySelector("#chapter-end-back"),
+  ending: document.querySelector("#ending-roll"),
+  endingVisual: document.querySelector("#ending-visual"),
+  endingGlow: document.querySelector("#ending-glow"),
+  endingContent: document.querySelector("#ending-content"),
+  endingSkip: document.querySelector("#ending-skip"),
   characterPlaceholder: document.querySelector("#character-placeholder"),
   characterPlaceholderName: document.querySelector("#character-placeholder-name"),
   characters: {
@@ -58,6 +64,7 @@ const state = {
   seTimer: null,
   fullText: "",
   currentLogicalScene: null,
+  advanceLockedUntil: 0,
   variables: {
     playerName: "ガリュウ",
   },
@@ -143,7 +150,7 @@ const ambienceManager = {
     });
   },
 
-  set(source, volume = 0.28) {
+  set(source, volume = 0.28, options = {}) {
     clearInterval(this.fadeTimer);
     this.fadeTimer = null;
     this.requestedSource = source || null;
@@ -154,8 +161,12 @@ const ambienceManager = {
     }
 
     this.prepare(this.requestedSource);
-    this.audio.volume = volume;
     this.audio.dataset.volume = String(volume);
+    if (options.fadeInMs) {
+      this.fadeIn(volume, options.fadeInMs);
+      return;
+    }
+    this.audio.volume = volume;
     if (!this.audio.paused) elements.game.dataset.ambienceState = "playing";
   },
 
@@ -176,6 +187,24 @@ const ambienceManager = {
     elements.game.dataset.ambienceState = "stopped";
   },
 
+  fadeIn(targetVolume = 0.28, duration = 1000) {
+    clearInterval(this.fadeTimer);
+    this.fadeTimer = null;
+    this.audio.dataset.volume = String(targetVolume);
+    this.audio.volume = 0;
+    const startedAt = performance.now();
+    elements.game.dataset.ambienceState = "fading-in";
+    this.fadeTimer = setInterval(() => {
+      const progress = Math.min((performance.now() - startedAt) / duration, 1);
+      this.audio.volume = targetVolume * progress;
+      if (progress >= 1) {
+        clearInterval(this.fadeTimer);
+        this.fadeTimer = null;
+        if (!this.audio.paused) elements.game.dataset.ambienceState = "playing";
+      }
+    }, 40);
+  },
+
   /** 場所を離れる際、環境音を滑らかに消してから停止します。 */
   fadeOut(duration = 800) {
     clearInterval(this.fadeTimer);
@@ -193,6 +222,236 @@ const ambienceManager = {
       this.audio.volume = startVolume * (1 - progress);
       if (progress >= 1) this.stop();
     }, 40);
+  },
+};
+
+const ENDING_ASSETS = {
+  theme: "../assets/audio/bgm/bazooka_kingdom_chapter1.mp3?v=20260715-ending",
+  bookOpen: "../assets/images/book/book_open_01.png?v=20260713-book",
+  bookClosed: "../assets/images/book/book_closed_01.png?v=20260713-book",
+  carriage: "../assets/cg/scene_royal_carriage_rain_01.png?v=20260712",
+  rescue: "../assets/cg/scene_child_found_in_rain_01.png?v=20260712",
+  dormitory: "../assets/bg/servants_dormitory_morning.png?v=20260704",
+  underground: "../assets/bg/underground_corridor.png?v=20260704",
+};
+
+const endingManager = {
+  audio: new Audio(),
+  rafId: null,
+  resumeHandler: null,
+  skipDisplayTime: null,
+  currentCard: "",
+  isRunning: false,
+
+  async start() {
+    if (this.isRunning) return;
+    this.isRunning = true;
+    this.currentCard = "";
+    cancelAnimationFrame(this.rafId);
+    if (this.resumeHandler) {
+      elements.ending.removeEventListener("click", this.resumeHandler);
+      this.resumeHandler = null;
+    }
+
+    audioManager.playBgm(null);
+    audioManager.stopSceneSe();
+    ambienceManager.fadeOut(1200);
+    clearBookTransition();
+    setCharacters([]);
+    setNarratorIcon(null);
+    setSceneEffect(null, false);
+    elements.back.hidden = true;
+    elements.dialoguePanel.classList.add("is-hidden");
+
+    elements.ending.hidden = false;
+    elements.endingSkip.hidden = true;
+    this.setVisual(ENDING_ASSETS.bookOpen, "is-book");
+    this.setGlow(false);
+    this.setContent(`<div class="ending-card ending-card--quiet"><p>物語のページが、静かに閉じられていく。</p></div>`);
+
+    await wait(3800);
+    this.setVisual(ENDING_ASSETS.bookClosed, "is-book");
+    await wait(1800);
+    this.clearVisual();
+    this.setContent("");
+    await wait(1600);
+
+    this.audio.pause();
+    this.audio = new Audio(ENDING_ASSETS.theme);
+    this.audio.loop = false;
+    this.audio.volume = 0;
+    this.audio.addEventListener("ended", () => this.finish(), { once: true });
+    this.audio.play().then(() => {
+      this.tick();
+    }).catch(() => {
+      this.showCard("tap-to-play", `
+        <div class="ending-card ending-card--quiet">
+          <p>画面をタップすると、第一章の余韻が流れ始めます。</p>
+        </div>
+      `, null, false);
+      elements.endingSkip.hidden = false;
+      this.resumeHandler = () => {
+        this.audio.play().then(() => {
+          elements.ending.removeEventListener("click", this.resumeHandler);
+          this.resumeHandler = null;
+          this.currentCard = "";
+          this.tick();
+        }).catch(() => {});
+      };
+      elements.ending.addEventListener("click", this.resumeHandler);
+    });
+  },
+
+  tick() {
+    if (!this.isRunning) return;
+    const time = this.audio.currentTime || 0;
+    if (!this.audio.paused && time < 6) {
+      this.audio.volume = Math.min(0.78, (time / 6) * 0.78);
+    }
+    const displayTime = this.skipDisplayTime && time < this.skipDisplayTime
+      ? this.skipDisplayTime
+      : time;
+    if (this.skipDisplayTime && time >= this.skipDisplayTime) {
+      this.skipDisplayTime = null;
+    }
+    this.render(displayTime);
+    this.rafId = requestAnimationFrame(() => this.tick());
+  },
+
+  render(time) {
+    if (time >= 20) elements.endingSkip.hidden = false;
+
+    if (time < 10) {
+      this.showCard("black", "", null, false);
+    } else if (time < 20) {
+      this.showCard("title", `
+        <div class="ending-card">
+          <h2 class="ending-title">バズーカ王国物語</h2>
+          <p class="ending-subtitle">第一章</p>
+        </div>
+      `, null, false);
+    } else if (time < 40) {
+      this.showCard("book-close", `
+        <div class="ending-card ending-card--quiet">
+          <p>雨の夜に開かれた物語は、</p>
+          <p>ひとつの出会いを残して、そっとページを閉じる。</p>
+        </div>
+      `, ENDING_ASSETS.bookClosed, false, "is-book");
+    } else if (time < 80) {
+      this.showCard("credits-1", `
+        <div class="ending-roll-list">
+          <strong>第一章　雨の日の朝</strong>
+          <span>語り　ガリュ㌧</span>
+          <span>王と王妃の巡幸</span>
+          <span>雨の石畳に倒れていた少年</span>
+        </div>
+      `, ENDING_ASSETS.carriage, false);
+    } else if (time < 115) {
+      this.showCard("memory-1", `
+        <div class="ending-roll-list">
+          <strong>名もなき少年</strong>
+          <span>下男宿舎で目を覚まし、</span>
+          <span>はじめて雨風をしのぐ屋根を得た。</span>
+        </div>
+      `, ENDING_ASSETS.dormitory, false);
+    } else if (time < 145) {
+      this.showCard("memory-2", `
+        <div class="ending-roll-list">
+          <strong>地下通路</strong>
+          <span>冷たい石の奥で、</span>
+          <span>小さな光が少年を待っていた。</span>
+        </div>
+      `, ENDING_ASSETS.underground, false);
+    } else if (time < 170) {
+      this.showCard("credits-2", `
+        <div class="ending-roll-list">
+          <strong>出会い</strong>
+          <span>バズ㌧</span>
+          <span>「僕、バズ㌧！」</span>
+        </div>
+      `, ENDING_ASSETS.rescue, false);
+    } else if (time < 190) {
+      this.showCard("quiet-before-peak", `
+        <div class="ending-card ending-card--quiet">
+          <p>これはまだ、物語の始まり。</p>
+        </div>
+      `, ENDING_ASSETS.bookClosed, true, "is-book");
+    } else if (time < 218) {
+      this.showCard("complete", `
+        <div class="ending-complete">
+          <h2 class="ending-complete__title">バズーカ王国物語</h2>
+          <p class="ending-complete__chapter">第一章　完</p>
+        </div>
+      `, null, true);
+    } else {
+      this.showCard("fadeout", "", null, false);
+    }
+  },
+
+  showCard(key, html, visual, glow = false, visualClass = "") {
+    if (this.currentCard === key) return;
+    this.currentCard = key;
+    this.setContent(html);
+    if (visual) this.setVisual(visual, visualClass);
+    else this.clearVisual();
+    this.setGlow(glow);
+  },
+
+  setContent(html) {
+    elements.endingContent.innerHTML = html;
+  },
+
+  setVisual(source, extraClass = "") {
+    elements.endingVisual.style.backgroundImage = `url("${source}")`;
+    elements.endingVisual.className = `ending-roll__visual is-visible ${extraClass}`.trim();
+  },
+
+  clearVisual() {
+    elements.endingVisual.className = "ending-roll__visual";
+    elements.endingVisual.style.backgroundImage = "";
+  },
+
+  setGlow(visible) {
+    elements.endingGlow.classList.toggle("is-visible", Boolean(visible));
+  },
+
+  skipToFinale() {
+    if (!this.isRunning || !this.audio.src) return;
+    const finaleTime = 190;
+    const seekFinale = () => {
+      try {
+        this.audio.currentTime = Math.max(this.audio.currentTime || 0, finaleTime);
+      } catch {}
+    };
+    seekFinale();
+    if (!Number.isFinite(this.audio.duration) || this.audio.duration < finaleTime) {
+      this.audio.addEventListener("loadedmetadata", seekFinale, { once: true });
+    }
+    this.skipDisplayTime = finaleTime;
+    this.audio.volume = 0.78;
+    this.render(finaleTime);
+    if (this.audio.paused) {
+      this.audio.play().then(() => this.tick()).catch(() => {});
+    }
+  },
+
+  async finish() {
+    if (!this.isRunning) return;
+    this.isRunning = false;
+    cancelAnimationFrame(this.rafId);
+    this.rafId = null;
+    this.skipDisplayTime = null;
+    if (this.resumeHandler) {
+      elements.ending.removeEventListener("click", this.resumeHandler);
+      this.resumeHandler = null;
+    }
+    this.audio.pause();
+    this.setGlow(false);
+    this.clearVisual();
+    this.setContent("");
+    elements.endingSkip.hidden = true;
+    await wait(2600);
+    window.location.href = "index.html";
   },
 };
 
@@ -285,6 +544,24 @@ function setBackground(source) {
   image.src = source;
 }
 
+async function crossfadeBackground(source, duration = 500) {
+  const currentBackground = elements.background.style.backgroundImage;
+  await preloadImage(source);
+  if (currentBackground && currentBackground !== "none") {
+    elements.backgroundCrossfade.style.backgroundImage = currentBackground;
+    elements.backgroundCrossfade.style.setProperty("--crossfade-duration", `${duration}ms`);
+    elements.backgroundCrossfade.classList.remove("is-fading");
+    elements.backgroundCrossfade.classList.add("is-active");
+  }
+  setBackground(source);
+  await wait(30);
+  elements.backgroundCrossfade.classList.add("is-fading");
+  await wait(duration);
+  elements.backgroundCrossfade.classList.remove("is-active", "is-fading");
+  elements.backgroundCrossfade.style.backgroundImage = "";
+  elements.backgroundCrossfade.style.removeProperty("--crossfade-duration");
+}
+
 function preloadImage(source) {
   return new Promise((resolve) => {
     if (!source) {
@@ -301,23 +578,46 @@ function preloadImage(source) {
 async function playBookTransition(transition) {
   if (!transition?.closed || !transition?.open) return;
 
-  await Promise.all([preloadImage(transition.closed), preloadImage(transition.open)]);
+  await Promise.all([
+    preloadImage(transition.closed),
+    preloadImage(transition.open),
+    preloadImage(transition.worldBackground),
+  ]);
   elements.dialoguePanel.classList.add("is-hidden");
   setNarratorIcon(null);
 
   elements.bookTransitionClosed.style.backgroundImage = `url("${transition.closed}")`;
   elements.bookTransitionOpen.style.backgroundImage = `url("${transition.open}")`;
-  elements.bookTransition.classList.remove("is-open");
+  elements.bookTransition.classList.remove("is-open", "is-zooming", "is-glowing", "is-fading-to-world");
   elements.bookTransition.classList.add("is-visible");
 
   await wait(80);
   elements.bookTransition.classList.add("is-open");
   await wait(transition.crossFadeMs ?? 600);
-  await wait(transition.holdMs ?? 1000);
+  await wait(transition.holdMs ?? 800);
+
+  elements.bookTransition.classList.add("is-zooming");
+  await wait(transition.glowDelayMs ?? 600);
+  elements.bookTransition.classList.add("is-glowing");
+
+  await wait(transition.rainDelayMs ?? 400);
+  if (transition.ambience) {
+    ambienceManager.set(transition.ambience, transition.ambienceVolume ?? 0.18, {
+      fadeInMs: transition.ambienceFadeInMs ?? 1200,
+    });
+  }
+
+  await wait(transition.worldDelayMs ?? 200);
+  if (transition.worldBackground) {
+    setBackground(transition.worldBackground);
+  }
+  elements.bookTransition.classList.add("is-fading-to-world");
+  await wait(transition.worldCrossFadeMs ?? 850);
+  await wait(transition.worldHoldMs ?? 900);
 }
 
 function clearBookTransition() {
-  elements.bookTransition.classList.remove("is-visible", "is-open");
+  elements.bookTransition.classList.remove("is-visible", "is-open", "is-zooming", "is-glowing", "is-fading-to-world");
   elements.bookTransitionClosed.style.backgroundImage = "";
   elements.bookTransitionOpen.style.backgroundImage = "";
 }
@@ -347,6 +647,8 @@ function finishTyping() {
   state.isTyping = false;
   elements.dialogue.textContent = state.fullText;
   elements.advance.dataset.state = "ready";
+  const scene = state.scenario?.scenes[state.sceneIndex];
+  state.advanceLockedUntil = scene?.postDelayMs ? performance.now() + scene.postDelayMs : 0;
   scheduleAutoAdvance();
 }
 
@@ -392,8 +694,9 @@ async function renderScene(index, useTransition = true) {
   clearScheduledSe();
 
   const transitionDuration = scene.transitionDurationMs ?? CONFIG.transitionDuration;
+  const usesBackgroundCrossfade = useTransition && scene.transitionMode === "crossfade";
 
-  if (useTransition) {
+  if (useTransition && !usesBackgroundCrossfade) {
     elements.fader.style.transitionDuration = `${transitionDuration}ms`;
     elements.fader.classList.add("is-dark");
     if (scene.revealOnly) {
@@ -415,7 +718,11 @@ async function renderScene(index, useTransition = true) {
   state.currentLogicalScene = logicalScene;
 
   if (Object.hasOwn(scene, "background")) {
-    setBackground(scene.background);
+    if (usesBackgroundCrossfade && scene.background) {
+      await crossfadeBackground(scene.background, transitionDuration);
+    } else {
+      setBackground(scene.background);
+    }
   } else if (isNewLogicalScene) {
     setBackground(defaults.background ?? null);
   }
@@ -434,7 +741,7 @@ async function renderScene(index, useTransition = true) {
     audioManager.playBgm(defaults.bgm ?? null);
   }
   if (Object.hasOwn(scene, "ambience")) {
-    ambienceManager.set(scene.ambience, scene.ambienceVolume);
+    ambienceManager.set(scene.ambience, scene.ambienceVolume, { fadeInMs: scene.ambienceFadeInMs });
   } else if (isNewLogicalScene) {
     ambienceManager.set(defaults.ambience ?? null);
   }
@@ -455,7 +762,7 @@ async function renderScene(index, useTransition = true) {
 
   elements.fader.classList.remove("is-dark");
   // フェードイン完了までは入力を受けず、連続タップによる読み飛ばしを防ぎます。
-  if (useTransition) {
+  if (useTransition && !usesBackgroundCrossfade) {
     await wait(transitionDuration);
     elements.fader.style.removeProperty("transition-duration");
   }
@@ -470,9 +777,26 @@ async function renderScene(index, useTransition = true) {
     showNameEntry();
     return;
   }
+  if (scene.action === "wait") {
+    elements.dialoguePanel.classList.add("is-hidden");
+    await wait(scene.waitMs ?? 500);
+    const nextIndex = getNextIndex(scene);
+    if (nextIndex < state.scenario.scenes.length) {
+      state.sceneIndex = nextIndex;
+      const nextScene = state.scenario.scenes[nextIndex];
+      const changesLogicalScene = (nextScene.scene || nextScene.id) !== (scene.scene || scene.id);
+      await renderScene(nextIndex, changesLogicalScene || Boolean(scene.forceTransition));
+    }
+    return;
+  }
   if (scene.action === "chapterEnd") {
     state.isTransitioning = false;
     showChapterEnd();
+    return;
+  }
+  if (scene.action === "ending") {
+    state.isTransitioning = false;
+    endingManager.start();
     return;
   }
 
@@ -491,6 +815,7 @@ async function advanceStory() {
     finishTyping();
     return;
   }
+  if (state.advanceLockedUntil && performance.now() < state.advanceLockedUntil) return;
 
   // nextSceneId があれば章・場所をまたぐ明示的な遷移を優先します。
   const currentScene = state.scenario.scenes[state.sceneIndex];
@@ -511,7 +836,9 @@ async function advanceStory() {
     state.sceneIndex = nextIndex;
     const nextScene = state.scenario.scenes[nextIndex];
     const changesLogicalScene = (nextScene.scene || nextScene.id) !== (currentScene.scene || currentScene.id);
-    await renderScene(state.sceneIndex, changesLogicalScene || Boolean(currentScene.forceTransition));
+    const shouldTransition = !currentScene.skipNextTransition
+      && (changesLogicalScene || Boolean(currentScene.forceTransition));
+    await renderScene(state.sceneIndex, shouldTransition);
     return;
   }
 
@@ -563,9 +890,17 @@ elements.back.addEventListener("click", () => {
 elements.chapterEndBack.addEventListener("click", () => {
   window.location.href = "index.html";
 });
+elements.endingSkip.addEventListener("click", (event) => {
+  event.stopPropagation();
+  endingManager.skipToFinale();
+});
 elements.nameEntryForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  const enteredName = elements.playerNameInput.value.trim() || "ガリュウ";
+  const enteredName = elements.playerNameInput.value.trim();
+  if (!enteredName) {
+    elements.playerNameInput.focus();
+    return;
+  }
   state.variables.playerName = enteredName;
   localStorage.setItem("bazookaKingdom.playerName", enteredName);
   elements.nameEntry.hidden = true;

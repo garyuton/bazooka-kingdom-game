@@ -44,6 +44,26 @@ button { font: inherit; }
   background-size: cover;
 }
 
+.background-crossfade {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.background-crossfade.is-active {
+  opacity: 1;
+}
+
+.background-crossfade.is-fading {
+  opacity: 0;
+  transition: opacity var(--crossfade-duration, 500ms) ease;
+}
+
 /* 背景画像が未配置のときも、画面が空に見えない舞台プレースホルダーです。 */
 .background-placeholder {
   position: absolute;
@@ -75,6 +95,18 @@ button { font: inherit; }
   transition: opacity 0.25s ease, visibility 0.25s ease;
 }
 
+.book-transition::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background:
+    radial-gradient(circle at 51% 50%, rgba(255, 225, 134, 0.84), rgba(255, 196, 82, 0.28) 16%, transparent 42%);
+  mix-blend-mode: screen;
+  transition: opacity 0.9s ease, transform 1.2s ease;
+  transform: scale(0.6);
+}
+
 .book-transition.is-visible {
   opacity: 1;
   visibility: visible;
@@ -88,22 +120,41 @@ button { font: inherit; }
   background-size: cover;
 }
 
+.book-transition__image--closed,
+.book-transition__image--open {
+  transform: scale(1);
+  transition: opacity 0.6s ease, transform 1.2s ease;
+}
+
 .book-transition__image--closed {
   opacity: 1;
 }
 
 .book-transition__image--open {
   opacity: 0;
-  transition: opacity 0.6s ease;
 }
 
 .book-transition.is-open .book-transition__image--open {
   opacity: 1;
 }
 
+.book-transition.is-zooming .book-transition__image {
+  transform: scale(1.12);
+}
+
+.book-transition.is-glowing::after {
+  opacity: 1;
+  transform: scale(1.35);
+}
+
+.book-transition.is-fading-to-world {
+  opacity: 0;
+  transition: opacity 0.85s ease, visibility 0.85s ease;
+}
+
 .character-layer {
   position: absolute;
-  z-index: -2;
+  z-index: 0;
   inset: 0;
   pointer-events: none;
 }
@@ -382,6 +433,163 @@ button { font: inherit; }
 
 .chapter-end__card p { margin: 0 0 30px; font-size: 1.1rem; }
 .chapter-end__card small { display: block; margin-top: 18px; color: #c8c8cc; }
+
+/* ---------- 第一章エンディング ---------- */
+.ending-roll {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  padding:
+    max(28px, env(safe-area-inset-top))
+    max(20px, env(safe-area-inset-right))
+    max(28px, env(safe-area-inset-bottom))
+    max(20px, env(safe-area-inset-left));
+  color: #fff8dc;
+  background: #000;
+}
+
+.ending-roll[hidden] { display: none; }
+
+.ending-roll__visual {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  transition: opacity 1.4s ease, transform 9s ease;
+  transform: scale(1.02);
+}
+
+.ending-roll__visual.is-visible {
+  opacity: 0.38;
+  transform: scale(1.08);
+}
+
+.ending-roll__visual.is-book { opacity: 0.72; }
+.ending-roll__visual.is-hero { opacity: 0.5; }
+
+.ending-roll__glow {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 48%, rgba(255, 214, 116, 0.34), transparent 38%);
+  mix-blend-mode: screen;
+  transition: opacity 1.6s ease;
+}
+
+.ending-roll__glow.is-visible { opacity: 1; }
+
+.ending-roll__content {
+  position: relative;
+  z-index: 1;
+  width: min(92vw, 820px);
+  min-height: 52svh;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  text-shadow: 0 3px 18px #000, 0 0 30px rgba(0, 0, 0, 0.9);
+}
+
+.ending-card {
+  display: grid;
+  gap: clamp(14px, 3svh, 28px);
+  opacity: 0;
+  animation: ending-card-in 1.2s ease forwards;
+}
+
+.ending-card--quiet {
+  color: rgba(255, 248, 224, 0.82);
+  font-size: clamp(1rem, 3.2vw, 1.4rem);
+  line-height: 1.9;
+  letter-spacing: 0.12em;
+}
+
+.ending-title {
+  margin: 0;
+  font-size: clamp(1.55rem, 6vw, 3.2rem);
+  letter-spacing: 0.16em;
+  text-indent: 0.16em;
+}
+
+.ending-subtitle {
+  margin: 0;
+  color: rgba(246, 221, 160, 0.94);
+  font-size: clamp(1rem, 3.8vw, 1.6rem);
+  letter-spacing: 0.44em;
+  text-indent: 0.44em;
+}
+
+.ending-roll-list {
+  display: grid;
+  gap: clamp(14px, 3svh, 26px);
+  color: rgba(255, 248, 224, 0.9);
+  font-size: clamp(0.9rem, 2.4vw, 1.18rem);
+  line-height: 1.9;
+}
+
+.ending-roll-list strong {
+  display: block;
+  color: #fff0b8;
+  font-size: clamp(1.1rem, 3vw, 1.42rem);
+  letter-spacing: 0.18em;
+}
+
+.ending-complete {
+  display: grid;
+  gap: clamp(18px, 4svh, 34px);
+  animation: ending-card-in 1.4s ease forwards;
+}
+
+.ending-complete__title {
+  margin: 0;
+  color: #fff8dc;
+  font-size: clamp(1.8rem, 7vw, 4.2rem);
+  letter-spacing: 0.16em;
+  text-indent: 0.16em;
+}
+
+.ending-complete__chapter {
+  margin: 0;
+  color: #ffe4a1;
+  font-size: clamp(1.38rem, 5.8vw, 3.2rem);
+  letter-spacing: 0.24em;
+  text-indent: 0.24em;
+}
+
+.ending-roll__skip {
+  position: absolute;
+  z-index: 2;
+  right: max(18px, env(safe-area-inset-right));
+  bottom: max(18px, env(safe-area-inset-bottom));
+  border: 1px solid rgba(255, 238, 190, 0.34);
+  color: rgba(255, 248, 220, 0.62);
+  background: rgba(0, 0, 0, 0.28);
+  padding: 8px 14px;
+  letter-spacing: 0.16em;
+  cursor: pointer;
+}
+
+.ending-roll__skip:hover,
+.ending-roll__skip:focus-visible {
+  color: #fff8dc;
+  border-color: rgba(255, 238, 190, 0.72);
+}
+
+@keyframes ending-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 @media (min-width: 760px) {
   .advance-layer { padding-bottom: max(36px, env(safe-area-inset-bottom)); }
