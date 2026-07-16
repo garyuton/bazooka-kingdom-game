@@ -358,9 +358,84 @@ button { font: inherit; }
 .scene-effect.is-glow {
   background: radial-gradient(circle at 50% 43%, rgba(255, 224, 132, 0.3), transparent 24%);
 }
+
+.imagination-overlay {
+  position: absolute;
+  z-index: 1;
+  top: max(22px, env(safe-area-inset-top));
+  right: max(20px, env(safe-area-inset-right));
+  width: clamp(220px, 40vw, 560px);
+  max-height: 50svh;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-8px) scale(0.985);
+  transition: opacity 0.32s ease, transform 0.32s ease, filter 0.32s ease;
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.48));
+}
+
+.imagination-overlay.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.imagination-overlay.is-switching {
+  opacity: 0.42;
+  transform: translateY(-2px) scale(0.992);
+}
+
+.imagination-overlay.is-shake {
+  animation: imagination-wobble 0.45s ease 2;
+}
+
+.imagination-overlay.is-break {
+  opacity: 0;
+  transform: translateY(-10px) scale(1.04);
+  filter: blur(8px) drop-shadow(0 14px 28px rgba(0, 0, 0, 0.48));
+  transition: opacity 0.58s ease, transform 0.58s ease, filter 0.58s ease;
+}
+
+.imagination-image {
+  display: block;
+  width: 100%;
+  max-height: 50svh;
+  object-fit: contain;
+  border: 3px solid rgba(255, 240, 190, 0.86);
+  border-radius: 20px;
+  background: rgba(255, 248, 226, 0.86);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.34) inset,
+    0 0 30px rgba(255, 220, 150, 0.3);
+}
+
+.reaction-mark {
+  position: absolute;
+  z-index: 2;
+  top: 22%;
+  left: 50%;
+  opacity: 0;
+  transform: translate(-50%, -18px) scale(0.9);
+  color: #fff5c8;
+  font-size: clamp(2.4rem, 8vw, 5.4rem);
+  font-weight: 700;
+  text-shadow: 0 4px 18px #000, 0 0 22px rgba(255, 218, 128, 0.72);
+  pointer-events: none;
+  transition: opacity 0.24s ease, transform 0.24s ease;
+}
+
+.reaction-mark.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1);
+}
+
 .novel-game:has(.scene-effect.is-shake) .background-layer,
 .novel-game:has(.scene-effect.is-shake) .character-layer {
   animation: carriage-shake 0.46s ease-in-out 1;
+}
+
+@keyframes imagination-wobble {
+  0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+  35% { transform: translateY(0) rotate(-1.5deg) scale(1.01); }
+  70% { transform: translateY(0) rotate(1.2deg) scale(1.01); }
 }
 
 @keyframes carriage-shake {
@@ -593,6 +668,29 @@ button { font: inherit; }
 
 @media (min-width: 760px) {
   .advance-layer { padding-bottom: max(36px, env(safe-area-inset-bottom)); }
+}
+
+@media (max-width: 680px) {
+  .imagination-overlay {
+    top: max(16px, env(safe-area-inset-top));
+    left: 50%;
+    right: auto;
+    width: min(72vw, 360px);
+    transform: translate(-50%, -8px) scale(0.985);
+  }
+
+  .imagination-overlay.is-visible {
+    transform: translate(-50%, 0) scale(1);
+  }
+
+  .imagination-overlay.is-switching {
+    transform: translate(-50%, -2px) scale(0.992);
+  }
+
+  .imagination-image {
+    max-height: 42svh;
+    border-radius: 16px;
+  }
 }
 
 /* 読み聞かせ場面では、立ち絵の代わりに語り手の小さなアイコンを添えます。 */

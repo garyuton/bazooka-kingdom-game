@@ -8,7 +8,7 @@
  */
 
 const CONFIG = {
-  scenarioUrl: "story.json?v=20260716-second-act",
+  scenarioUrl: "story.json?v=20260717-bonding",
   typeInterval: 38,
   transitionDuration: 420,
 };
@@ -23,6 +23,9 @@ const elements = {
   bookTransitionOpen: document.querySelector("#book-transition-open"),
   characterLayer: document.querySelector("#character-layer"),
   effect: document.querySelector("#scene-effect"),
+  imagination: document.querySelector("#imagination-overlay"),
+  imaginationImage: document.querySelector("#imagination-image"),
+  reactionMark: document.querySelector("#reaction-mark"),
   fader: document.querySelector("#scene-fader"),
   advance: document.querySelector("#advance-layer"),
   speaker: document.querySelector("#speaker-name"),
@@ -62,6 +65,8 @@ const state = {
   typingTimer: null,
   autoAdvanceTimer: null,
   seTimer: null,
+  imaginationTimers: [],
+  reactionTimer: null,
   fullText: "",
   currentLogicalScene: null,
   advanceLockedUntil: 0,
@@ -467,6 +472,16 @@ function clearScheduledSe() {
   state.seTimer = null;
 }
 
+function clearImaginationTimers() {
+  state.imaginationTimers.forEach((timer) => clearTimeout(timer));
+  state.imaginationTimers = [];
+}
+
+function clearReactionTimer() {
+  clearTimeout(state.reactionTimer);
+  state.reactionTimer = null;
+}
+
 function formatText(value = "") {
   return String(value).replaceAll("{playerName}", state.variables.playerName);
 }
@@ -486,6 +501,67 @@ function setSceneEffect(effect, characterGlow = false) {
   elements.effect.className = "scene-effect";
   if (effect) elements.effect.classList.add(`is-${effect}`);
   elements.characterLayer.classList.toggle("has-glow", characterGlow);
+}
+
+function setImagination(source, options = {}) {
+  if (!options.preserveTimers) clearImaginationTimers();
+  elements.imagination.className = "imagination-overlay";
+  if (!source) {
+    elements.imaginationImage.removeAttribute("src");
+    elements.imaginationImage.alt = "";
+    return;
+  }
+
+  if (elements.imaginationImage.getAttribute("src")) {
+    elements.imagination.classList.add("is-switching");
+    state.imaginationTimers.push(setTimeout(() => {
+      elements.imaginationImage.src = source;
+      elements.imaginationImage.alt = options.alt || "想像";
+      elements.imagination.classList.remove("is-switching");
+      elements.imagination.classList.add("is-visible");
+      if (options.effect) elements.imagination.classList.add(`is-${options.effect}`);
+    }, options.switchDelayMs ?? 220));
+    return;
+  }
+
+  elements.imaginationImage.src = source;
+  elements.imaginationImage.alt = options.alt || "想像";
+  elements.imagination.classList.add("is-visible");
+  if (options.effect) elements.imagination.classList.add(`is-${options.effect}`);
+}
+
+function clearImagination(effect = null) {
+  clearImaginationTimers();
+  if (effect) {
+    elements.imagination.className = `imagination-overlay is-visible is-${effect}`;
+    state.imaginationTimers.push(setTimeout(() => setImagination(null), 620));
+    return;
+  }
+  setImagination(null);
+}
+
+function playImaginationSequence(sequence = []) {
+  clearImaginationTimers();
+  let elapsed = 0;
+  sequence.forEach((item) => {
+    state.imaginationTimers.push(setTimeout(() => {
+      setImagination(item.src, {
+        alt: item.alt,
+        switchDelayMs: item.switchDelayMs ?? 180,
+        preserveTimers: true,
+      });
+    }, elapsed));
+    elapsed += item.durationMs ?? 450;
+  });
+}
+
+function setReactionMark(mark = null, durationMs = 900) {
+  clearReactionTimer();
+  elements.reactionMark.textContent = mark || "";
+  elements.reactionMark.classList.toggle("is-visible", Boolean(mark));
+  if (mark && durationMs) {
+    state.reactionTimer = setTimeout(() => setReactionMark(null), durationMs);
+  }
 }
 
 function getNextIndex(scene) {
@@ -714,6 +790,8 @@ async function renderScene(index, useTransition = true) {
     setCharacters([]);
     setNarratorIcon(null);
     setSceneEffect(null, false);
+    clearImagination();
+    setReactionMark(null);
   }
   state.currentLogicalScene = logicalScene;
 
@@ -730,6 +808,14 @@ async function renderScene(index, useTransition = true) {
   if (Object.hasOwn(scene, "icon")) setNarratorIcon(scene.icon, scene.iconAlt);
   if (Object.hasOwn(scene, "effect") || Object.hasOwn(scene, "characterGlow")) {
     setSceneEffect(scene.effect || null, Boolean(scene.characterGlow));
+  }
+  if (Object.hasOwn(scene, "imagination")) {
+    if (scene.imagination) setImagination(scene.imagination.src, scene.imagination);
+    else clearImagination(scene.imaginationEffect || null);
+  }
+  if (scene.imaginationSequence) playImaginationSequence(scene.imaginationSequence);
+  if (Object.hasOwn(scene, "reaction")) {
+    setReactionMark(scene.reaction, scene.reactionDurationMs ?? 900);
   }
 
   elements.back.hidden = logicalScene === "scene000";
