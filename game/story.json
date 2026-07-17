@@ -571,12 +571,12 @@
     {
       "id": "scene006-13",
       "scene": "scene006",
-      "text": "「でも、金色の髪らしい。」",
+      "text": "「でも、髪がすごく綺麗らしい。」",
       "speaker": "ダンゴ",
       "postDelayMs": 500,
       "imagination": {
-        "src": "../assets/cg/imagination/img_imagination_romako_01_blonde_hair.png?v=20260717",
-        "alt": "金色の髪を想像するロマ子姫"
+        "src": "../assets/cg/imagination/img_imagination_romako_01_hair.png?v=20260718",
+        "alt": "髪だけを描いたロマ子姫の想像"
       }
     },
     {
@@ -585,18 +585,18 @@
       "text": "「瞳は、空みたいに青いらしいぞ！」",
       "speaker": "下男A",
       "imagination": {
-        "src": "../assets/cg/imagination/img_imagination_romako_02_blue_eyes_sky.png?v=20260717",
-        "alt": "空みたいに青い瞳の想像"
+        "src": "../assets/cg/imagination/img_imagination_romako_02_blue_eyes.png?v=20260718",
+        "alt": "両目が青いロマ子姫の想像"
       }
     },
     {
       "id": "scene006-15",
       "scene": "scene006",
-      "text": "「いや、俺は夕焼けみたいに赤いと聞いたぞ！」",
+      "text": "「いや、夕焼けみたいに赤いと聞いたぞ！」",
       "speaker": "下男B",
       "imagination": {
-        "src": "../assets/cg/imagination/img_imagination_romako_03_red_eyes_sunset.png?v=20260717",
-        "alt": "夕焼けみたいに赤い瞳の想像"
+        "src": "../assets/cg/imagination/img_imagination_romako_03_red_eyes.png?v=20260718",
+        "alt": "両目が赤いロマ子姫の想像"
       }
     },
     {
@@ -615,36 +615,47 @@
     {
       "id": "scene006-18",
       "scene": "scene006",
-      "text": "「……どっちが右なんだ？」",
+      "text": "「左が青……右が赤……？」",
       "speaker": "主人公",
-      "startDelayMs": 2300,
+      "postDelayMs": 1800,
       "imaginationSequence": [
         {
-          "src": "../assets/cg/imagination/img_imagination_romako_04_red_right_blue_left.png?v=20260717",
-          "alt": "右目が赤、左目が青の想像",
-          "durationMs": 480
+          "src": "../assets/cg/imagination/img_imagination_romako_04_left_blue_right_red.png?v=20260718",
+          "alt": "画面左が青、右が赤の想像",
+          "durationMs": 450
         },
         {
-          "src": "../assets/cg/imagination/img_imagination_romako_05_blue_right_red_left.png?v=20260717",
-          "alt": "右目が青、左目が赤の想像",
-          "durationMs": 480
+          "src": "../assets/cg/imagination/img_imagination_romako_05_left_red_right_blue.png?v=20260718",
+          "alt": "画面左が赤、右が青の想像",
+          "durationMs": 450
         },
         {
-          "src": "../assets/cg/imagination/img_imagination_romako_04_red_right_blue_left.png?v=20260717",
-          "alt": "右目が赤、左目が青の想像",
-          "durationMs": 430
+          "src": "../assets/cg/imagination/img_imagination_romako_04_left_blue_right_red.png?v=20260718",
+          "alt": "画面左が青、右が赤の想像",
+          "durationMs": 450
         },
         {
-          "src": "../assets/cg/imagination/img_imagination_romako_05_blue_right_red_left.png?v=20260717",
-          "alt": "右目が青、左目が赤の想像",
-          "durationMs": 430
-        },
-        {
-          "src": "../assets/cg/imagination/img_imagination_romako_04_red_right_blue_left.png?v=20260717",
-          "alt": "右目が赤、左目が青の想像",
-          "durationMs": 430
+          "src": "../assets/cg/imagination/img_imagination_romako_05_left_red_right_blue.png?v=20260718",
+          "alt": "画面左が赤、右が青の想像",
+          "durationMs": 450
         }
       ]
+    },
+    {
+      "id": "scene006-18b",
+      "scene": "scene006",
+      "text": "「いや……左が赤で、右が青……？」",
+      "speaker": "主人公",
+      "imagination": {
+        "src": "../assets/cg/imagination/img_imagination_romako_05_left_red_right_blue.png?v=20260718",
+        "alt": "画面左が赤、右が青の想像"
+      }
+    },
+    {
+      "id": "scene006-18c",
+      "scene": "scene006",
+      "text": "「……どっちが右なんだ？」",
+      "speaker": "主人公"
     },
     {
       "id": "scene006-19",
@@ -664,15 +675,19 @@
       "text": "「でも、笑顔はすっげぇ可愛いらしいぞ。」",
       "speaker": "下男B",
       "imagination": {
-        "src": "../assets/cg/imagination/img_imagination_romako_06_smile_complete.png?v=20260717",
-        "alt": "完成した姫の想像"
+        "src": "../assets/cg/imagination/img_imagination_romako_06_smile.png?v=20260718",
+        "alt": "笑顔が加わったロマ子姫の想像"
       }
     },
     {
       "id": "scene006-22",
       "scene": "scene006",
       "text": "「気品があってな。」",
-      "speaker": "年長下男"
+      "speaker": "年長下男",
+      "imagination": {
+        "src": "../assets/cg/imagination/img_imagination_romako_07_crown.png?v=20260718",
+        "alt": "王冠が加わったロマ子姫の想像"
+      }
     },
     {
       "id": "scene006-23",
@@ -1248,7 +1263,27 @@
       "id": "scene009-20",
       "scene": "scene009",
       "text": "「なんだ……あれ。」",
-      "speaker": "主人公",
+      "speaker": "主人公"
+    },
+    {
+      "id": "scene009-21",
+      "scene": "scene009",
+      "text": "「僕、バズ㌧！」",
+      "speaker": "バズ㌧",
+      "characters": [
+        {
+          "position": "center",
+          "name": "バズ㌧",
+          "src": "../assets/characters/bazuton.png?v=20260704"
+        }
+      ],
+      "effect": "glow",
+      "characterGlow": true,
+      "voice": "../assets/audio/voice/bazuton_intro_voice_01.mp3?v=20260718",
+      "voiceVolume": 0.94,
+      "voiceDelayMs": 320,
+      "voiceKey": "scene009-bazuton-intro",
+      "startDelayMs": 320,
       "action": "pause"
     }
   ]

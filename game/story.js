@@ -8,7 +8,7 @@
  */
 
 const CONFIG = {
-  scenarioUrl: "story.json?v=20260717-bonding",
+  scenarioUrl: "story.json?v=20260718-romako-bazuton-voice",
   typeInterval: 38,
   transitionDuration: 420,
 };
@@ -65,6 +65,7 @@ const state = {
   typingTimer: null,
   autoAdvanceTimer: null,
   seTimer: null,
+  voiceTimer: null,
   imaginationTimers: [],
   reactionTimer: null,
   fullText: "",
@@ -78,8 +79,11 @@ const state = {
 /** BGMとSEを管理する小さな窓口。JSONにパスを指定すると再生できます。 */
 const audioManager = {
   bgm: new Audio(),
+  voice: new Audio(),
   pendingSe: null,
+  pendingVoice: null,
   sceneSes: [],
+  playedVoiceKeys: new Set(),
 
   playBgm(source) {
     if (!source) {
@@ -119,6 +123,36 @@ const audioManager = {
     const { source, volume, options } = this.pendingSe;
     this.pendingSe = null;
     this.playSe(source, volume, options);
+  },
+
+  /** ボイスはシーン固有キーで一度だけ再生し、連打による多重再生を防ぎます。 */
+  playVoice(source, volume = 0.92, key = source) {
+    if (!source || this.playedVoiceKeys.has(key)) return;
+
+    this.voice.pause();
+    this.voice = new Audio(source);
+    this.voice.volume = volume;
+    this.voice.dataset.key = key;
+    this.voice.play().then(() => {
+      this.playedVoiceKeys.add(key);
+      this.pendingVoice = null;
+    }).catch(() => {
+      // 自動再生制限時は、次のユーザー操作で同じボイスを再試行します。
+      this.pendingVoice = { source, volume, key };
+    });
+  },
+
+  resumePendingVoice() {
+    if (!this.pendingVoice) return;
+    const { source, volume, key } = this.pendingVoice;
+    this.pendingVoice = null;
+    this.playVoice(source, volume, key);
+  },
+
+  stopVoice() {
+    this.voice.pause();
+    this.voice.removeAttribute("src");
+    this.pendingVoice = null;
   },
 
   stopSceneSe() {
@@ -472,6 +506,11 @@ function clearScheduledSe() {
   state.seTimer = null;
 }
 
+function clearScheduledVoice() {
+  clearTimeout(state.voiceTimer);
+  state.voiceTimer = null;
+}
+
 function clearImaginationTimers() {
   state.imaginationTimers.forEach((timer) => clearTimeout(timer));
   state.imaginationTimers = [];
@@ -768,6 +807,7 @@ async function renderScene(index, useTransition = true) {
   clearTimeout(state.typingTimer);
   clearAutoAdvance();
   clearScheduledSe();
+  clearScheduledVoice();
 
   const transitionDuration = scene.transitionDurationMs ?? CONFIG.transitionDuration;
   const usesBackgroundCrossfade = useTransition && scene.transitionMode === "crossfade";
@@ -786,6 +826,7 @@ async function renderScene(index, useTransition = true) {
   const defaults = state.scenario.defaults || {};
   if (isNewLogicalScene) {
     audioManager.stopSceneSe();
+    audioManager.stopVoice();
     clearBookTransition();
     setCharacters([]);
     setNarratorIcon(null);
@@ -836,6 +877,18 @@ async function renderScene(index, useTransition = true) {
       state.seTimer = setTimeout(() => audioManager.playSe(scene.se, scene.seVolume, { trackScene: true }), scene.seDelayMs);
     } else {
       audioManager.playSe(scene.se, scene.seVolume, { trackScene: true });
+    }
+  }
+  if (scene.voice) {
+    const playVoice = () => audioManager.playVoice(
+      scene.voice,
+      scene.voiceVolume ?? 0.92,
+      scene.voiceKey || `${scene.id}:${scene.voice}`,
+    );
+    if (scene.voiceDelayMs) {
+      state.voiceTimer = setTimeout(playVoice, scene.voiceDelayMs);
+    } else {
+      playVoice();
     }
   }
 
@@ -959,10 +1012,12 @@ async function loadScenario() {
 elements.advance.addEventListener("pointerdown", () => {
   state.interactionId += 1;
   audioManager.resumePendingSe();
+  audioManager.resumePendingVoice();
   ambienceManager.resume().catch(() => {});
 });
 elements.advance.addEventListener("click", (event) => {
   audioManager.resumePendingSe();
+  audioManager.resumePendingVoice();
   ambienceManager.resume().catch(() => {});
   // detail=0 はEnter/Spaceなどのキーボード操作です。
   if (event.detail === 0) state.interactionId += 1;

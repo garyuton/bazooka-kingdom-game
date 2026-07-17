@@ -364,13 +364,13 @@ button { font: inherit; }
   z-index: 1;
   top: max(22px, env(safe-area-inset-top));
   right: max(20px, env(safe-area-inset-right));
-  width: clamp(220px, 40vw, 560px);
-  max-height: 50svh;
+  width: clamp(220px, 38vw, 520px);
+  max-height: 49svh;
   pointer-events: none;
   opacity: 0;
   transform: translateY(-8px) scale(0.985);
   transition: opacity 0.32s ease, transform 0.32s ease, filter 0.32s ease;
-  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.48));
+  filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.28));
 }
 
 .imagination-overlay.is-visible {
@@ -397,14 +397,14 @@ button { font: inherit; }
 .imagination-image {
   display: block;
   width: 100%;
-  max-height: 50svh;
+  max-height: 49svh;
   object-fit: contain;
   border: 3px solid rgba(255, 240, 190, 0.86);
   border-radius: 20px;
-  background: rgba(255, 248, 226, 0.86);
+  background: rgba(255, 255, 255, 0.94);
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.34) inset,
-    0 0 30px rgba(255, 220, 150, 0.3);
+    0 0 0 1px rgba(255, 255, 255, 0.5) inset,
+    0 8px 24px rgba(0, 0, 0, 0.18);
 }
 
 .reaction-mark {
@@ -688,7 +688,7 @@ button { font: inherit; }
   }
 
   .imagination-image {
-    max-height: 42svh;
+    max-height: 40svh;
     border-radius: 16px;
   }
 }
