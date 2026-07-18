@@ -86,8 +86,9 @@
       "bgm": null,
       "ambience": "../assets/audio/ambience/rain_loop_01.mp3?v=20260712-rain",
       "ambienceVolume": 0.18,
-      "se": "../assets/audio/ambience/bell_far_01.mp3?v=20260704",
-      "seVolume": 0.18
+      "ambientSe": "../assets/audio/ambience/bell_far_01.mp3?v=20260704",
+      "ambientSeVolume": 0.18,
+      "ambientSeKey": "carriage-distant-bell"
     },
     {
       "id": "scene001-02",
@@ -119,7 +120,12 @@
       "speaker": "王妃",
       "bgm": null,
       "ambience": "../assets/audio/ambience/rain_loop_01.mp3?v=20260712-rain",
-      "ambienceVolume": 0.18,
+      "ambienceVolume": 0.08,
+      "ambienceFadeToMs": 800,
+      "ambientSe": "../assets/audio/ambience/bell_far_01.mp3?v=20260704",
+      "ambientSeVolume": 0.05,
+      "ambientSeKey": "carriage-distant-bell",
+      "ambientSeFadeToMs": 800,
       "transitionMode": "crossfade",
       "transitionDurationMs": 500,
       "postDelayMs": 500
@@ -177,7 +183,13 @@
       "hideName": true,
       "bgm": null,
       "ambience": "../assets/audio/ambience/rain_loop_01.mp3?v=20260712-rain",
-      "ambienceVolume": 0.18,
+      "ambienceVolume": 0.08,
+      "ambientSe": "../assets/audio/ambience/bell_far_01.mp3?v=20260704",
+      "ambientSeVolume": 0.05,
+      "ambientSeKey": "carriage-distant-bell",
+      "se": "../assets/audio/se/carriage_stop_01.mp3?v=20260718-carriage-stop",
+      "seVolume": 0.78,
+      "seKey": "scene002b-carriage-stop",
       "effect": "shake",
       "action": "wait",
       "waitMs": 550
@@ -210,7 +222,7 @@
       "characters": [],
       "bgm": null,
       "ambience": "../assets/audio/ambience/rain_loop_01.mp3?v=20260712-rain",
-      "ambienceVolume": 0.18,
+      "ambienceVolume": 0.08,
       "transitionDurationMs": 900,
       "revealOnly": true,
       "startDelayMs": 1700
@@ -269,6 +281,7 @@
       "ambience": "../assets/audio/ambience/birds_morning_01.mp3?v=20260716-birds",
       "ambienceVolume": 0.22,
       "ambienceFadeInMs": 1200,
+      "stopAmbientSeKey": "carriage-distant-bell",
       "startDelayMs": 700
     },
     {

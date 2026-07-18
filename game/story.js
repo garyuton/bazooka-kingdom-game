@@ -8,7 +8,7 @@
  */
 
 const CONFIG = {
-  scenarioUrl: "story.json?v=20260718-romako-bazuton-voice",
+  scenarioUrl: "story.json?v=20260718-carriage-audio",
   typeInterval: 38,
   transitionDuration: 420,
 };
@@ -83,7 +83,13 @@ const audioManager = {
   pendingSe: null,
   pendingVoice: null,
   sceneSes: [],
+  playedSeKeys: new Set(),
   playedVoiceKeys: new Set(),
+  ambientSe: new Audio(),
+  ambientSeKey: null,
+  ambientSeFadeTimer: null,
+  pendingAmbientSe: null,
+  playedAmbientSeKeys: new Set(),
 
   playBgm(source) {
     if (!source) {
@@ -105,6 +111,8 @@ const audioManager = {
 
   playSe(source, volume = 0.8, options = {}) {
     if (!source) return;
+    if (options.key && this.playedSeKeys.has(options.key) && !options.retry) return;
+    if (options.key) this.playedSeKeys.add(options.key);
     const se = new Audio(source);
     se.volume = volume;
     if (options.trackScene) {
@@ -122,7 +130,73 @@ const audioManager = {
     if (!this.pendingSe) return;
     const { source, volume, options } = this.pendingSe;
     this.pendingSe = null;
-    this.playSe(source, volume, options);
+    this.playSe(source, volume, { ...options, retry: true });
+  },
+
+  /** 遠鐘など、論理Sceneをまたいで一度だけ鳴る環境SEを管理します。 */
+  playAmbientSe(source, volume = 0.18, key = source, fadeToMs = 0) {
+    if (!source) return;
+    clearInterval(this.ambientSeFadeTimer);
+    this.ambientSeFadeTimer = null;
+
+    if (this.ambientSeKey === key && this.ambientSe.dataset.source === source) {
+      this.fadeAmbientSeTo(volume, fadeToMs);
+      return;
+    }
+    if (this.playedAmbientSeKeys.has(key)) return;
+
+    this.stopAmbientSe();
+    const ambientSe = new Audio(source);
+    ambientSe.dataset.source = source;
+    ambientSe.volume = volume;
+    this.ambientSe = ambientSe;
+    this.ambientSeKey = key;
+    this.playedAmbientSeKeys.add(key);
+    ambientSe.play().then(() => {
+      this.pendingAmbientSe = null;
+    }).catch(() => {
+      // 自動再生制限時も同じAudioを保持し、次の操作で再試行します。
+      this.pendingAmbientSe = ambientSe;
+    });
+  },
+
+  fadeAmbientSeTo(targetVolume, duration = 0) {
+    clearInterval(this.ambientSeFadeTimer);
+    this.ambientSeFadeTimer = null;
+    if (!duration || this.ambientSe.paused) {
+      this.ambientSe.volume = targetVolume;
+      return;
+    }
+
+    const startVolume = this.ambientSe.volume;
+    const startedAt = performance.now();
+    this.ambientSeFadeTimer = setInterval(() => {
+      const progress = Math.min((performance.now() - startedAt) / duration, 1);
+      this.ambientSe.volume = startVolume + ((targetVolume - startVolume) * progress);
+      if (progress >= 1) {
+        clearInterval(this.ambientSeFadeTimer);
+        this.ambientSeFadeTimer = null;
+      }
+    }, 40);
+  },
+
+  resumePendingAmbientSe() {
+    if (!this.pendingAmbientSe) return;
+    const ambientSe = this.pendingAmbientSe;
+    this.pendingAmbientSe = null;
+    ambientSe.play().catch(() => {
+      this.pendingAmbientSe = ambientSe;
+    });
+  },
+
+  stopAmbientSe(key = null) {
+    if (key && this.ambientSeKey !== key) return;
+    clearInterval(this.ambientSeFadeTimer);
+    this.ambientSeFadeTimer = null;
+    this.ambientSe.pause();
+    this.ambientSe.removeAttribute("src");
+    this.ambientSeKey = null;
+    this.pendingAmbientSe = null;
   },
 
   /** ボイスはシーン固有キーで一度だけ再生し、連打による多重再生を防ぎます。 */
@@ -199,8 +273,13 @@ const ambienceManager = {
       return;
     }
 
+    const continuesCurrentSource = this.audio.dataset.source === this.requestedSource;
     this.prepare(this.requestedSource);
     this.audio.dataset.volume = String(volume);
+    if (options.fadeToMs && continuesCurrentSource) {
+      this.fadeTo(volume, options.fadeToMs);
+      return;
+    }
     if (options.fadeInMs) {
       this.fadeIn(volume, options.fadeInMs);
       return;
@@ -240,6 +319,30 @@ const ambienceManager = {
         clearInterval(this.fadeTimer);
         this.fadeTimer = null;
         if (!this.audio.paused) elements.game.dataset.ambienceState = "playing";
+      }
+    }, 40);
+  },
+
+  /** 同じ環境音を止めず、現在音量から目標音量へ滑らかに移動します。 */
+  fadeTo(targetVolume = 0.28, duration = 800) {
+    clearInterval(this.fadeTimer);
+    this.fadeTimer = null;
+    this.audio.dataset.volume = String(targetVolume);
+    if (this.audio.paused || duration <= 0) {
+      this.audio.volume = targetVolume;
+      return;
+    }
+
+    const startVolume = this.audio.volume;
+    const startedAt = performance.now();
+    elements.game.dataset.ambienceState = "fading-volume";
+    this.fadeTimer = setInterval(() => {
+      const progress = Math.min((performance.now() - startedAt) / duration, 1);
+      this.audio.volume = startVolume + ((targetVolume - startVolume) * progress);
+      if (progress >= 1) {
+        clearInterval(this.fadeTimer);
+        this.fadeTimer = null;
+        elements.game.dataset.ambienceState = "playing";
       }
     }, 40);
   },
@@ -868,15 +971,32 @@ async function renderScene(index, useTransition = true) {
     audioManager.playBgm(defaults.bgm ?? null);
   }
   if (Object.hasOwn(scene, "ambience")) {
-    ambienceManager.set(scene.ambience, scene.ambienceVolume, { fadeInMs: scene.ambienceFadeInMs });
+    ambienceManager.set(scene.ambience, scene.ambienceVolume, {
+      fadeInMs: scene.ambienceFadeInMs,
+      fadeToMs: scene.ambienceFadeToMs,
+    });
   } else if (isNewLogicalScene) {
     ambienceManager.set(defaults.ambience ?? null);
   }
+  if (scene.stopAmbientSeKey) {
+    audioManager.stopAmbientSe(scene.stopAmbientSeKey);
+  }
+  if (scene.ambientSe) {
+    audioManager.playAmbientSe(
+      scene.ambientSe,
+      scene.ambientSeVolume,
+      scene.ambientSeKey || scene.ambientSe,
+      scene.ambientSeFadeToMs,
+    );
+  }
   if (scene.se) {
     if (scene.seDelayMs) {
-      state.seTimer = setTimeout(() => audioManager.playSe(scene.se, scene.seVolume, { trackScene: true }), scene.seDelayMs);
+      state.seTimer = setTimeout(() => audioManager.playSe(scene.se, scene.seVolume, {
+        trackScene: true,
+        key: scene.seKey,
+      }), scene.seDelayMs);
     } else {
-      audioManager.playSe(scene.se, scene.seVolume, { trackScene: true });
+      audioManager.playSe(scene.se, scene.seVolume, { trackScene: true, key: scene.seKey });
     }
   }
   if (scene.voice) {
@@ -1012,11 +1132,13 @@ async function loadScenario() {
 elements.advance.addEventListener("pointerdown", () => {
   state.interactionId += 1;
   audioManager.resumePendingSe();
+  audioManager.resumePendingAmbientSe();
   audioManager.resumePendingVoice();
   ambienceManager.resume().catch(() => {});
 });
 elements.advance.addEventListener("click", (event) => {
   audioManager.resumePendingSe();
+  audioManager.resumePendingAmbientSe();
   audioManager.resumePendingVoice();
   ambienceManager.resume().catch(() => {});
   // detail=0 はEnter/Spaceなどのキーボード操作です。
