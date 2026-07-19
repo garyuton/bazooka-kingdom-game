@@ -505,7 +505,9 @@
           "src": "../assets/characters/dango.png?v=20260716"
         }
       ],
-      "bgm": null,
+      "bgm": "../assets/audio/bgm/dining_hall_night_01.mp3?v=20260719",
+      "bgmVolume": 0.2,
+      "bgmFadeInMs": 500,
       "ambience": null,
       "transitionDurationMs": 900,
       "startDelayMs": 1000
@@ -943,6 +945,7 @@
       ],
       "icon": null,
       "bgm": null,
+      "bgmFadeOutMs": 800,
       "ambience": null,
       "transitionDurationMs": 800
     },
@@ -1297,7 +1300,19 @@
       "voiceDelayMs": 320,
       "voiceKey": "scene009-bazuton-intro",
       "startDelayMs": 320,
-      "action": "pause"
+      "waitForVoiceEnd": true,
+      "voiceWaitTimeoutMs": 8000,
+      "endingHoldMs": 1000,
+      "forceTransition": true
+    },
+    {
+      "id": "scene009-22",
+      "scene": "scene009",
+      "text": "",
+      "speaker": "",
+      "hideName": true,
+      "transitionDurationMs": 1000,
+      "action": "ending"
     }
   ]
 }

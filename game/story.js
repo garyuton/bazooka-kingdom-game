@@ -8,7 +8,7 @@
  */
 
 const CONFIG = {
-  scenarioUrl: "story.json?v=20260718-carriage-audio",
+  scenarioUrl: "story.json?v=20260718-chapter1-ending",
   typeInterval: 38,
   transitionDuration: 420,
 };
@@ -88,25 +88,79 @@ const audioManager = {
   ambientSe: new Audio(),
   ambientSeKey: null,
   ambientSeFadeTimer: null,
+  bgmFadeTimer: null,
   pendingAmbientSe: null,
   playedAmbientSeKeys: new Set(),
 
-  playBgm(source) {
+  playBgm(source, volume = 0.55, options = {}) {
+    clearInterval(this.bgmFadeTimer);
+    this.bgmFadeTimer = null;
     if (!source) {
-      this.bgm.pause();
-      this.bgm.removeAttribute("src");
-      delete this.bgm.dataset.source;
+      if (options.fadeOutMs) {
+        this.fadeBgmOut(options.fadeOutMs);
+      } else {
+        this.stopBgm();
+      }
       return;
     }
     if (this.bgm.dataset.source === source) return;
-    this.bgm.pause();
+    this.stopBgm();
     this.bgm = new Audio(source);
     this.bgm.dataset.source = source;
+    this.bgm.dataset.volume = String(volume);
     this.bgm.loop = true;
-    this.bgm.volume = 0.55;
+    this.bgm.volume = options.fadeInMs ? 0 : volume;
+    elements.game.dataset.bgm = source;
+    elements.game.dataset.bgmState = options.fadeInMs ? "fading-in" : "playing";
+    elements.game.dataset.bgmVolume = this.bgm.volume.toFixed(3);
     this.bgm.play().catch(() => {
       // 自動再生制限時は、次のユーザー操作まで再生を保留します。
     });
+    if (options.fadeInMs) this.fadeBgmTo(volume, options.fadeInMs);
+  },
+
+  fadeBgmTo(targetVolume, duration) {
+    clearInterval(this.bgmFadeTimer);
+    const startVolume = this.bgm.volume;
+    const startedAt = performance.now();
+    this.bgmFadeTimer = setInterval(() => {
+      const progress = Math.min((performance.now() - startedAt) / duration, 1);
+      this.bgm.volume = startVolume + ((targetVolume - startVolume) * progress);
+      elements.game.dataset.bgmVolume = this.bgm.volume.toFixed(3);
+      if (progress >= 1) {
+        clearInterval(this.bgmFadeTimer);
+        this.bgmFadeTimer = null;
+        elements.game.dataset.bgmState = "playing";
+      }
+    }, 40);
+  },
+
+  fadeBgmOut(duration) {
+    if (this.bgm.paused || !this.bgm.src || this.bgm.volume <= 0) {
+      this.stopBgm();
+      return;
+    }
+    const bgm = this.bgm;
+    const startVolume = bgm.volume;
+    const startedAt = performance.now();
+    elements.game.dataset.bgmState = "fading-out";
+    this.bgmFadeTimer = setInterval(() => {
+      const progress = Math.min((performance.now() - startedAt) / duration, 1);
+      bgm.volume = startVolume * (1 - progress);
+      elements.game.dataset.bgmVolume = bgm.volume.toFixed(3);
+      if (progress >= 1) this.stopBgm();
+    }, 40);
+  },
+
+  stopBgm() {
+    clearInterval(this.bgmFadeTimer);
+    this.bgmFadeTimer = null;
+    this.bgm.pause();
+    this.bgm.removeAttribute("src");
+    delete this.bgm.dataset.source;
+    elements.game.dataset.bgm = "none";
+    elements.game.dataset.bgmState = "stopped";
+    elements.game.dataset.bgmVolume = "0.000";
   },
 
   playSe(source, volume = 0.8, options = {}) {
@@ -227,6 +281,25 @@ const audioManager = {
     this.voice.pause();
     this.voice.removeAttribute("src");
     this.pendingVoice = null;
+  },
+
+  /** 終幕前はボイスのendedを待ち、読み上げ途中の切断を防ぎます。 */
+  waitForVoiceEnd(timeoutMs = 8000) {
+    const voice = this.voice;
+    if (!voice?.src || voice.ended) return Promise.resolve();
+
+    return new Promise((resolve) => {
+      let timeoutId = null;
+      const finish = () => {
+        voice.removeEventListener("ended", finish);
+        voice.removeEventListener("error", finish);
+        clearTimeout(timeoutId);
+        resolve();
+      };
+      voice.addEventListener("ended", finish, { once: true });
+      voice.addEventListener("error", finish, { once: true });
+      timeoutId = setTimeout(finish, timeoutMs);
+    });
   },
 
   stopSceneSe() {
@@ -397,7 +470,8 @@ const endingManager = {
 
     audioManager.playBgm(null);
     audioManager.stopSceneSe();
-    ambienceManager.fadeOut(1200);
+    audioManager.stopVoice();
+    ambienceManager.fadeOut(900);
     clearBookTransition();
     setCharacters([]);
     setNarratorIcon(null);
@@ -512,12 +586,20 @@ const endingManager = {
           <span>「僕、バズ㌧！」</span>
         </div>
       `, ENDING_ASSETS.rescue, false);
-    } else if (time < 190) {
+    } else if (time < 187) {
       this.showCard("quiet-before-peak", `
         <div class="ending-card ending-card--quiet">
           <p>これはまだ、物語の始まり。</p>
         </div>
       `, ENDING_ASSETS.bookClosed, true, "is-book");
+    } else if (time < 190) {
+      this.showCard("special-voice", `
+        <div class="ending-roll-list ending-roll-list--special">
+          <strong>SPECIAL VOICE</strong>
+          <span>バズ㌧</span>
+          <span>バズーカ伯爵（本人）</span>
+        </div>
+      `, null, true);
     } else if (time < 218) {
       this.showCard("complete", `
         <div class="ending-complete">
@@ -526,7 +608,11 @@ const endingManager = {
         </div>
       `, null, true);
     } else {
-      this.showCard("fadeout", "", null, false);
+      this.showCard("to-be-continued", `
+        <div class="ending-card ending-card--quiet">
+          <p class="ending-to-be-continued">TO BE CONTINUED...</p>
+        </div>
+      `, null, false);
     }
   },
 
@@ -966,7 +1052,10 @@ async function renderScene(index, useTransition = true) {
   // イベントCGなど、話者情報を保持しつつ名前欄だけ隠す演出に対応します。
   elements.speaker.textContent = scene.hideName ? "" : formatText(scene.speaker || "");
   if (Object.hasOwn(scene, "bgm")) {
-    audioManager.playBgm(scene.bgm);
+    audioManager.playBgm(scene.bgm, scene.bgmVolume, {
+      fadeInMs: scene.bgmFadeInMs,
+      fadeOutMs: scene.bgmFadeOutMs,
+    });
   } else if (isNewLogicalScene) {
     audioManager.playBgm(defaults.bgm ?? null);
   }
@@ -1019,11 +1108,13 @@ async function renderScene(index, useTransition = true) {
   elements.dialogue.textContent = "";
   elements.advance.dataset.state = "transitioning";
 
-  elements.fader.classList.remove("is-dark");
-  // フェードイン完了までは入力を受けず、連続タップによる読み飛ばしを防ぎます。
-  if (useTransition && !usesBackgroundCrossfade) {
-    await wait(transitionDuration);
-    elements.fader.style.removeProperty("transition-duration");
+  if (scene.action !== "ending") {
+    elements.fader.classList.remove("is-dark");
+    // フェードイン完了までは入力を受けず、連続タップによる読み飛ばしを防ぎます。
+    if (useTransition && !usesBackgroundCrossfade) {
+      await wait(transitionDuration);
+      elements.fader.style.removeProperty("transition-duration");
+    }
   }
 
   if (scene.startDelayMs) {
@@ -1056,6 +1147,9 @@ async function renderScene(index, useTransition = true) {
   if (scene.action === "ending") {
     state.isTransitioning = false;
     endingManager.start();
+    // EndingManagerの黒いオーバーレイを表示してから、暗転レイヤーを開放します。
+    elements.fader.classList.remove("is-dark");
+    elements.fader.style.removeProperty("transition-duration");
     return;
   }
 
@@ -1080,6 +1174,12 @@ async function advanceStory() {
   const currentScene = state.scenario.scenes[state.sceneIndex];
   if (currentScene.action) return;
   const nextIndex = getNextIndex(currentScene);
+
+  if (currentScene.waitForVoiceEnd) {
+    state.isTransitioning = true;
+    await audioManager.waitForVoiceEnd(currentScene.voiceWaitTimeoutMs ?? 8000);
+    await wait(currentScene.endingHoldMs ?? 1000);
+  }
 
   // 全文表示後のタップで、次のセリフへ進みます。
   if (nextIndex < state.scenario.scenes.length) {
@@ -1117,7 +1217,7 @@ async function loadScenario() {
     state.scenario = scenario;
     const requestedSceneId = new URLSearchParams(window.location.search).get("scene");
     const requestedIndex = requestedSceneId
-      ? scenario.scenes.findIndex((scene) => scene.id === requestedSceneId)
+      ? scenario.scenes.findIndex((scene) => scene.id === requestedSceneId || scene.scene === requestedSceneId)
       : -1;
     state.sceneIndex = requestedIndex >= 0 ? requestedIndex : 0;
     await renderScene(state.sceneIndex, false);

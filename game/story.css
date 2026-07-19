@@ -614,6 +614,22 @@ button { font: inherit; }
   letter-spacing: 0.18em;
 }
 
+.ending-roll-list--special {
+  font-size: clamp(1.05rem, 3vw, 1.4rem);
+}
+
+.ending-roll-list--special strong {
+  font-size: clamp(1.35rem, 4vw, 2rem);
+  letter-spacing: 0.24em;
+}
+
+.ending-to-be-continued {
+  color: #fff0b8;
+  font-size: clamp(1.25rem, 4vw, 2.2rem);
+  letter-spacing: 0.18em;
+  text-indent: 0.18em;
+}
+
 .ending-complete {
   display: grid;
   gap: clamp(18px, 4svh, 34px);
