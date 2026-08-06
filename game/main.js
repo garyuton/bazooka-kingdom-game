@@ -11,7 +11,7 @@ const titleContent = document.querySelector(".title-content");
 function startNewGame() {
   titleContent.classList.add("is-leaving");
   window.setTimeout(() => {
-    window.location.href = "story.html";
+    window.location.href = "story.html?start=1";
   }, 520);
 }
 

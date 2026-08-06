@@ -8,7 +8,7 @@
  */
 
 const CONFIG = {
-  scenarioUrl: "story.json?v=20260718-chapter1-ending",
+  scenarioUrl: "story.json?v=20260806-final-stage-2",
   typeInterval: 38,
   transitionDuration: 420,
 };
@@ -25,6 +25,8 @@ const elements = {
   effect: document.querySelector("#scene-effect"),
   imagination: document.querySelector("#imagination-overlay"),
   imaginationImage: document.querySelector("#imagination-image"),
+  imaginationHaze: document.querySelector("#imagination-haze"),
+  imaginationCaption: document.querySelector("#imagination-caption"),
   reactionMark: document.querySelector("#reaction-mark"),
   fader: document.querySelector("#scene-fader"),
   advance: document.querySelector("#advance-layer"),
@@ -39,11 +41,22 @@ const elements = {
   playerNameInput: document.querySelector("#player-name-input"),
   chapterEnd: document.querySelector("#chapter-end"),
   chapterEndBack: document.querySelector("#chapter-end-back"),
+  exploration: document.querySelector("#exploration-ui"),
+  explorationLocation: document.querySelector("#exploration-location"),
+  explorationChoices: document.querySelector("#exploration-choices"),
+  explorationStatus: document.querySelector("#exploration-status"),
   ending: document.querySelector("#ending-roll"),
   endingVisual: document.querySelector("#ending-visual"),
   endingGlow: document.querySelector("#ending-glow"),
+  endingPhotoStage: document.querySelector("#ending-photo-stage"),
+  endingPhotos: [
+    document.querySelector("#ending-photo-a"),
+    document.querySelector("#ending-photo-b"),
+  ],
+  endingLyric: document.querySelector("#ending-lyric"),
   endingContent: document.querySelector("#ending-content"),
   endingSkip: document.querySelector("#ending-skip"),
+  chapter2Teaser: document.querySelector("#chapter2-teaser"),
   characterPlaceholder: document.querySelector("#character-placeholder"),
   characterPlaceholderName: document.querySelector("#character-placeholder-name"),
   characters: {
@@ -54,6 +67,7 @@ const elements = {
 };
 
 let backgroundRequestId = 0;
+let undergroundExploration = null;
 
 const state = {
   scenario: null,
@@ -90,6 +104,7 @@ const audioManager = {
   ambientSeFadeTimer: null,
   bgmFadeTimer: null,
   pendingAmbientSe: null,
+  pendingBgm: false,
   playedAmbientSeKeys: new Set(),
 
   playBgm(source, volume = 0.55, options = {}) {
@@ -103,7 +118,10 @@ const audioManager = {
       }
       return;
     }
-    if (this.bgm.dataset.source === source) return;
+    if (this.bgm.dataset.source === source) {
+      this.resumePendingBgm();
+      return;
+    }
     this.stopBgm();
     this.bgm = new Audio(source);
     this.bgm.dataset.source = source;
@@ -113,10 +131,22 @@ const audioManager = {
     elements.game.dataset.bgm = source;
     elements.game.dataset.bgmState = options.fadeInMs ? "fading-in" : "playing";
     elements.game.dataset.bgmVolume = this.bgm.volume.toFixed(3);
-    this.bgm.play().catch(() => {
+    this.bgm.play().then(() => {
+      this.pendingBgm = false;
+    }).catch(() => {
       // 自動再生制限時は、次のユーザー操作まで再生を保留します。
+      this.pendingBgm = true;
+      elements.game.dataset.bgmState = "blocked";
     });
     if (options.fadeInMs) this.fadeBgmTo(volume, options.fadeInMs);
+  },
+
+  resumePendingBgm() {
+    if (!this.pendingBgm || !this.bgm.src) return;
+    this.bgm.play().then(() => {
+      this.pendingBgm = false;
+      elements.game.dataset.bgmState = "playing";
+    }).catch(() => {});
   },
 
   fadeBgmTo(targetVolume, duration) {
@@ -130,7 +160,7 @@ const audioManager = {
       if (progress >= 1) {
         clearInterval(this.bgmFadeTimer);
         this.bgmFadeTimer = null;
-        elements.game.dataset.bgmState = "playing";
+        elements.game.dataset.bgmState = this.pendingBgm ? "blocked" : "playing";
       }
     }, 40);
   },
@@ -156,6 +186,7 @@ const audioManager = {
     clearInterval(this.bgmFadeTimer);
     this.bgmFadeTimer = null;
     this.bgm.pause();
+    this.pendingBgm = false;
     this.bgm.removeAttribute("src");
     delete this.bgm.dataset.source;
     elements.game.dataset.bgm = "none";
@@ -323,7 +354,7 @@ const ambienceManager = {
   prepare(source) {
     if (!source) return;
     if (this.audio.dataset.source !== source) {
-      this.stop();
+      this.stop({ preserveRequest: true });
       this.audio = new Audio(source);
       this.audio.dataset.source = source;
       this.audio.loop = true;
@@ -369,12 +400,16 @@ const ambienceManager = {
     });
   },
 
-  stop() {
+  stop(options = {}) {
     clearInterval(this.fadeTimer);
     this.fadeTimer = null;
     this.audio.pause();
     this.audio.currentTime = 0;
     this.audio.volume = 0;
+    if (!options.preserveRequest) {
+      this.requestedSource = null;
+      elements.game.dataset.ambience = "none";
+    }
     elements.game.dataset.ambienceState = "stopped";
   },
 
@@ -424,6 +459,9 @@ const ambienceManager = {
   fadeOut(duration = 800) {
     clearInterval(this.fadeTimer);
     this.fadeTimer = null;
+    // フェード中の操作でresume()されないよう、停止要求を先に確定します。
+    this.requestedSource = null;
+    elements.game.dataset.ambience = "none";
     if (this.audio.paused || this.audio.volume <= 0 || duration <= 0) {
       this.stop();
       return;
@@ -442,13 +480,65 @@ const ambienceManager = {
 
 const ENDING_ASSETS = {
   theme: "../assets/audio/bgm/bazooka_kingdom_chapter1.mp3?v=20260715-ending",
-  bookOpen: "../assets/images/book/book_open_01.png?v=20260713-book",
-  bookClosed: "../assets/images/book/book_closed_01.png?v=20260713-book",
-  carriage: "../assets/cg/scene_royal_carriage_rain_01.png?v=20260712",
-  rescue: "../assets/cg/scene_child_found_in_rain_01.png?v=20260712",
-  dormitory: "../assets/bg/servants_dormitory_morning.png?v=20260704",
-  underground: "../assets/bg/underground_corridor.png?v=20260704",
+  chapter2Teaser: "../assets/images/ending/chapter2_emblem_foreshadowing.png?v=20260720-teaser",
 };
+
+// 写真・歌詞・クレジットはED曲のcurrentTime（秒）だけを基準に管理します。
+const ENDING_TITLE_END = 22;
+const ENDING_PHOTO_END = 150;
+const ENDING_PHOTO_FADE_START = 150;
+const ENDING_CREDITS_START = 157;
+const ENDING_FINAL_TITLE_DURATION = 6;
+const ENDING_SILENT_PAUSE_MS = 1000;
+// 歌詞がない時間帯は字幕を空にします。voiceは短いフェードのセリフ表示です。
+const ENDING_LYRICS = [
+  { start: 22, end: 32, text: "冷たい雨に震えていた\n名もなき子が石畳に眠る" },
+  { start: 33, end: 43, text: "巡幸の馬車　王と妃が\nその手を差し伸べた" },
+  { start: 44, end: 54, text: "運命の扉が開いた\n小さな希望の炎" },
+  { start: 55, end: 66, text: "バズーカ発射！　運命を撃ち抜け！\n掴んだチャンスをモノにしろ！" },
+  { start: 67, end: 82, text: "モテ男になるため　伯爵目指せ！\n心の友　「バズ㌧」と共に！" },
+  { start: 89, end: 99.1, text: "地下の闇に光り輝く\n９mmの何かが　俺を呼ぶ" },
+  { start: 99.35, end: 101.4, text: "「ボク、バズ㌧！」", type: "voice" },
+  { start: 101, end: 110, text: "静寂を切り裂き声が響く\n相棒の誕生だ！" },
+  { start: 111, end: 122, text: "王の命を　背に受けながら\n鐘が鳴る　新たな旅立ち" },
+  { start: 124, end: 134, text: "バズーカ発射！　運命を撃ち抜け！\n掴んだチャンスをモノにしろ！" },
+  { start: 135, end: 150, text: "モテ男になるため　伯爵目指せ！\n心の友　「バズ㌧」と共に！" },
+  { start: 157, end: 167, text: "ひとりじゃなかった　あの日から\nバズ㌧が笑う　ただそれだけで" },
+  { start: 168, end: 180, text: "涙も爆発に変わる\n歩き出す未来へ" },
+  { start: 181, end: 191, text: "バズーカ発射！　運命を撃ち抜け！\n掴んだチャンスをモノにしろ！" },
+  { start: 192, end: 206, text: "モテ男になるため　伯爵目指せ！\n心の友　バズ㌧と共に！" },
+];
+
+// 写真側だけが歌詞の時刻を参照します。歌詞タイムコード自体は変更しません。
+const ENDING_SLIDES = [
+  { start: ENDING_LYRICS[0].start, end: ENDING_LYRICS[0].end, zoom: 1.022, src: "../assets/images/ending/chapter1/ch01_ending_01_rainy_castle.png", alt: "雨の王城" },
+  { start: ENDING_LYRICS[1].start, end: ENDING_LYRICS[1].end, zoom: 1.026, src: "../assets/images/ending/chapter1/ch01_ending_02_royal_carriage.png", alt: "雨の中を進む王家の馬車" },
+  { start: ENDING_LYRICS[2].start, end: ENDING_LYRICS[2].end, zoom: 1.021, src: "../assets/images/ending/chapter1/sepia_royal_carriage_interior.webp", alt: "馬車内の国王と王妃" },
+  { start: ENDING_LYRICS[3].start, end: ENDING_LYRICS[3].end, zoom: 1.024, src: "../assets/images/ending/chapter1/sepia_child_in_the_rain.webp", alt: "雨の中で見つかった少年" },
+  { start: ENDING_LYRICS[4].start, end: ENDING_LYRICS[4].end, zoom: 1.023, src: "../assets/images/ending/chapter1/ch01_ending_03_servants_dormitory.png", alt: "下男宿舎" },
+  // 「ボク、バズ㌧！」だけは例外として、独立セリフの終了まで食堂写真を維持します。
+  { start: ENDING_LYRICS[5].start, end: ENDING_LYRICS[6].end, zoom: 1.025, src: "../assets/images/ending/chapter1/ch01_ending_04_dining_hall.png", alt: "灯火の食堂" },
+  { start: 101.55, end: ENDING_LYRICS[7].end, zoom: 1.022, src: "../assets/images/ending/chapter1/ch01_ending_05_castle_courtyard.png", alt: "王城中庭" },
+  { start: ENDING_LYRICS[8].start, end: ENDING_LYRICS[8].end, zoom: 1.024, src: "../assets/images/ending/chapter1/ch01_ending_06_underground_entrance.png", alt: "地下回廊の入口" },
+  { start: ENDING_LYRICS[9].start, end: ENDING_LYRICS[9].end, zoom: 1.023, src: "../assets/images/ending/chapter1/ch01_ending_07_underground_corridor.png", alt: "地下回廊" },
+  { start: ENDING_LYRICS[10].start, end: ENDING_LYRICS[10].end, zoom: 1.012, src: "../assets/images/ending/chapter1/sepia_bazooka_chronicle.webp", alt: "バズーカ王国物語の本" },
+].map((slide) => ({ ...slide, zoomDuration: slide.end - slide.start }));
+
+const ENDING_CREDITS = [
+  { key: "production", title: "製作", lines: ["ChatGPT", "Codex", "SUNO"] },
+  { key: "original", title: "原作・企画", lines: ["臥龍"] },
+  { key: "scenario", title: "シナリオ", lines: ["臥龍", "ChatGPT"] },
+  { key: "program", title: "プログラム", lines: ["Codex"] },
+  { key: "background", title: "背景美術", lines: ["ChatGPT"] },
+  { key: "images", title: "画像生成", lines: ["ChatGPT"] },
+  { key: "music", title: "音楽", lines: ["SUNO"] },
+  { key: "sound", title: "効果音", lines: ["ChatGPT"] },
+  { key: "direction", title: "演出", lines: ["臥龍", "ChatGPT", "Codex"] },
+  { key: "debug", title: "デバッグ", lines: ["臥龍", "Codex"] },
+  { key: "voice", title: "声の出演", lines: ["バズ㌧", "バズーカ伯爵（友情出演）"] },
+  { key: "thanks", title: "Special Thanks", lines: ["罵尻ロマ子様", "はげだんご様"] },
+  { key: "support", title: "Thanks for the financial support", lines: ["バズーカ伯爵様", "こめ59様"] },
+];
 
 const endingManager = {
   audio: new Audio(),
@@ -457,11 +547,29 @@ const endingManager = {
   skipDisplayTime: null,
   currentCard: "",
   isRunning: false,
+  teaserTimers: [],
+  endingPauseTimer: null,
+  lyricTimer: null,
+  currentLyric: "",
+  currentLyricType: "",
+  currentSlideIndex: -1,
+  activePhotoLayer: 0,
+  finishing: false,
+  teaserStarted: false,
 
   async start() {
     if (this.isRunning) return;
     this.isRunning = true;
+    this.finishing = false;
     this.currentCard = "";
+    this.currentLyric = "";
+    this.currentLyricType = "";
+    this.currentSlideIndex = -1;
+    this.activePhotoLayer = 0;
+    this.teaserStarted = false;
+    this.clearEndingPause();
+    this.clearTeaser();
+    this.clearEndingPresentation();
     cancelAnimationFrame(this.rafId);
     if (this.resumeHandler) {
       elements.ending.removeEventListener("click", this.resumeHandler);
@@ -481,22 +589,20 @@ const endingManager = {
 
     elements.ending.hidden = false;
     elements.endingSkip.hidden = true;
-    this.setVisual(ENDING_ASSETS.bookOpen, "is-book");
     this.setGlow(false);
-    this.setContent(`<div class="ending-card ending-card--quiet"><p>物語のページが、静かに閉じられていく。</p></div>`);
-
-    await wait(3800);
-    this.setVisual(ENDING_ASSETS.bookClosed, "is-book");
-    await wait(1800);
     this.clearVisual();
     this.setContent("");
-    await wait(1600);
+    await wait(350);
 
     this.audio.pause();
     this.audio = new Audio(ENDING_ASSETS.theme);
     this.audio.loop = false;
     this.audio.volume = 0;
-    this.audio.addEventListener("ended", () => this.finish(), { once: true });
+    this.audio.addEventListener("ended", () => this.finish({ pauseBeforeTeaser: true }), { once: true });
+    ENDING_SLIDES.forEach(({ src }) => {
+      const image = new Image();
+      image.src = src;
+    });
     this.audio.play().then(() => {
       this.tick();
     }).catch(() => {
@@ -537,83 +643,150 @@ const endingManager = {
   render(time) {
     if (time >= 20) elements.endingSkip.hidden = false;
 
-    if (time < 10) {
-      this.showCard("black", "", null, false);
-    } else if (time < 20) {
-      this.showCard("title", `
-        <div class="ending-card">
-          <h2 class="ending-title">バズーカ王国物語</h2>
-          <p class="ending-subtitle">第一章</p>
+    // 0～22秒は黒背景と章タイトルだけを見せます。
+    if (time < ENDING_TITLE_END) {
+      this.hidePhotoStage(true);
+      this.setLyric("");
+      const isLeaving = time >= ENDING_TITLE_END - 1.5;
+      this.showCard("opening-title", `
+        <div class="ending-opening-title">
+          <h2>バズーカ王国物語</h2>
+          <p>第一章</p>
         </div>
       `, null, false);
-    } else if (time < 40) {
-      this.showCard("book-close", `
-        <div class="ending-card ending-card--quiet">
-          <p>雨の夜に開かれた物語は、</p>
-          <p>ひとつの出会いを残して、そっとページを閉じる。</p>
-        </div>
-      `, ENDING_ASSETS.bookClosed, false, "is-book");
-    } else if (time < 80) {
-      this.showCard("credits-1", `
-        <div class="ending-roll-list">
-          <strong>第一章　雨の日の朝</strong>
-          <span>語り　ガリュ㌧</span>
-          <span>王と王妃の巡幸</span>
-          <span>雨の石畳に倒れていた少年</span>
-        </div>
-      `, ENDING_ASSETS.carriage, false);
-    } else if (time < 115) {
-      this.showCard("memory-1", `
-        <div class="ending-roll-list">
-          <strong>名もなき少年</strong>
-          <span>下男宿舎で目を覚まし、</span>
-          <span>はじめて雨風をしのぐ屋根を得た。</span>
-        </div>
-      `, ENDING_ASSETS.dormitory, false);
-    } else if (time < 145) {
-      this.showCard("memory-2", `
-        <div class="ending-roll-list">
-          <strong>地下通路</strong>
-          <span>冷たい石の奥で、</span>
-          <span>小さな光が少年を待っていた。</span>
-        </div>
-      `, ENDING_ASSETS.underground, false);
-    } else if (time < 170) {
-      this.showCard("credits-2", `
-        <div class="ending-roll-list">
-          <strong>出会い</strong>
-          <span>バズ㌧</span>
-          <span>「僕、バズ㌧！」</span>
-        </div>
-      `, ENDING_ASSETS.rescue, false);
-    } else if (time < 187) {
-      this.showCard("quiet-before-peak", `
-        <div class="ending-card ending-card--quiet">
-          <p>これはまだ、物語の始まり。</p>
-        </div>
-      `, ENDING_ASSETS.bookClosed, true, "is-book");
-    } else if (time < 190) {
-      this.showCard("special-voice", `
-        <div class="ending-roll-list ending-roll-list--special">
-          <strong>SPECIAL VOICE</strong>
-          <span>バズ㌧</span>
-          <span>バズーカ伯爵（本人）</span>
-        </div>
-      `, null, true);
-    } else if (time < 218) {
-      this.showCard("complete", `
-        <div class="ending-complete">
-          <h2 class="ending-complete__title">バズーカ王国物語</h2>
-          <p class="ending-complete__chapter">第一章　完</p>
-        </div>
-      `, null, true);
-    } else {
-      this.showCard("to-be-continued", `
-        <div class="ending-card ending-card--quiet">
-          <p class="ending-to-be-continued">TO BE CONTINUED...</p>
-        </div>
-      `, null, false);
+      elements.endingContent.querySelector(".ending-opening-title")?.classList.toggle("is-leaving", isLeaving);
+      return;
     }
+
+    if (time < ENDING_PHOTO_END) {
+      this.showCard("photos", "", null, false);
+      if (time < ENDING_PHOTO_FADE_START) this.renderPhoto(time);
+      else this.hidePhotoStage();
+      this.renderLyric(time);
+      return;
+    }
+
+    this.hidePhotoStage();
+    const duration = this.getAudioDuration();
+    const finalTitleStart = Math.max(ENDING_CREDITS_START, duration - ENDING_FINAL_TITLE_DURATION);
+    if (time < ENDING_CREDITS_START) {
+      this.setLyric("");
+      this.showCard("post-photos-pause", "", null, false);
+      return;
+    }
+    if (time < finalTitleStart) {
+      this.renderCredits(time, duration, finalTitleStart);
+      this.renderLyric(time);
+      return;
+    }
+
+    // 終了1秒前から消し、ended時点では文字を完全に残しません。
+    this.setLyric("");
+    const isLeaving = time >= duration - 1;
+    this.showCard("ending-complete", `
+      <div class="ending-complete">
+        <h2 class="ending-complete__title">バズーカ王国物語</h2>
+        <p class="ending-complete__chapter">第一章</p>
+        <p class="ending-complete__end">完</p>
+      </div>
+    `, null, false);
+    elements.endingContent.querySelector(".ending-complete")?.classList.toggle("is-leaving", isLeaving);
+  },
+
+  renderPhoto(time) {
+    const slideIndex = ENDING_SLIDES.findIndex(({ start, end }) => time >= start && time < end);
+    if (slideIndex < 0) {
+      if (this.currentSlideIndex >= 0) {
+        const activePhoto = elements.endingPhotos[this.activePhotoLayer];
+        activePhoto.style.setProperty("--ending-photo-fade-out-duration", "0.25s");
+        activePhoto.classList.add("is-fading-out");
+        activePhoto.classList.remove("is-active");
+        this.currentSlideIndex = -1;
+      }
+      return;
+    }
+    elements.endingPhotoStage.hidden = false;
+    elements.endingPhotoStage.classList.remove("is-leaving");
+    if (slideIndex === this.currentSlideIndex) return;
+
+    const layerIndex = this.currentSlideIndex < 0 ? 0 : 1 - this.activePhotoLayer;
+    const layer = elements.endingPhotos[layerIndex];
+    const slide = ENDING_SLIDES[slideIndex];
+    elements.endingPhotos.forEach((photo, index) => {
+      photo.classList.remove("is-active", "is-fading-out", "is-hidden-immediate");
+      if (index !== layerIndex) photo.classList.add("is-hidden-immediate");
+    });
+    layer.src = slide.src;
+    layer.alt = slide.alt;
+    layer.dataset.motion = "zoom";
+    layer.style.setProperty("--ending-photo-zoom", String(slide.zoom));
+    layer.style.setProperty("--ending-photo-zoom-duration", `${slide.zoomDuration}s`);
+    layer.style.removeProperty("--ending-photo-fade-out-duration");
+    layer.classList.remove("is-active", "is-fading-out", "is-hidden-immediate");
+    requestAnimationFrame(() => requestAnimationFrame(() => layer.classList.add("is-active")));
+    this.activePhotoLayer = layerIndex;
+    this.currentSlideIndex = slideIndex;
+  },
+
+  renderLyric(time) {
+    const cue = ENDING_LYRICS.find(({ start, end }) => time >= start && time < end);
+    this.setLyric(cue?.text || "", cue?.type || "");
+  },
+
+  setLyric(text, type = "") {
+    if (this.currentLyric === text && this.currentLyricType === type) return;
+    this.currentLyric = text;
+    this.currentLyricType = type;
+      clearTimeout(this.lyricTimer);
+      elements.endingLyric.classList.remove("is-visible");
+      if (!text) {
+        elements.endingLyric.textContent = "";
+        elements.endingLyric.classList.remove("ending-lyric--voice");
+        return;
+      }
+      this.lyricTimer = setTimeout(() => {
+        if (!this.isRunning || this.currentLyric !== text) return;
+        // 表示テキストと専用スタイルを同じタイミングで更新し、
+        // フェード中の旧テキストだけが通常サイズへ戻る瞬間を防ぐ。
+        elements.endingLyric.classList.toggle("ending-lyric--voice", type === "voice");
+        elements.endingLyric.textContent = text;
+        elements.endingLyric.classList.add("is-visible");
+      }, type === "voice" ? 60 : 180);
+  },
+
+  hidePhotoStage(immediate = false) {
+    if (elements.endingPhotoStage.hidden) return;
+    if (immediate) {
+      elements.endingPhotoStage.hidden = true;
+      elements.endingPhotoStage.classList.remove("is-leaving");
+      return;
+    }
+    elements.endingPhotoStage.classList.add("is-leaving");
+  },
+
+  getAudioDuration() {
+    const fallbackDuration = 224;
+    return Number.isFinite(this.audio.duration) && this.audio.duration > 0
+      ? this.audio.duration
+      : fallbackDuration;
+  },
+
+  renderCredits(time, audioDuration = this.getAudioDuration(), creditsEnd = audioDuration - ENDING_FINAL_TITLE_DURATION) {
+    const creditsStart = ENDING_CREDITS_START;
+    const segmentDuration = (creditsEnd - creditsStart) / ENDING_CREDITS.length;
+    const index = Math.min(
+      ENDING_CREDITS.length - 1,
+      Math.max(0, Math.floor((time - creditsStart) / segmentDuration)),
+    );
+    const credit = ENDING_CREDITS[index];
+    const lines = credit.lines.map((line) => `<span>${line}</span>`).join("");
+    const layoutClass = credit.key === "voice" ? " ending-roll-list--voice" : "";
+    this.showCard(`credit-${credit.key}`, `
+      <div class="ending-roll-list ending-roll-list--staff${layoutClass}">
+        <strong>${credit.title}</strong>
+        ${lines}
+      </div>
+    `, null, false);
   },
 
   showCard(key, html, visual, glow = false, visualClass = "") {
@@ -644,27 +817,13 @@ const endingManager = {
   },
 
   skipToFinale() {
-    if (!this.isRunning || !this.audio.src) return;
-    const finaleTime = 190;
-    const seekFinale = () => {
-      try {
-        this.audio.currentTime = Math.max(this.audio.currentTime || 0, finaleTime);
-      } catch {}
-    };
-    seekFinale();
-    if (!Number.isFinite(this.audio.duration) || this.audio.duration < finaleTime) {
-      this.audio.addEventListener("loadedmetadata", seekFinale, { once: true });
-    }
-    this.skipDisplayTime = finaleTime;
-    this.audio.volume = 0.78;
-    this.render(finaleTime);
-    if (this.audio.paused) {
-      this.audio.play().then(() => this.tick()).catch(() => {});
-    }
+    if (!this.isRunning || this.finishing) return;
+    this.finish({ skipTeaser: true });
   },
 
-  async finish() {
-    if (!this.isRunning) return;
+  async finish({ skipTeaser = false, pauseBeforeTeaser = false } = {}) {
+    if (!this.isRunning || this.finishing) return;
+    this.finishing = true;
     this.isRunning = false;
     cancelAnimationFrame(this.rafId);
     this.rafId = null;
@@ -674,12 +833,96 @@ const endingManager = {
       this.resumeHandler = null;
     }
     this.audio.pause();
+    this.audio.currentTime = 0;
     this.setGlow(false);
     this.clearVisual();
     this.setContent("");
+    this.clearEndingPresentation();
     elements.endingSkip.hidden = true;
-    await wait(2600);
+    if (!skipTeaser) {
+      // 曲のended後は、何も描画・再生しない黒画面を1秒だけ維持します。
+      if (pauseBeforeTeaser) await this.waitForEndingPause();
+      this.teaserStarted = true;
+      await this.showChapter2Teaser();
+      await wait(1600);
+    }
     window.location.href = "index.html";
+  },
+
+  waitForEndingPause() {
+    this.clearEndingPause();
+    return new Promise((resolve) => {
+      this.endingPauseTimer = window.setTimeout(() => {
+        this.endingPauseTimer = null;
+        resolve();
+      }, ENDING_SILENT_PAUSE_MS);
+    });
+  },
+
+  clearEndingPause() {
+    clearTimeout(this.endingPauseTimer);
+    this.endingPauseTimer = null;
+  },
+
+  /** エンドロール後の第二章予告。既存EndingManager内で完結させます。 */
+  showChapter2Teaser() {
+    if (!this.finishing || !this.teaserStarted) return Promise.resolve();
+    this.clearTeaser();
+    elements.chapter2Teaser.hidden = false;
+
+    // DOMへ反映してから開始クラスを付け、フェードインを確実に発火させます。
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => elements.chapter2Teaser.classList.add("is-active"));
+    });
+
+    return new Promise((resolve) => {
+      this.teaserTimers.push(setTimeout(() => {
+        elements.chapter2Teaser.classList.add("show-title");
+      }, 3000));
+      this.teaserTimers.push(setTimeout(() => {
+        elements.chapter2Teaser.classList.add("show-chapter");
+      }, 3700));
+      this.teaserTimers.push(setTimeout(() => {
+        elements.chapter2Teaser.classList.add("show-status");
+      }, 4400));
+      this.teaserTimers.push(setTimeout(() => elements.chapter2Teaser.classList.add("is-leaving"), 8400));
+      this.teaserTimers.push(setTimeout(() => {
+        this.clearTeaser();
+        resolve();
+      }, 9800));
+    });
+  },
+
+  clearTeaser() {
+    this.teaserTimers.forEach((timer) => clearTimeout(timer));
+    this.teaserTimers = [];
+    elements.chapter2Teaser.classList.remove(
+      "is-active",
+      "is-leaving",
+      "show-title",
+      "show-chapter",
+      "show-status",
+    );
+    elements.chapter2Teaser.hidden = true;
+  },
+
+  clearEndingPresentation() {
+    clearTimeout(this.lyricTimer);
+    this.lyricTimer = null;
+    this.currentLyric = "";
+    this.currentLyricType = "";
+    this.currentSlideIndex = -1;
+    this.activePhotoLayer = 0;
+    elements.endingLyric.textContent = "";
+    elements.endingLyric.classList.remove("is-visible", "ending-lyric--voice");
+    elements.endingPhotoStage.hidden = true;
+    elements.endingPhotoStage.classList.remove("is-leaving");
+    elements.endingPhotos.forEach((photo) => {
+      photo.classList.remove("is-active");
+      photo.removeAttribute("src");
+      photo.removeAttribute("alt");
+      photo.removeAttribute("data-motion");
+    });
   },
 };
 
@@ -734,6 +977,9 @@ function setSceneEffect(effect, characterGlow = false) {
 function setImagination(source, options = {}) {
   if (!options.preserveTimers) clearImaginationTimers();
   elements.imagination.className = "imagination-overlay";
+  elements.imaginationImage.className = "imagination-image imagination-romako";
+  elements.imaginationHaze.className = "imagination-haze";
+  elements.imaginationCaption.className = "imagination-caption";
   if (!source) {
     elements.imaginationImage.removeAttribute("src");
     elements.imaginationImage.alt = "";
@@ -758,8 +1004,46 @@ function setImagination(source, options = {}) {
   if (options.effect) elements.imagination.classList.add(`is-${options.effect}`);
 }
 
+/** ロマ子姫の想像を、霧の奥に一枚だけ浮かび上がらせます。 */
+function playRomakoImagination(options = {}) {
+  clearImaginationTimers();
+  elements.imagination.className = "imagination-overlay is-romako-reveal";
+  elements.imaginationImage.className = "imagination-image imagination-romako";
+  elements.imaginationImage.src = options.src;
+  elements.imaginationImage.alt = options.alt || "主人公が想像したロマ子姫";
+  elements.imaginationHaze.className = "imagination-haze";
+  elements.imaginationCaption.className = "imagination-caption";
+
+  state.imaginationTimers.push(setTimeout(() => {
+    elements.imaginationHaze.classList.add("is-active");
+  }, options.hazeDelayMs ?? 800));
+  state.imaginationTimers.push(setTimeout(() => {
+    elements.imaginationImage.classList.add("is-visible");
+  }, options.imageDelayMs ?? 1000));
+  state.imaginationTimers.push(setTimeout(() => {
+    elements.imaginationCaption.classList.add("is-visible");
+  }, options.captionDelayMs ?? 1500));
+  state.imaginationTimers.push(setTimeout(() => {
+    fadeRomakoImagination(options.fadeDurationMs ?? 1000);
+  }, options.fadeAtMs ?? 5000));
+}
+
+function fadeRomakoImagination(durationMs = 1000) {
+  clearImaginationTimers();
+  elements.imaginationImage.classList.remove("is-visible");
+  elements.imaginationImage.classList.add("is-fading");
+  elements.imaginationHaze.classList.remove("is-active");
+  elements.imaginationHaze.classList.add("is-fading");
+  elements.imaginationCaption.classList.remove("is-visible");
+  state.imaginationTimers.push(setTimeout(() => setImagination(null), durationMs));
+}
+
 function clearImagination(effect = null) {
   clearImaginationTimers();
+  if (effect === "mist" && elements.imagination.classList.contains("is-romako-reveal")) {
+    fadeRomakoImagination(1800);
+    return;
+  }
   if (effect) {
     elements.imagination.className = `imagination-overlay is-visible is-${effect}`;
     state.imaginationTimers.push(setTimeout(() => setImagination(null), 620));
@@ -934,16 +1218,200 @@ function setCharacters(characters = []) {
 
   for (const [position, image] of Object.entries(elements.characters)) {
     const character = characters.find((item) => item.position === position);
-    image.classList.toggle("is-visible", Boolean(character?.src));
+    const hasCharacter = Boolean(character?.src);
+    const shouldFadeIn = hasCharacter && character.enterEffect === "fade";
+    const revealToken = String((Number(image.dataset.revealToken) || 0) + 1);
+    image.dataset.revealToken = revealToken;
+    image.classList.remove("is-visible", "is-fade-in", "is-fade-visible");
+    if (character?.enterDurationMs) {
+      image.style.setProperty("--character-enter-duration", `${character.enterDurationMs}ms`);
+    } else {
+      image.style.removeProperty("--character-enter-duration");
+    }
 
-    if (character?.src) {
+    if (hasCharacter) {
       image.src = character.src;
       image.alt = character.name || "";
+      if (shouldFadeIn) {
+        // hidden/opacity:0 を描画してから、visibility と opacity を別フレームで更新します。
+        image.classList.add("is-fade-in");
+        requestAnimationFrame(() => {
+          if (image.dataset.revealToken !== revealToken) return;
+          image.classList.add("is-visible");
+          requestAnimationFrame(() => {
+            if (image.dataset.revealToken !== revealToken) return;
+            image.classList.add("is-fade-visible");
+          });
+        });
+      } else {
+        image.classList.add("is-visible");
+      }
     } else {
       image.removeAttribute("src");
       image.alt = "";
     }
   }
+}
+
+/** Scene途中から開いた場合も、同じScene内で直前に指定された舞台状態を復元します。 */
+function getInheritedSceneValue(index, logicalScene, key) {
+  for (let cursor = index; cursor >= 0; cursor -= 1) {
+    const candidate = state.scenario.scenes[cursor];
+    if ((candidate.scene || candidate.id) !== logicalScene) break;
+    if (Object.hasOwn(candidate, key)) return candidate[key];
+  }
+  return undefined;
+}
+
+async function hideExplorationDialogue(fadeMs = 0) {
+  clearTimeout(state.typingTimer);
+  state.isTyping = false;
+  state.fullText = "";
+  elements.advance.dataset.state = "transitioning";
+  elements.dialoguePanel.classList.add("is-hidden");
+  if (fadeMs > 0) await wait(fadeMs);
+  elements.dialogue.textContent = "";
+  elements.speaker.textContent = "";
+  setNarratorIcon(null);
+}
+
+function suppressDialogueUi(suppressed) {
+  elements.advance.classList.toggle("is-dialogue-suppressed", suppressed);
+  if (suppressed) {
+    elements.dialogue.textContent = "";
+    elements.speaker.textContent = "";
+    setNarratorIcon(null);
+  }
+}
+
+function waitForPaint(frames = 1) {
+  return new Promise((resolve) => {
+    const nextFrame = (remaining) => {
+      window.requestAnimationFrame(() => {
+        if (remaining <= 1) resolve();
+        else nextFrame(remaining - 1);
+      });
+    };
+    nextFrame(Math.max(frames, 1));
+  });
+}
+
+function showExplorationLine(line) {
+  if (line.stopAmbienceBefore) ambienceManager.stop();
+  const isNarrator = Boolean(line.narrator);
+  const speaker = line.speaker === "主人公"
+    ? state.variables.playerName
+    : formatText(line.speaker || "");
+  elements.speaker.textContent = line.hideName ? "" : speaker;
+  setNarratorIcon(
+    isNarrator ? undergroundExploration.data.narratorIcon : null,
+    "ガリュ㌧",
+  );
+  elements.dialoguePanel.classList.remove("is-hidden");
+  typeDialogue(formatText(line.text || ""), line.typeInterval ?? CONFIG.typeInterval);
+}
+
+async function setExplorationRoom(room, moving) {
+  const duration = moving ? 320 : 0;
+  if (room.ambienceFadeOutOnEnterMs) {
+    ambienceManager.fadeOut(room.ambienceFadeOutOnEnterMs);
+  }
+  if (moving) {
+    elements.fader.style.transitionDuration = `${duration}ms`;
+    elements.fader.classList.add("is-dark");
+    const movement = undergroundExploration.data.movementSe;
+    if (movement?.src) {
+      audioManager.playSe(movement.src, movement.volume ?? 0.48, { trackScene: true });
+    }
+    await wait(duration);
+  }
+
+  if (room.stopMovementOnEnter) {
+    clearScheduledSe();
+    audioManager.stopSceneSe();
+  }
+
+  await preloadImage(room.background);
+  setBackground(room.background);
+  setCharacters(room.characters || []);
+  setNarratorIcon(null);
+  setSceneEffect(room.effect || "dim", false);
+  if (Object.hasOwn(room, "ambience")) {
+    if (room.ambience?.src) {
+      ambienceManager.set(room.ambience.src, room.ambience.volume ?? 0.18, {
+        fadeInMs: room.ambience.fadeInMs ?? 500,
+      });
+    } else {
+      ambienceManager.stop();
+    }
+  }
+  if (room.bgmFadeOutOnEnterMs) {
+    audioManager.fadeBgmOut(room.bgmFadeOutOnEnterMs);
+  }
+
+  if (moving) {
+    elements.fader.classList.remove("is-dark");
+    await wait(duration);
+    elements.fader.style.removeProperty("transition-duration");
+  }
+}
+
+async function continueFromExplorationTrueEnd() {
+  elements.exploration.hidden = true;
+  setCharacters([]);
+  setNarratorIcon(null);
+  setSceneEffect("dim", false);
+
+  // 最後の独白を消し切り、枠・名前欄・送りカーソルを残さず静寂へ移ります。
+  await hideExplorationDialogue(900);
+  suppressDialogueUi(true);
+  await waitForPaint(2);
+  clearScheduledSe();
+  audioManager.stopSceneSe();
+  audioManager.stopBgm();
+  ambienceManager.fadeOut(800);
+  await wait(800);
+  ambienceManager.stop();
+
+  // 理屈で説明できない、音もUIもない完全な静寂を十分に見せます。
+  await wait(2600);
+
+  const targetIndex = state.scenario.scenes.findIndex((scene) => scene.id === "scene009-19");
+  if (targetIndex < 0) throw new Error("TRUEルート接続先 scene009-19 がありません");
+  state.sceneIndex = targetIndex;
+  state.isTransitioning = false;
+  await renderScene(targetIndex, false);
+}
+
+async function startUndergroundExploration() {
+  if (!undergroundExploration) {
+    undergroundExploration = new window.ExplorationManager({
+      dataUrl: "data/chapter1-underground.json?v=20260806-final-stage-2",
+      elements: {
+        root: elements.exploration,
+        location: elements.explorationLocation,
+        choices: elements.explorationChoices,
+        status: elements.explorationStatus,
+      },
+      callbacks: {
+        format: formatText,
+        setRoom: setExplorationRoom,
+        showLine: showExplorationLine,
+        hideDialogue: hideExplorationDialogue,
+        startAmbience: async (ambience) => {
+          if (!ambience?.src) return;
+          ambienceManager.set(ambience.src, ambience.volume ?? 0.18, {
+            fadeInMs: ambience.fadeInMs ?? 500,
+          });
+        },
+        onActiveChange: (active) => {
+          elements.game.dataset.exploration = active ? "active" : "inactive";
+        },
+        onTrue: continueFromExplorationTrueEnd,
+      },
+    });
+  }
+  await undergroundExploration.start();
 }
 
 function finishTyping() {
@@ -991,12 +1459,26 @@ async function renderScene(index, useTransition = true) {
 
   const logicalScene = scene.scene || scene.id;
   const isNewLogicalScene = state.currentLogicalScene !== logicalScene;
+  const isBazutonEntrance = ["scene009-19", "scene009-20", "scene009-21"].includes(scene.id);
+  if (isBazutonEntrance) suppressDialogueUi(true);
 
   state.isTransitioning = true;
   clearTimeout(state.typingTimer);
   clearAutoAdvance();
   clearScheduledSe();
   clearScheduledVoice();
+
+  // CGだけを見せる待機や入力UIへの切り替えでは、転換開始時から空の会話欄を隠します。
+  if (
+    scene.startDelayMs
+    || scene.action === "wait"
+    || scene.action === "nameInput"
+    || scene.action === "exploration"
+    || scene.transitionLabel
+    || scene.hideDialogue
+  ) {
+    elements.dialoguePanel.classList.add("is-hidden");
+  }
 
   const transitionDuration = scene.transitionDurationMs ?? CONFIG.transitionDuration;
   const usesBackgroundCrossfade = useTransition && scene.transitionMode === "crossfade";
@@ -1005,10 +1487,55 @@ async function renderScene(index, useTransition = true) {
     elements.fader.style.transitionDuration = `${transitionDuration}ms`;
     elements.fader.classList.add("is-dark");
     if (scene.revealOnly) {
-      // 黒画面を一度描画してから背景を差し替え、ゆっくり物語世界を現します。
-      await wait(50);
+      // 完全暗転を作ってから重要CGへ切り替えます。
+      await wait(transitionDuration);
+      if (scene.transitionBlackHoldMs) await wait(scene.transitionBlackHoldMs);
     } else {
       await wait(transitionDuration);
+      // 場面ごとに指定された短い黒画面の余韻を、背景差し替え前に保持します。
+      if (scene.transitionBlackHoldMs) {
+        await wait(scene.transitionBlackHoldMs);
+      }
+    }
+
+    if (scene.transitionLabel) {
+      const captionTextFadeInMs = scene.transitionLabelFadeInMs ?? 250;
+      const captionPanelFadeInMs = scene.transitionLabelPanelFadeInMs ?? captionTextFadeInMs;
+      const captionBlackHoldMs = scene.transitionLabelBlackHoldMs ?? 0;
+      const captionTextDelayMs = scene.transitionLabelTextDelayMs ?? 0;
+      const captionFadeOutMs = scene.transitionLabelFadeOutMs ?? 250;
+      // 既存DOMを初期非表示へ確定してから、字幕を一度だけ設定します。
+      // 通常表示のopacity:1からcaption用opacity:0へ遷移する点滅を防ぎます。
+      elements.dialoguePanel.classList.add("is-transition-caption");
+      elements.dialoguePanel.classList.add("is-caption-preparing");
+      elements.dialoguePanel.classList.remove("is-caption-text-visible");
+      elements.dialoguePanel.style.setProperty("--transition-caption-fade", `${captionPanelFadeInMs}ms`);
+      elements.dialoguePanel.style.setProperty("--transition-caption-text-fade", `${captionTextFadeInMs}ms`);
+      elements.speaker.textContent = "";
+      elements.dialogue.textContent = formatText(scene.transitionLabel);
+      setNarratorIcon(null);
+      elements.advance.dataset.state = "transitioning";
+      if (captionBlackHoldMs) await wait(captionBlackHoldMs);
+      // 黒画面の余白が終わってから、会話枠を暗転レイヤーより前へ出します。
+      elements.dialoguePanel.classList.remove("is-caption-preparing");
+      elements.advance.classList.add("is-transition-caption");
+      elements.dialoguePanel.classList.remove("is-hidden");
+      await wait(captionPanelFadeInMs);
+      if (captionTextDelayMs) await wait(captionTextDelayMs);
+      elements.dialoguePanel.classList.add("is-caption-text-visible");
+      await wait(captionTextFadeInMs);
+      await wait(scene.transitionLabelHoldMs ?? scene.transitionLabelMs ?? 900);
+      elements.dialoguePanel.style.setProperty("--transition-caption-fade", `${captionFadeOutMs}ms`);
+      elements.dialoguePanel.style.setProperty("--transition-caption-text-fade", `${captionFadeOutMs}ms`);
+      elements.dialoguePanel.classList.remove("is-caption-text-visible");
+      elements.dialoguePanel.classList.add("is-hidden");
+      await wait(captionFadeOutMs);
+      elements.dialogue.textContent = "";
+      elements.dialoguePanel.style.removeProperty("--transition-caption-fade");
+      elements.dialoguePanel.style.removeProperty("--transition-caption-text-fade");
+      elements.dialoguePanel.classList.remove("is-transition-caption");
+      elements.dialoguePanel.classList.remove("is-caption-preparing");
+      elements.advance.classList.remove("is-transition-caption");
     }
   }
 
@@ -1025,16 +1552,24 @@ async function renderScene(index, useTransition = true) {
   }
   state.currentLogicalScene = logicalScene;
 
-  if (Object.hasOwn(scene, "background")) {
-    if (usesBackgroundCrossfade && scene.background) {
-      await crossfadeBackground(scene.background, transitionDuration);
+  const inheritedBackground = isNewLogicalScene
+    ? getInheritedSceneValue(index, logicalScene, "background")
+    : undefined;
+  const background = Object.hasOwn(scene, "background") ? scene.background : inheritedBackground;
+  if (background !== undefined) {
+    if (usesBackgroundCrossfade && background) {
+      await crossfadeBackground(background, transitionDuration);
     } else {
-      setBackground(scene.background);
+      setBackground(background);
     }
   } else if (isNewLogicalScene) {
     setBackground(defaults.background ?? null);
   }
-  if (Object.hasOwn(scene, "characters")) setCharacters(scene.characters || []);
+  const inheritedCharacters = isNewLogicalScene
+    ? getInheritedSceneValue(index, logicalScene, "characters")
+    : undefined;
+  const characters = Object.hasOwn(scene, "characters") ? scene.characters : inheritedCharacters;
+  if (characters !== undefined) setCharacters(characters || []);
   if (Object.hasOwn(scene, "icon")) setNarratorIcon(scene.icon, scene.iconAlt);
   if (Object.hasOwn(scene, "effect") || Object.hasOwn(scene, "characterGlow")) {
     setSceneEffect(scene.effect || null, Boolean(scene.characterGlow));
@@ -1043,6 +1578,7 @@ async function renderScene(index, useTransition = true) {
     if (scene.imagination) setImagination(scene.imagination.src, scene.imagination);
     else clearImagination(scene.imaginationEffect || null);
   }
+  if (scene.imaginationReveal) playRomakoImagination(scene.imaginationReveal);
   if (scene.imaginationSequence) playImaginationSequence(scene.imaginationSequence);
   if (Object.hasOwn(scene, "reaction")) {
     setReactionMark(scene.reaction, scene.reactionDurationMs ?? 900);
@@ -1050,11 +1586,23 @@ async function renderScene(index, useTransition = true) {
 
   elements.back.hidden = logicalScene === "scene000";
   // イベントCGなど、話者情報を保持しつつ名前欄だけ隠す演出に対応します。
-  elements.speaker.textContent = scene.hideName ? "" : formatText(scene.speaker || "");
-  if (Object.hasOwn(scene, "bgm")) {
-    audioManager.playBgm(scene.bgm, scene.bgmVolume, {
-      fadeInMs: scene.bgmFadeInMs,
-      fadeOutMs: scene.bgmFadeOutMs,
+  const nameInputIndex = state.scenario.scenes.findIndex((item) => item.action === "nameInput");
+  const usesPlayerName = scene.speaker === "主人公" && index > nameInputIndex;
+  const displaySpeaker = usesPlayerName ? state.variables.playerName : scene.speaker;
+  elements.speaker.textContent = scene.hideName ? "" : formatText(displaySpeaker || "");
+  const inheritedBgm = isNewLogicalScene
+    ? getInheritedSceneValue(index, logicalScene, "bgm")
+    : undefined;
+  const bgm = Object.hasOwn(scene, "bgm") ? scene.bgm : inheritedBgm;
+  if (bgm !== undefined) {
+    const bgmSource = Object.hasOwn(scene, "bgm")
+      ? scene
+      : state.scenario.scenes.slice(0, index + 1).reverse().find((candidate) => (
+        (candidate.scene || candidate.id) === logicalScene && Object.hasOwn(candidate, "bgm")
+      ));
+    audioManager.playBgm(bgm, bgmSource?.bgmVolume, {
+      fadeInMs: bgmSource?.bgmFadeInMs,
+      fadeOutMs: bgmSource?.bgmFadeOutMs,
     });
   } else if (isNewLogicalScene) {
     audioManager.playBgm(defaults.bgm ?? null);
@@ -1139,6 +1687,16 @@ async function renderScene(index, useTransition = true) {
     }
     return;
   }
+  if (scene.action === "exploration") {
+    state.isTransitioning = false;
+    try {
+      await startUndergroundExploration();
+    } catch (error) {
+      elements.error.textContent = "地下探索を開始できませんでした。";
+      console.error("Exploration loading failed:", error);
+    }
+    return;
+  }
   if (scene.action === "chapterEnd") {
     state.isTransitioning = false;
     showChapterEnd();
@@ -1150,6 +1708,12 @@ async function renderScene(index, useTransition = true) {
     // EndingManagerの黒いオーバーレイを表示してから、暗転レイヤーを開放します。
     elements.fader.classList.remove("is-dark");
     elements.fader.style.removeProperty("transition-duration");
+    return;
+  }
+
+  if (scene.hideDialogue) {
+    elements.dialoguePanel.classList.add("is-hidden");
+    state.isTransitioning = false;
     return;
   }
 
@@ -1169,6 +1733,11 @@ async function advanceStory() {
     return;
   }
   if (state.advanceLockedUntil && performance.now() < state.advanceLockedUntil) return;
+
+  if (undergroundExploration?.active) {
+    await undergroundExploration.advance();
+    return;
+  }
 
   // nextSceneId があれば章・場所をまたぐ明示的な遷移を優先します。
   const currentScene = state.scenario.scenes[state.sceneIndex];
@@ -1205,6 +1774,12 @@ async function advanceStory() {
 }
 
 async function loadScenario() {
+  const searchParams = new URLSearchParams(window.location.search);
+  if (!searchParams.get("scene") && searchParams.get("start") !== "1") {
+    window.location.replace("index.html?v=20260801-final-polish");
+    return;
+  }
+
   try {
     const response = await fetch(CONFIG.scenarioUrl);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -1215,7 +1790,7 @@ async function loadScenario() {
     }
 
     state.scenario = scenario;
-    const requestedSceneId = new URLSearchParams(window.location.search).get("scene");
+    const requestedSceneId = searchParams.get("scene");
     const requestedIndex = requestedSceneId
       ? scenario.scenes.findIndex((scene) => scene.id === requestedSceneId || scene.scene === requestedSceneId)
       : -1;
@@ -1231,12 +1806,14 @@ async function loadScenario() {
 // 1回のタップからclickが複数回届いても、シーンを1つだけ進めます。
 elements.advance.addEventListener("pointerdown", () => {
   state.interactionId += 1;
+  audioManager.resumePendingBgm();
   audioManager.resumePendingSe();
   audioManager.resumePendingAmbientSe();
   audioManager.resumePendingVoice();
   ambienceManager.resume().catch(() => {});
 });
 elements.advance.addEventListener("click", (event) => {
+  audioManager.resumePendingBgm();
   audioManager.resumePendingSe();
   audioManager.resumePendingAmbientSe();
   audioManager.resumePendingVoice();
@@ -1248,9 +1825,13 @@ elements.advance.addEventListener("click", (event) => {
   advanceStory();
 });
 elements.back.addEventListener("click", () => {
+  undergroundExploration?.stop();
+  ambienceManager.stop();
+  endingManager.clearTeaser();
   window.location.href = "index.html";
 });
 elements.chapterEndBack.addEventListener("click", () => {
+  endingManager.clearTeaser();
   window.location.href = "index.html";
 });
 elements.endingSkip.addEventListener("click", (event) => {
@@ -1273,6 +1854,13 @@ elements.nameEntryForm.addEventListener("submit", async (event) => {
   if (nextIndex >= state.scenario.scenes.length) return;
   state.sceneIndex = nextIndex;
   await renderScene(nextIndex, false);
+});
+
+// 終幕中にページが閉じられた場合も、残っている時限処理を破棄します。
+window.addEventListener("pagehide", () => {
+  undergroundExploration?.stop();
+  endingManager.clearEndingPause();
+  endingManager.clearTeaser();
 });
 
 // 画像が存在しない場合は、その立ち絵だけを非表示にします。

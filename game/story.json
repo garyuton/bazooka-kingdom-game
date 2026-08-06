@@ -18,7 +18,7 @@
       "hideName": true,
       "icon": "../assets/characters/garyuton.png?v=20260704",
       "iconAlt": "ガリュ㌧",
-      "background": "../assets/images/book/book_closed_01.png?v=20260713-book",
+      "background": "../assets/images/book/book_closed_01.png?v=20260719-emblem-refresh",
       "characters": [],
       "bgm": null,
       "ambience": null,
@@ -56,7 +56,7 @@
       "advanceSe": "../assets/audio/se/page_turn_01.mp3?v=20260712-opening",
       "advanceAmbience": "../assets/audio/ambience/rain_loop_01.mp3?v=20260712-rain",
       "bookTransition": {
-        "closed": "../assets/images/book/book_closed_01.png?v=20260713-book",
+        "closed": "../assets/images/book/book_closed_01.png?v=20260719-emblem-refresh",
         "open": "../assets/images/book/book_open_01.png?v=20260713-book",
         "worldBackground": "../assets/cg/scene_royal_carriage_rain_01.png?v=20260712",
         "ambience": "../assets/audio/ambience/rain_loop_01.mp3?v=20260712-rain",
@@ -126,18 +126,26 @@
       "ambientSeVolume": 0.05,
       "ambientSeKey": "carriage-distant-bell",
       "ambientSeFadeToMs": 800,
-      "transitionMode": "crossfade",
-      "transitionDurationMs": 500,
+      "transitionDurationMs": 350,
+      "transitionBlackHoldMs": 400,
+      "startDelayMs": 1200,
       "postDelayMs": 500
     },
     {
       "id": "scene002a-02",
       "scene": "scene002a",
+      "text": "「分からぬ……だが、必ず現れる。」",
+      "speaker": "王",
+      "postDelayMs": 400
+    },
+    {
+      "id": "scene002a-03",
+      "scene": "scene002a",
       "text": "「あの方のお言葉を……今も信じておられるのですね。」",
       "speaker": "王妃"
     },
     {
-      "id": "scene002a-03",
+      "id": "scene002a-03b",
       "scene": "scene002a",
       "text": "「豚のおじさんは、嘘をつかぬ。」",
       "speaker": "王",
@@ -155,7 +163,7 @@
     {
       "id": "scene002a-05",
       "scene": "scene002a",
-      "text": "その話は、まだ少し早いの。",
+      "text": "その話は、まだ少し早いかの。",
       "speaker": "",
       "hideName": true,
       "icon": "../assets/characters/garyuton.png?v=20260704",
@@ -164,7 +172,7 @@
     {
       "id": "scene002a-06",
       "scene": "scene002a",
-      "text": "じゃが、王があれほど信じるには、それだけの理由があったということじゃ。",
+      "text": "じゃが、王がこれほど信じるには、それだけの理由があったということじゃ。",
       "speaker": "",
       "hideName": true,
       "icon": "../assets/characters/garyuton.png?v=20260704",
@@ -187,9 +195,6 @@
       "ambientSe": "../assets/audio/ambience/bell_far_01.mp3?v=20260704",
       "ambientSeVolume": 0.05,
       "ambientSeKey": "carriage-distant-bell",
-      "se": "../assets/audio/se/carriage_stop_01.mp3?v=20260718-carriage-stop",
-      "seVolume": 0.78,
-      "seKey": "scene002b-carriage-stop",
       "effect": "shake",
       "action": "wait",
       "waitMs": 550
@@ -224,13 +229,14 @@
       "ambience": "../assets/audio/ambience/rain_loop_01.mp3?v=20260712-rain",
       "ambienceVolume": 0.08,
       "transitionDurationMs": 900,
+      "transitionBlackHoldMs": 400,
       "revealOnly": true,
       "startDelayMs": 1700
     },
     {
       "id": "scene002b-05",
       "scene": "scene002b",
-      "text": "名もなく、帰る場所もなく……",
+      "text": "身寄りもなく、帰る場所さえなく……",
       "speaker": "",
       "hideName": true,
       "icon": "../assets/characters/garyuton.png?v=20260704",
@@ -265,6 +271,23 @@
       "postDelayMs": 1400,
       "forceTransition": true,
       "ambienceFadeOutMs": 1800,
+      "nextSceneId": "scene002c-01"
+    },
+    {
+      "id": "scene002c-01",
+      "scene": "scene002c",
+      "text": "少年は王城へ運ばれたあとも眠り続け、目を覚ましたのは翌々日の朝じゃった。",
+      "speaker": "",
+      "hideName": true,
+      "icon": "../assets/characters/garyuton.png?v=20260704",
+      "iconAlt": "ガリュ㌧",
+      "background": null,
+      "characters": [],
+      "bgm": null,
+      "ambience": null,
+      "transitionDurationMs": 1000,
+      "postDelayMs": 900,
+      "forceTransition": true,
       "nextSceneId": "scene003-01"
     },
     {
@@ -282,12 +305,14 @@
       "ambienceVolume": 0.22,
       "ambienceFadeInMs": 1200,
       "stopAmbientSeKey": "carriage-distant-bell",
+      "transitionDurationMs": 350,
+      "transitionBlackHoldMs": 400,
       "startDelayMs": 700
     },
     {
       "id": "scene003-02",
       "scene": "scene003",
-      "text": "雨の夜から、一夜が明けておった。",
+      "text": "窓からは、朝の光が差し込んでおった。",
       "speaker": "",
       "hideName": true,
       "icon": "../assets/characters/garyuton.png?v=20260704",
@@ -296,7 +321,7 @@
     {
       "id": "scene003-03",
       "scene": "scene003",
-      "text": "「おっ！　起きたか！」",
+      "text": "「お！　やっと起きたか！」",
       "speaker": "ダンゴ",
       "icon": null,
       "characters": [
@@ -310,19 +335,19 @@
     {
       "id": "scene003-04",
       "scene": "scene003",
-      "text": "「よかったぁ。お前、ずっと眠ってたんだぞ！」",
+      "text": "「お前、昨日は一日ずっと眠ってたんだぞ！」",
       "speaker": "ダンゴ"
     },
     {
       "id": "scene003-05",
       "scene": "scene003",
-      "text": "「……ここは？」",
+      "text": "「ここは……どこですか？」",
       "speaker": "主人公"
     },
     {
       "id": "scene003-06",
       "scene": "scene003",
-      "text": "「王城だよ。正確には、俺たち下男が寝泊まりしてる宿舎だけどな！」",
+      "text": "「ここか？　王城だよ。正確には、俺たち下男が寝泊まりしてる宿舎だけどな！」",
       "speaker": "ダンゴ"
     },
     {
@@ -334,7 +359,7 @@
     {
       "id": "scene003-08",
       "scene": "scene003",
-      "text": "「そういや、お前の名前は？」",
+      "text": "「ところで、お前の名前はなんていうんだ？」",
       "speaker": "ダンゴ"
     },
     {
@@ -348,18 +373,18 @@
       "id": "scene003-10",
       "scene": "scene003",
       "text": "「……{playerName}。」",
-      "speaker": "主人公"
+      "speaker": "{playerName}"
     },
     {
       "id": "scene003-11",
       "scene": "scene003",
-      "text": "「{playerName}か！」",
+      "text": "「{playerName}か、いい名前だな。」",
       "speaker": "ダンゴ"
     },
     {
       "id": "scene003-12",
       "scene": "scene003",
-      "text": "「俺はダンゴ。よろしくな！」",
+      "text": "「よろしくな！」",
       "speaker": "ダンゴ",
       "postDelayMs": 700,
       "forceTransition": true,
@@ -369,9 +394,9 @@
     {
       "id": "scene004-01",
       "scene": "scene004",
-      "text": "「ほら、食えよ。」",
+      "text": "「ほら、朝食だ。腹へってるだろ？」",
       "speaker": "ダンゴ",
-      "background": "../assets/bg/bg_servants_dining_hall_day_01.png?v=20260716",
+      "background": "../assets/bg/bg_servants_dining_hall_day_01.png?v=20260719-emblem-refresh",
       "characters": [
         {
           "position": "left",
@@ -380,14 +405,16 @@
         }
       ],
       "icon": null,
-      "bgm": null,
+      "bgm": "../assets/audio/bgm/dining_hall_night_01.mp3?v=20260719",
+      "bgmVolume": 0.2,
+      "bgmFadeInMs": 500,
       "ambience": null,
       "transitionDurationMs": 800
     },
     {
       "id": "scene004-02",
       "scene": "scene004",
-      "text": "「……いいのか？」",
+      "text": "「……いいんですか？」",
       "speaker": "主人公"
     },
     {
@@ -400,7 +427,7 @@
     {
       "id": "scene004-04",
       "scene": "scene004",
-      "text": "少年にとって、それは久しぶりに口にする温かな食事じゃった。",
+      "text": "少年にとって、久しぶりの温かな食事だったんじゃ。",
       "speaker": "",
       "hideName": true,
       "icon": "../assets/characters/garyuton.png?v=20260704",
@@ -420,7 +447,7 @@
     {
       "id": "scene005-01",
       "scene": "scene005",
-      "text": "行くあてのなかった少年は、そのまま王城に身を置き、下男として働くことになった。",
+      "text": "行くあてのなかった少年は、そのまま王城に身を置き、下男として働くことになったんじゃ。",
       "speaker": "",
       "hideName": true,
       "icon": "../assets/characters/garyuton.png?v=20260704",
@@ -433,14 +460,16 @@
           "src": "../assets/characters/dango.png?v=20260716"
         }
       ],
-      "bgm": null,
+      "bgm": "../assets/audio/bgm/dining_hall_night_01.mp3?v=20260719",
+      "bgmVolume": 0.2,
       "ambience": null,
-      "transitionDurationMs": 600
+      "transitionDurationMs": 350,
+      "transitionBlackHoldMs": 350
     },
     {
       "id": "scene005-02",
       "scene": "scene005",
-      "text": "掃除をし、水を運び、薪を運ぶ。",
+      "text": "水を汲み、掃除をし、薪を運ぶ。",
       "speaker": "",
       "hideName": true,
       "icon": "../assets/characters/garyuton.png?v=20260704",
@@ -484,7 +513,7 @@
     {
       "id": "scene005-07",
       "scene": "scene005",
-      "text": "「分かった！」",
+      "text": "「はい！　今行きます。」",
       "speaker": "主人公",
       "forceTransition": true,
       "nextSceneId": "scene006-01"
@@ -492,12 +521,12 @@
     {
       "id": "scene006-01",
       "scene": "scene006",
-      "text": "仕事を終えた夜。",
+      "text": "ある日の食事の時の出来事じゃ。",
       "speaker": "",
       "hideName": true,
       "icon": "../assets/characters/garyuton.png?v=20260704",
       "iconAlt": "ガリュ㌧",
-      "background": "../assets/bg/bg_servants_dining_hall_night_01.png?v=20260717",
+      "background": "../assets/bg/bg_servants_dining_hall_night_01.png?v=20260719-emblem-refresh",
       "characters": [
         {
           "position": "left",
@@ -507,9 +536,9 @@
       ],
       "bgm": "../assets/audio/bgm/dining_hall_night_01.mp3?v=20260719",
       "bgmVolume": 0.2,
-      "bgmFadeInMs": 500,
       "ambience": null,
-      "transitionDurationMs": 900,
+      "transitionDurationMs": 350,
+      "transitionBlackHoldMs": 350,
       "startDelayMs": 1000
     },
     {
@@ -543,76 +572,51 @@
     {
       "id": "scene006-06",
       "scene": "scene006",
-      "text": "「ロマ子姫様と、ロマオ王子。」",
+      "text": "「ロマ子姫と、ロマオ王子。」",
       "speaker": "ダンゴ"
     },
     {
       "id": "scene006-07",
       "scene": "scene006",
-      "text": "「……王様と王妃様が、俺を助けてくれたんだよね。」",
+      "text": "「ロマ子姫とロマオ王子か……。」",
       "speaker": "主人公"
     },
     {
       "id": "scene006-08",
       "scene": "scene006",
-      "text": "「そうらしいな。」",
+      "text": "「お？　興味あるのか？」",
       "speaker": "ダンゴ"
     },
     {
       "id": "scene006-09",
       "scene": "scene006",
-      "text": "「だから城のみんな、お前のことを気にしてたんだ。」",
-      "speaker": "ダンゴ",
-      "postDelayMs": 650
-    },
-    {
-      "id": "scene006-10",
-      "scene": "scene006",
-      "text": "「ロマ子姫様って、どんな人なの？」",
+      "text": "「ロマ子姫って、どんな人なんですか？」",
       "speaker": "主人公"
     },
     {
       "id": "scene006-11",
       "scene": "scene006",
-      "text": "「俺たちも話したことはないよ。」",
-      "speaker": "ダンゴ"
-    },
-    {
-      "id": "scene006-12",
-      "scene": "scene006",
-      "text": "「遠くから見かけるくらいさ。」",
+      "text": "「俺たちも話したことはないよ。遠くから見かけたことがあるくらいさ。」",
       "speaker": "ダンゴ"
     },
     {
       "id": "scene006-13",
       "scene": "scene006",
-      "text": "「でも、髪がすごく綺麗らしい。」",
+      "text": "「髪が長くて、輝いているんだぜ。」",
       "speaker": "ダンゴ",
-      "postDelayMs": 500,
-      "imagination": {
-        "src": "../assets/cg/imagination/img_imagination_romako_01_hair.png?v=20260718",
-        "alt": "髪だけを描いたロマ子姫の想像"
-      }
+      "postDelayMs": 500
     },
     {
       "id": "scene006-14",
       "scene": "scene006",
       "text": "「瞳は、空みたいに青いらしいぞ！」",
-      "speaker": "下男A",
-      "imagination": {
-        "src": "../assets/cg/imagination/img_imagination_romako_02_blue_eyes.png?v=20260718",
-        "alt": "両目が青いロマ子姫の想像"
-      }
+      "speaker": "下男A"
     },
     {
       "id": "scene006-15",
       "scene": "scene006",
       "text": "「いや、夕焼けみたいに赤いと聞いたぞ！」",
-      "speaker": "下男B",
-      "imagination": {
-        "src": "../assets/cg/imagination/img_imagination_romako_03_red_eyes.png?v=20260718",
-        "alt": "両目が赤いロマ子姫の想像"
-      }
+      "speaker": "下男B"
     },
     {
       "id": "scene006-16",
@@ -625,105 +629,33 @@
       "scene": "scene006",
       "text": "「…………。」",
       "speaker": "主人公",
-      "postDelayMs": 900
+      "postDelayMs": 700
     },
     {
       "id": "scene006-18",
       "scene": "scene006",
-      "text": "「左が青……右が赤……？」",
+      "text": "「……どっちも本当なら……。」",
       "speaker": "主人公",
       "postDelayMs": 1800,
-      "imaginationSequence": [
-        {
-          "src": "../assets/cg/imagination/img_imagination_romako_04_left_blue_right_red.png?v=20260718",
-          "alt": "画面左が青、右が赤の想像",
-          "durationMs": 450
-        },
-        {
-          "src": "../assets/cg/imagination/img_imagination_romako_05_left_red_right_blue.png?v=20260718",
-          "alt": "画面左が赤、右が青の想像",
-          "durationMs": 450
-        },
-        {
-          "src": "../assets/cg/imagination/img_imagination_romako_04_left_blue_right_red.png?v=20260718",
-          "alt": "画面左が青、右が赤の想像",
-          "durationMs": 450
-        },
-        {
-          "src": "../assets/cg/imagination/img_imagination_romako_05_left_red_right_blue.png?v=20260718",
-          "alt": "画面左が赤、右が青の想像",
-          "durationMs": 450
-        }
-      ]
-    },
-    {
-      "id": "scene006-18b",
-      "scene": "scene006",
-      "text": "「いや……左が赤で、右が青……？」",
-      "speaker": "主人公",
-      "imagination": {
-        "src": "../assets/cg/imagination/img_imagination_romako_05_left_red_right_blue.png?v=20260718",
-        "alt": "画面左が赤、右が青の想像"
+      "imaginationReveal": {
+        "src": "../assets/cg/imagination/img_imagination_romako_07_crown.png?v=20260720-mist",
+        "alt": "主人公が霧の中に思い描いたロマ子姫",
+        "fadeAtMs": 30000
       }
-    },
-    {
-      "id": "scene006-18c",
-      "scene": "scene006",
-      "text": "「……どっちが右なんだ？」",
-      "speaker": "主人公"
-    },
-    {
-      "id": "scene006-19",
-      "scene": "scene006",
-      "text": "「そこから分かってねぇのかよ！」",
-      "speaker": "ダンゴ"
-    },
-    {
-      "id": "scene006-20",
-      "scene": "scene006",
-      "text": "「ははははは！」",
-      "speaker": "下男たち"
-    },
-    {
-      "id": "scene006-21",
-      "scene": "scene006",
-      "text": "「でも、笑顔はすっげぇ可愛いらしいぞ。」",
-      "speaker": "下男B",
-      "imagination": {
-        "src": "../assets/cg/imagination/img_imagination_romako_06_smile.png?v=20260718",
-        "alt": "笑顔が加わったロマ子姫の想像"
-      }
-    },
-    {
-      "id": "scene006-22",
-      "scene": "scene006",
-      "text": "「気品があってな。」",
-      "speaker": "年長下男",
-      "imagination": {
-        "src": "../assets/cg/imagination/img_imagination_romako_07_crown.png?v=20260718",
-        "alt": "王冠が加わったロマ子姫の想像"
-      }
-    },
-    {
-      "id": "scene006-23",
-      "scene": "scene006",
-      "text": "「歩くだけで、周りの空気が変わるって噂だ。」",
-      "speaker": "年長下男",
-      "postDelayMs": 500
     },
     {
       "id": "scene006-24",
       "scene": "scene006",
-      "text": "「…………。」",
+      "text": "「こんな感じかな……。」",
       "speaker": "主人公"
     },
     {
       "id": "scene006-25",
       "scene": "scene006",
-      "text": "「……まぁ、全部、人づてに聞いた話だけどな。」",
+      "text": "「……まぁ、全部人づてに聞いた噂だけどな。」",
       "speaker": "ダンゴ",
       "imagination": null,
-      "imaginationEffect": "break"
+      "imaginationEffect": "mist"
     },
     {
       "id": "scene006-26",
@@ -747,20 +679,8 @@
       "id": "scene006-29",
       "scene": "scene006",
       "text": "「俺はいつか姫様をモノにする！」",
-      "speaker": "年長下男",
+      "speaker": "下男A",
       "postDelayMs": 600
-    },
-    {
-      "id": "scene006-30",
-      "scene": "scene006",
-      "text": "「おおー！　言ったな！」",
-      "speaker": "下男A"
-    },
-    {
-      "id": "scene006-31",
-      "scene": "scene006",
-      "text": "「無理無理！」",
-      "speaker": "下男B"
     },
     {
       "id": "scene006-32",
@@ -789,12 +709,6 @@
       "speaker": "ダンゴ"
     },
     {
-      "id": "scene006-36",
-      "scene": "scene006",
-      "text": "「意味分かってねぇだろ！」",
-      "speaker": "年長下男"
-    },
-    {
       "id": "scene006-37",
       "scene": "scene006",
       "text": "「……？」",
@@ -810,18 +724,9 @@
       "iconAlt": "ガリュ㌧"
     },
     {
-      "id": "scene006-39",
-      "scene": "scene006",
-      "text": "じゃが、不思議と嫌な気はせなんだ。",
-      "speaker": "",
-      "hideName": true,
-      "icon": "../assets/characters/garyuton.png?v=20260704",
-      "iconAlt": "ガリュ㌧"
-    },
-    {
       "id": "scene006-40",
       "scene": "scene006",
-      "text": "笑われたのではない。",
+      "text": "じゃが、それは少年をからかう笑いではない。",
       "speaker": "",
       "hideName": true,
       "icon": "../assets/characters/garyuton.png?v=20260704",
@@ -830,39 +735,29 @@
     {
       "id": "scene006-41",
       "scene": "scene006",
-      "text": "仲間として、一緒に笑ってもらえたのじゃ。",
+      "text": "仲間として、ともに笑い合う声じゃった。",
       "speaker": "",
       "hideName": true,
       "icon": "../assets/characters/garyuton.png?v=20260704",
       "iconAlt": "ガリュ㌧"
     },
     {
-      "id": "scene006-42",
-      "scene": "scene006",
-      "text": "その夜、王城は少しだけ、少年の帰る場所になった。",
-      "speaker": "",
-      "hideName": true,
-      "icon": "../assets/characters/garyuton.png?v=20260704",
-      "iconAlt": "ガリュ㌧",
-      "postDelayMs": 1200
-    },
-    {
       "id": "scene006-43",
       "scene": "scene006",
-      "text": "「じゃあ……ロマオ王子は？」",
+      "text": "「じゃあ……ロマオ王子は、どんな方なんですか？」",
       "speaker": "主人公",
       "icon": null
     },
     {
       "id": "scene006-44",
       "scene": "scene006",
-      "text": "「あの人なら、何度か俺たちにも仕事を頼みに来るよ。」",
+      "text": "「ロマオ王子なら、俺たちに仕事を頼みに来ることがあるぞ！」",
       "speaker": "ダンゴ"
     },
     {
       "id": "scene006-45",
       "scene": "scene006",
-      "text": "「この前、城下町で見たぞ。」",
+      "text": "「この前、王子を城下町で見たぞ！」",
       "speaker": "下男A"
     },
     {
@@ -880,44 +775,44 @@
     {
       "id": "scene006-48",
       "scene": "scene006",
-      "text": "「女好きって噂だ。」",
+      "text": "「女好きって話だ。」",
       "speaker": "ダンゴ"
+    },
+    {
+      "id": "scene006-48b",
+      "scene": "scene006",
+      "text": "「ははははは！」",
+      "speaker": "一同"
     },
     {
       "id": "scene006-49",
       "scene": "scene006",
       "text": "「だが、剣だけは別だ。」",
-      "speaker": "年長下男"
-    },
-    {
-      "id": "scene006-50",
-      "scene": "scene006",
-      "text": "「俺、見たことある！」",
-      "speaker": "ダンゴ"
+      "speaker": "下男A"
     },
     {
       "id": "scene006-51",
       "scene": "scene006",
-      "text": "「稽古場で三銃士の剣をひょいっとかわして、一瞬で弾き落としたんだ！」",
+      "text": "「俺、見たことある！　マントン三銃士の剣をひょいっとかわして、一瞬で弾き落としたんだ！」",
       "speaker": "ダンゴ"
-    },
-    {
-      "id": "scene006-52",
-      "scene": "scene006",
-      "text": "「三銃士でも勝てないのか？」",
-      "speaker": "下男B"
     },
     {
       "id": "scene006-53",
       "scene": "scene006",
-      "text": "「普段は軽そうに見えるが、剣を握れば人が変わる。」",
-      "speaker": "年長下男"
+      "text": "「普段は軽そうに見えるが、剣を握れば人が変わる。あれは本物だ。」",
+      "speaker": "下男A"
     },
     {
-      "id": "scene006-54",
+      "id": "scene006-54b",
       "scene": "scene006",
-      "text": "「あれは本物だ。」",
-      "speaker": "年長下男"
+      "text": "「お前に本物が分かるのかよ！」",
+      "speaker": "ダンゴ"
+    },
+    {
+      "id": "scene006-54c",
+      "scene": "scene006",
+      "text": "「ははははは！」",
+      "speaker": "一同"
     },
     {
       "id": "scene006-55",
@@ -947,12 +842,19 @@
       "bgm": null,
       "bgmFadeOutMs": 800,
       "ambience": null,
-      "transitionDurationMs": 800
+      "transitionDurationMs": 180,
+      "transitionLabel": "翌日",
+      "transitionLabelBlackHoldMs": 350,
+      "transitionLabelPanelFadeInMs": 400,
+      "transitionLabelTextDelayMs": 120,
+      "transitionLabelFadeInMs": 600,
+      "transitionLabelHoldMs": 1700,
+      "transitionLabelFadeOutMs": 550
     },
     {
       "id": "scene007-02",
       "scene": "scene007",
-      "text": "「噂をすれば。」",
+      "text": "「噂をすれば、だ。」",
       "speaker": "ダンゴ"
     },
     {
@@ -960,8 +862,6 @@
       "scene": "scene007",
       "text": "「？」",
       "speaker": "主人公",
-      "reaction": "？",
-      "reactionDurationMs": 900,
       "postDelayMs": 600
     },
     {
@@ -981,7 +881,23 @@
           "src": "../assets/characters/romao.png?v=20260704"
         }
       ],
-      "startDelayMs": 700
+      "startDelayMs": 700,
+      "bgm": "../assets/audio/bgm/romao_theme.mp3?v=20260802",
+      "bgmVolume": 0.2,
+      "bgmFadeInMs": 800
+    },
+    {
+      "id": "scene007-04b",
+      "scene": "scene007",
+      "text": "「ん？」",
+      "speaker": "ロマオ王子"
+    },
+    {
+      "id": "scene007-04c",
+      "scene": "scene007",
+      "text": "「見ない顔だな。」",
+      "speaker": "ロマオ王子",
+      "postDelayMs": 350
     },
     {
       "id": "scene007-05",
@@ -999,13 +915,13 @@
     {
       "id": "scene007-07",
       "scene": "scene007",
-      "text": "「何が違う？」",
+      "text": "「何が違うって？」",
       "speaker": "ロマオ王子"
     },
     {
       "id": "scene007-08",
       "scene": "scene007",
-      "text": "「！！」",
+      "text": "「……！」",
       "speaker": "主人公"
     },
     {
@@ -1017,8 +933,9 @@
     {
       "id": "scene007-10",
       "scene": "scene007",
-      "text": "「もっと……チャラい人かと思った。」",
-      "speaker": "主人公"
+      "text": "「みんながチャラいと言っていたので……。」",
+      "speaker": "主人公",
+      "postDelayMs": 450
     },
     {
       "id": "scene007-11",
@@ -1048,13 +965,21 @@
     {
       "id": "scene007-15",
       "scene": "scene007",
-      "text": "「否定しないんですか！？」",
-      "speaker": "ダンゴ"
+      "text": "「否定しないんですか？」",
+      "speaker": "主人公",
+      "postDelayMs": 700
+    },
+    {
+      "id": "scene007-15b",
+      "scene": "scene007",
+      "text": "「まあな。」",
+      "speaker": "ロマオ王子",
+      "postDelayMs": 500
     },
     {
       "id": "scene007-16",
       "scene": "scene007",
-      "text": "「ちょうどいい。地下倉庫へ運んでほしい荷物がある。」",
+      "text": "「ところで、地下倉庫から取り出したいものがあるんだ。お願いできるか？」",
       "speaker": "ロマオ王子"
     },
     {
@@ -1066,21 +991,39 @@
     {
       "id": "scene007-18",
       "scene": "scene007",
-      "text": "「何だ。不満でもあるのか？」",
+      "text": "「お前も行くか？」",
       "speaker": "ロマオ王子"
+    },
+    {
+      "id": "scene007-18b",
+      "scene": "scene007",
+      "text": "「はい！」",
+      "speaker": "主人公"
+    },
+    {
+      "id": "scene007-18c",
+      "scene": "scene007",
+      "text": "「名前は？」",
+      "speaker": "ロマオ王子"
+    },
+    {
+      "id": "scene007-18d",
+      "scene": "scene007",
+      "text": "「{playerName}です。」",
+      "speaker": "主人公"
     },
     {
       "id": "scene007-19",
       "scene": "scene007",
-      "text": "「いえ！　まったく！」",
-      "speaker": "ダンゴ",
+      "text": "「よし、{playerName}。頼むぞ！」",
+      "speaker": "ロマオ王子",
       "forceTransition": true,
       "nextSceneId": "scene008-01"
     },
     {
       "id": "scene008-01",
       "scene": "scene008",
-      "text": "「……ここから降りるのか？」",
+      "text": "「……ここから降りるんですか？」",
       "speaker": "主人公",
       "background": "../assets/bg/bg_castle_underground_entrance_01.png?v=20260716",
       "characters": [
@@ -1092,9 +1035,7 @@
       ],
       "icon": null,
       "bgm": null,
-      "ambience": "../assets/audio/ambience/water_drop_01.mp3?v=20260704",
-      "ambienceVolume": 0.08,
-      "ambienceFadeInMs": 1200,
+      "bgmFadeOutMs": 800,
       "transitionDurationMs": 800,
       "startDelayMs": 900
     },
@@ -1107,7 +1048,7 @@
     {
       "id": "scene008-03",
       "scene": "scene008",
-      "text": "「……暗いな。」",
+      "text": "「……暗いですね。」",
       "speaker": "主人公"
     },
     {
@@ -1120,14 +1061,20 @@
       "id": "scene008-05",
       "scene": "scene008",
       "text": "「倉庫はこの先だ。はぐれるなよ。」",
-      "speaker": "ダンゴ",
+      "speaker": "ダンゴ"
+    },
+    {
+      "id": "scene008-06",
+      "scene": "scene008",
+      "text": "「待って、ダンゴさん！」",
+      "speaker": "主人公",
       "forceTransition": true,
       "nextSceneId": "scene009-01"
     },
     {
       "id": "scene009-01",
       "scene": "scene009",
-      "text": "「……まだ着かないのか？」",
+      "text": "「……まだ着かないんですか？」",
       "speaker": "主人公",
       "background": "../assets/bg/underground_corridor.png?v=20260704",
       "characters": [
@@ -1138,10 +1085,11 @@
         }
       ],
       "icon": null,
-      "bgm": null,
-      "ambience": "../assets/audio/ambience/water_drop_01.mp3?v=20260704",
-      "ambienceVolume": 0.18,
-      "transitionDurationMs": 800,
+      "bgm": "../assets/audio/bgm/forgotten_passage.mp3?v=20260802",
+      "bgmVolume": 0.1,
+      "bgmFadeInMs": 800,
+      "transitionDurationMs": 350,
+      "transitionBlackHoldMs": 400,
       "se": "../assets/audio/se/footstep_stone_01.mp3?v=20260704",
       "seVolume": 0.55
     },
@@ -1154,7 +1102,7 @@
     {
       "id": "scene009-03",
       "scene": "scene009",
-      "text": "「分かってる。」",
+      "text": "「分かりました。」",
       "speaker": "主人公"
     },
     {
@@ -1175,7 +1123,7 @@
     {
       "id": "scene009-06",
       "scene": "scene009",
-      "text": "「……ダンゴ？」",
+      "text": "「……ダンゴさん？」",
       "speaker": "主人公",
       "characters": [],
       "effect": "dim",
@@ -1184,13 +1132,13 @@
     {
       "id": "scene009-07",
       "scene": "scene009",
-      "text": "「ダンゴ！」",
+      "text": "「ダンゴさん！」",
       "speaker": "主人公"
     },
     {
       "id": "scene009-08",
       "scene": "scene009",
-      "text": "ダンゴ……\n……ダンゴ……",
+      "text": "ダンゴさん……\n……ダンゴさん……",
       "speaker": "",
       "hideName": true,
       "typeInterval": 60,
@@ -1199,107 +1147,62 @@
     {
       "id": "scene009-09",
       "scene": "scene009",
-      "text": "「……こっちだったよな？」",
-      "speaker": "主人公",
-      "se": "../assets/audio/se/footstep_stone_01.mp3?v=20260704",
-      "seVolume": 0.42
-    },
-    {
-      "id": "scene009-10",
-      "scene": "scene009",
-      "text": "「…………。」",
-      "speaker": "主人公",
-      "postDelayMs": 600
-    },
-    {
-      "id": "scene009-11",
-      "scene": "scene009",
-      "text": "「まずい。」",
-      "speaker": "主人公"
-    },
-    {
-      "id": "scene009-12",
-      "scene": "scene009",
-      "text": "「道に迷った……。」",
-      "speaker": "主人公",
-      "postDelayMs": 700
-    },
-    {
-      "id": "scene009-13",
-      "scene": "scene009",
-      "text": "「ダンゴ……どこだよ。」",
-      "speaker": "主人公",
-      "postDelayMs": 900
-    },
-    {
-      "id": "scene009-14",
-      "scene": "scene009",
-      "text": "「また……ひとりか。」",
-      "speaker": "主人公"
-    },
-    {
-      "id": "scene009-15",
-      "scene": "scene009",
-      "text": "「……怖くない。」",
-      "speaker": "主人公"
-    },
-    {
-      "id": "scene009-16",
-      "scene": "scene009",
-      "text": "「怖くなんか……。」",
-      "speaker": "主人公",
-      "postDelayMs": 1000
-    },
-    {
-      "id": "scene009-17",
-      "scene": "scene009",
-      "text": "「…………怖い。」",
-      "speaker": "主人公",
-      "postDelayMs": 900
-    },
-    {
-      "id": "scene009-18",
-      "scene": "scene009",
-      "text": "「誰か……。」",
-      "speaker": "主人公",
-      "postDelayMs": 2000
+      "text": "",
+      "speaker": "",
+      "hideName": true,
+      "characters": [],
+      "background": "../assets/bg/bg_ch1_underground_entrance.webp?v=20260726",
+      "effect": "dim",
+      "action": "exploration"
     },
     {
       "id": "scene009-19",
       "scene": "scene009",
-      "text": "「……？」",
-      "speaker": "主人公",
+      "text": "",
+      "speaker": "",
+      "hideName": true,
+      "hideDialogue": true,
       "characters": [],
+      "bgm": null,
       "effect": "glow",
       "se": "../assets/audio/se/bazuton_light_01.mp3?v=20260704",
       "seVolume": 0.7,
-      "startDelayMs": 2000
+      "action": "wait",
+      "waitMs": 700
     },
     {
       "id": "scene009-20",
       "scene": "scene009",
-      "text": "「なんだ……あれ。」",
-      "speaker": "主人公"
+      "text": "",
+      "speaker": "",
+      "hideName": true,
+      "hideDialogue": true,
+      "action": "wait",
+      "waitMs": 0
     },
     {
       "id": "scene009-21",
       "scene": "scene009",
-      "text": "「僕、バズ㌧！」",
-      "speaker": "バズ㌧",
+      "text": "",
+      "speaker": "",
+      "hideName": true,
+      "hideDialogue": true,
       "characters": [
         {
           "position": "center",
           "name": "バズ㌧",
-          "src": "../assets/characters/bazuton.png?v=20260704"
+          "src": "../assets/characters/bazuton.png?v=20260704",
+          "enterEffect": "fade",
+          "enterDurationMs": 850
         }
       ],
       "effect": "glow",
       "characterGlow": true,
       "voice": "../assets/audio/voice/bazuton_intro_voice_01.mp3?v=20260718",
       "voiceVolume": 0.94,
-      "voiceDelayMs": 320,
+      "voiceDelayMs": 1150,
       "voiceKey": "scene009-bazuton-intro",
-      "startDelayMs": 320,
+      "startDelayMs": 0,
       "waitForVoiceEnd": true,
       "voiceWaitTimeoutMs": 8000,
       "endingHoldMs": 1000,

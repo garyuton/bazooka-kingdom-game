@@ -1,0 +1,169 @@
+{
+  "version": 3,
+  "startRoom": "crossroads",
+  "movementSe": {
+    "src": "../assets/audio/se/footstep_stone_01.mp3?v=20260704",
+    "volume": 0.48
+  },
+  "narratorIcon": "../assets/characters/garyuton.png?v=20260704",
+  "rooms": {
+    "crossroads": {
+      "title": "二股",
+      "background": "../assets/bg/bg_ch1_underground_entrance.webp?v=20260726",
+      "firstVisitLines": [
+        {
+          "speaker": "主人公",
+          "text": "「ダンゴさん……。」"
+        },
+        {
+          "speaker": "主人公",
+          "text": "「どこへ行ったんだ……。」"
+        },
+        {
+          "speaker": "主人公",
+          "text": "「くそっ……落ち着け。」"
+        },
+        {
+          "speaker": "主人公",
+          "text": "「きっと、どっちかだ……。」"
+        }
+      ],
+      "revisitLines": [],
+      "choices": [
+        {
+          "label": "食糧庫側へ進む",
+          "to": "left-route"
+        },
+        {
+          "label": "水滴の通路へ進む",
+          "to": "right-route"
+        }
+      ]
+    },
+    "left-route": {
+      "title": "左の通路",
+      "background": "../assets/bg/bg_ch1_underground_barrel_storage.webp?v=20260726",
+      "ambience": null,
+      "firstVisitLines": [
+        {
+          "speaker": "主人公",
+          "text": "「樽……。」"
+        }
+      ],
+      "choices": [
+        {
+          "id": "inspect-barrel",
+          "label": "樽を調べる",
+          "resultLines": [
+            {
+              "speaker": "主人公",
+              "text": "「空っぽか……。」"
+            },
+            {
+              "speaker": "主人公",
+              "text": "「違う……ここじゃない。」"
+            },
+            {
+              "speaker": "主人公",
+              "text": "「奥へ行こう……。」"
+            }
+          ],
+          "to": "stone-chamber",
+          "playFootsteps": false
+        }
+      ]
+    },
+    "right-route": {
+      "title": "右の通路",
+      "background": "../assets/bg/bg_ch1_underground_dripping_corridor.webp?v=20260726",
+      "ambience": {
+        "src": "../assets/audio/ambience/water_drop_01.mp3?v=20260704",
+        "volume": 0.18,
+        "fadeInMs": 500
+      },
+      "firstVisitLines": [
+        {
+          "speaker": "主人公",
+          "text": "「水の音……。」"
+        }
+      ],
+      "choices": [
+        {
+          "id": "listen-for-water",
+          "label": "耳を澄ます",
+          "resultLines": [
+            {
+              "speaker": "主人公",
+              "text": "「……もっと奥からだ。」"
+            },
+            {
+              "speaker": "主人公",
+              "text": "「行ってみよう。」"
+            }
+          ],
+          "to": "stone-chamber",
+          "playFootsteps": false
+        }
+      ]
+    },
+    "stone-chamber": {
+      "title": "古い石室",
+      "background": "../assets/bg/bg_ch1_underground_old_wall.webp?v=20260726",
+      "ambienceFadeOutOnEnterMs": 650,
+      "bgmFadeOutOnEnterMs": 900,
+      "stopMovementOnEnter": true,
+      "firstVisitLinesByPrevious": {
+        "left-route": [
+          {
+            "speaker": "主人公",
+            "text": "「行き止まりか……。」"
+          },
+          {
+            "speaker": "主人公",
+            "text": "「ダンゴさん！」"
+          },
+          {
+            "speaker": "主人公",
+            "text": "「…………。」"
+          },
+          {
+            "speaker": "主人公",
+            "text": "「いない……。」"
+          },
+          {
+            "speaker": "主人公",
+            "text": "「どうしよう……。」"
+          },
+          {
+            "speaker": "主人公",
+            "text": "「誰か……。」"
+          }
+        ],
+        "right-route": [
+          {
+            "speaker": "主人公",
+            "text": "「ここまで来たのに……。」"
+          },
+          {
+            "speaker": "主人公",
+            "text": "「水の音も、止まってる……。」",
+            "stopAmbienceBefore": true
+          },
+          {
+            "speaker": "主人公",
+            "text": "「ダンゴさん……。」"
+          },
+          {
+            "speaker": "主人公",
+            "text": "「どうしよう……。」"
+          },
+          {
+            "speaker": "主人公",
+            "text": "「誰か……。」"
+          }
+        ]
+      },
+      "onComplete": "true"
+    }
+  }
+}

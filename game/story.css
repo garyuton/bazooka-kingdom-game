@@ -164,18 +164,37 @@ button { font: inherit; }
   /* 85%の立ち絵を従来位置から約6%下げ、足元は画面内に残します。 */
   bottom: 4svh;
   left: 50%;
-  display: none;
+  display: block;
   width: min(100vw, 570px);
   height: 85svh;
   max-height: calc(100svh - 4svh);
   object-fit: contain;
   object-position: center bottom;
   filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.65));
+  opacity: 0;
+  visibility: hidden;
 }
 
-.character.is-visible { display: block; }
+.character.is-visible {
+  opacity: 1;
+  visibility: visible;
+}
+.character.is-visible.is-fade-in {
+  opacity: 0;
+  transition: opacity var(--character-enter-duration, 850ms) ease-out;
+}
+.character.is-visible.is-fade-in.is-fade-visible {
+  opacity: 1;
+}
 .character--left { transform: translateX(-88%); }
-.character--center { transform: translateX(-50%); z-index: 1; }
+.character--center {
+  bottom: 12svh;
+  z-index: 1;
+  width: min(72vw, 400px);
+  height: 62svh;
+  max-height: 62svh;
+  transform: translateX(-50%);
+}
 .character--right { transform: translateX(-12%); }
 
 /* 立ち絵がない場合に中央へ表示する簡易シルエットです。 */
@@ -339,6 +358,50 @@ button { font: inherit; }
   50% { transform: translateY(4px); }
 }
 
+.advance-layer.is-transition-caption {
+  z-index: 9;
+  background: none;
+  pointer-events: none;
+}
+
+/* バズ㌧登場中は透明化だけでなく、通常会話UIを描画対象から外す。 */
+.advance-layer.is-dialogue-suppressed {
+  background: none;
+}
+
+.advance-layer.is-dialogue-suppressed .dialogue-panel {
+  display: block;
+}
+
+.dialogue-panel.is-transition-caption {
+  display: grid;
+  min-height: clamp(120px, 21svh, 175px);
+  place-items: center;
+  transition:
+    opacity var(--transition-caption-fade, 0.25s) ease,
+    visibility var(--transition-caption-fade, 0.25s) ease;
+}
+
+.dialogue-panel.is-transition-caption .dialogue-text {
+  width: 100%;
+  opacity: 0;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+  letter-spacing: 0.18em;
+  text-align: center;
+  text-indent: 0.18em;
+  transition: opacity var(--transition-caption-text-fade, 0.6s) ease;
+}
+
+.dialogue-panel.is-transition-caption.is-caption-preparing .dialogue-text {
+  opacity: 0;
+  transition: none;
+}
+
+.dialogue-panel.is-transition-caption.is-caption-text-visible .dialogue-text {
+  opacity: 1;
+}
+
 /* ---------- 第一章で使用する追加演出 ---------- */
 .character-layer.has-glow .character {
   filter:
@@ -373,6 +436,20 @@ button { font: inherit; }
   filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.28));
 }
 
+.imagination-overlay.is-romako-reveal {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.24));
+}
+
+/* ロマ子姫の想像だけを少し中央へ寄せ、通常の想像表示には影響させません。 */
+@media (min-width: 681px) {
+  .imagination-overlay.is-romako-reveal {
+    right: clamp(150px, 17vw, 280px);
+    width: clamp(220px, 32vw, 460px);
+  }
+}
+
 .imagination-overlay.is-visible {
   opacity: 1;
   transform: translateY(0) scale(1);
@@ -395,6 +472,8 @@ button { font: inherit; }
 }
 
 .imagination-image {
+  position: relative;
+  z-index: 0;
   display: block;
   width: 100%;
   max-height: 49svh;
@@ -405,6 +484,112 @@ button { font: inherit; }
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.5) inset,
     0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+.imagination-romako {
+  opacity: 0;
+  filter: blur(18px) brightness(1.15);
+  transform: scale(0.96);
+  transform-origin: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: none;
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 0 58%, rgba(0, 0, 0, 0.92) 67%, rgba(0, 0, 0, 0.45) 79%, transparent 96%);
+  mask-image: radial-gradient(ellipse at center, #000 0 58%, rgba(0, 0, 0, 0.92) 67%, rgba(0, 0, 0, 0.45) 79%, transparent 96%);
+}
+
+.imagination-romako.is-visible {
+  animation: imagination-appear 2.2s ease-out forwards;
+}
+
+.imagination-romako.is-fading {
+  animation: imagination-dissolve 1.8s ease-in forwards;
+}
+
+.imagination-haze {
+  position: absolute;
+  z-index: 1;
+  inset: -10%;
+  opacity: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 45% 48%, rgba(255, 255, 255, 0.55), transparent 45%),
+    radial-gradient(circle at 60% 55%, rgba(220, 200, 255, 0.25), transparent 55%);
+  filter: blur(28px);
+}
+
+.imagination-haze.is-active {
+  animation: haze-gather 2.2s ease-out forwards;
+}
+
+.imagination-haze.is-fading {
+  animation: haze-dissolve 1.8s ease-in forwards;
+}
+
+@keyframes imagination-dissolve {
+  from {
+    opacity: 0.72;
+    filter: blur(3px) brightness(1.02);
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    filter: blur(18px) brightness(1.08);
+    transform: scale(0.98);
+  }
+}
+
+@keyframes haze-dissolve {
+  from {
+    opacity: 0.22;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.08);
+  }
+}
+
+.imagination-caption {
+  position: absolute;
+  z-index: 2;
+  right: 0;
+  bottom: -1.7rem;
+  left: 0;
+  margin: 0;
+  opacity: 0;
+  color: rgba(255, 248, 230, 0.72);
+  font-size: clamp(0.68rem, 1.7vw, 0.86rem);
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.82);
+  transition: opacity 0.8s ease;
+}
+
+.imagination-caption.is-visible { opacity: 1; }
+
+@keyframes imagination-appear {
+  0% {
+    opacity: 0;
+    filter: blur(18px) brightness(1.2);
+    transform: scale(0.95);
+  }
+  45% {
+    opacity: 0.38;
+    filter: blur(10px) brightness(1.1);
+  }
+  100% {
+    opacity: 0.72;
+    filter: blur(3px) brightness(1.02);
+    transform: scale(1);
+  }
+}
+
+@keyframes haze-gather {
+  0% { opacity: 0; transform: scale(1.18); }
+  45% { opacity: 0.75; }
+  100% { opacity: 0.22; transform: scale(0.98); }
 }
 
 .reaction-mark {
@@ -559,6 +744,127 @@ button { font: inherit; }
 
 .ending-roll__glow.is-visible { opacity: 1; }
 
+.ending-photo-stage {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: #000;
+  opacity: 1;
+  transition: opacity 0.8s ease;
+}
+
+.ending-photo-stage[hidden] { display: none; }
+.ending-photo-stage.is-leaving { opacity: 0; }
+
+/* 動かさない薄い粒状テクスチャで、古い印画紙の質感だけを添えます。 */
+.ending-photo-stage::after {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  width: min(84vw, 1100px, 120.89vh);
+  aspect-ratio: 16 / 9;
+  content: "";
+  pointer-events: none;
+  opacity: 0.045;
+  background-image:
+    repeating-radial-gradient(circle at 18% 27%, rgba(255, 244, 210, 0.7) 0 0.45px, transparent 0.8px 3px),
+    repeating-radial-gradient(circle at 72% 63%, rgba(38, 25, 14, 0.7) 0 0.4px, transparent 0.75px 3.4px);
+  background-size: 7px 7px, 9px 9px;
+  mix-blend-mode: soft-light;
+  transform: translate(-50%, -50%);
+}
+
+.ending-photo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(84vw, 1100px, 120.89vh);
+  height: auto;
+  aspect-ratio: 16 / 9;
+  box-sizing: border-box;
+  padding: clamp(7px, 1.2vw, 14px);
+  border: 1px solid rgba(233, 215, 174, 0.7);
+  object-fit: cover;
+  object-position: center center;
+  opacity: 0;
+  filter: sepia(0.84) saturate(0.68) contrast(0.94) brightness(0.82);
+  background: #d8c79f;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.72), 0 0 0 3px rgba(100, 75, 44, 0.42);
+  transform: translate(-50%, -50%) scale(1);
+  transform-origin: center center;
+  transition: opacity 0.45s ease;
+  transition-delay: 0.18s;
+  will-change: opacity, transform;
+}
+
+.ending-photo.is-active { opacity: 0.88; }
+.ending-photo.is-fading-out {
+  opacity: 0;
+  transition-duration: var(--ending-photo-fade-out-duration, 0.25s);
+  transition-delay: 0s;
+}
+.ending-photo.is-hidden-immediate {
+  opacity: 0;
+  transition: none;
+}
+.ending-photo[data-motion="zoom"].is-active,
+.ending-photo[data-motion="zoom"].is-fading-out {
+  animation: ending-photo-zoom var(--ending-photo-zoom-duration, 18.3s) linear forwards;
+}
+
+.ending-photo__vignette {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 50%;
+  width: min(84vw, 1100px, 120.89vh);
+  aspect-ratio: 16 / 9;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at center, transparent 48%, rgba(22, 13, 7, 0.22) 76%, rgba(0, 0, 0, 0.5) 100%),
+    linear-gradient(to bottom, rgba(20, 13, 8, 0.08), transparent 12%, transparent 88%, rgba(20, 13, 8, 0.1));
+  transform: translate(-50%, -50%);
+}
+
+.ending-lyric {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  bottom: max(30px, env(safe-area-inset-bottom));
+  width: min(92vw, 1000px);
+  min-height: 3.2em;
+  margin: 0;
+  color: rgba(255, 248, 230, 0.96);
+  font-size: clamp(16px, 2vw, 28px);
+  line-height: 1.55;
+  text-align: center;
+  white-space: pre-line;
+  opacity: 0;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95), 0 0 12px rgba(0, 0, 0, 0.7);
+  transform: translate(-50%, 5px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.ending-lyric.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.ending-lyric--voice {
+  font-size: clamp(18px, 2.3vw, 32px);
+  font-weight: 700;
+  transition-duration: 0.18s;
+}
+
+@keyframes ending-photo-zoom {
+  from { transform: translate(-50%, -50%) scale(1); }
+  to { transform: translate(-50%, -50%) scale(var(--ending-photo-zoom, 1.023)); }
+}
+
 .ending-roll__content {
   position: relative;
   z-index: 1;
@@ -582,6 +888,36 @@ button { font: inherit; }
   font-size: clamp(1rem, 3.2vw, 1.4rem);
   line-height: 1.9;
   letter-spacing: 0.12em;
+}
+
+.ending-opening-title {
+  display: grid;
+  gap: clamp(18px, 4svh, 34px);
+  opacity: 0;
+  text-align: center;
+  animation: ending-opening-title-in 2.2s ease forwards;
+  transition: opacity 1.5s ease;
+}
+
+.ending-opening-title.is-leaving {
+  opacity: 0;
+  animation: none;
+}
+
+.ending-opening-title h2,
+.ending-opening-title p { margin: 0; }
+
+.ending-opening-title h2 {
+  font-size: clamp(1.65rem, 6vw, 3.4rem);
+  letter-spacing: 0.16em;
+  text-indent: 0.16em;
+}
+
+.ending-opening-title p {
+  color: rgba(246, 221, 160, 0.94);
+  font-size: clamp(1rem, 3.8vw, 1.6rem);
+  letter-spacing: 0.44em;
+  text-indent: 0.44em;
 }
 
 .ending-title {
@@ -623,6 +959,17 @@ button { font: inherit; }
   letter-spacing: 0.24em;
 }
 
+/* 「声の出演」だけを一行にし、他のクレジットは従来の縦配置を保ちます。 */
+.ending-roll-list--voice {
+  grid-template-columns: repeat(2, minmax(0, max-content));
+  justify-content: center;
+  column-gap: clamp(24px, 5vw, 64px);
+}
+
+.ending-roll-list--voice strong {
+  grid-column: 1 / -1;
+}
+
 .ending-to-be-continued {
   color: #fff0b8;
   font-size: clamp(1.25rem, 4vw, 2.2rem);
@@ -634,6 +981,12 @@ button { font: inherit; }
   display: grid;
   gap: clamp(18px, 4svh, 34px);
   animation: ending-card-in 1.4s ease forwards;
+  transition: opacity 1s ease;
+}
+
+.ending-complete.is-leaving {
+  opacity: 0;
+  animation: none;
 }
 
 .ending-complete__title {
@@ -650,6 +1003,14 @@ button { font: inherit; }
   font-size: clamp(1.38rem, 5.8vw, 3.2rem);
   letter-spacing: 0.24em;
   text-indent: 0.24em;
+}
+
+.ending-complete__end {
+  margin: 0;
+  color: #ffe4a1;
+  font-size: clamp(1.5rem, 6.2vw, 3.5rem);
+  letter-spacing: 0.28em;
+  text-indent: 0.28em;
 }
 
 .ending-roll__skip {
@@ -671,6 +1032,95 @@ button { font: inherit; }
   border-color: rgba(255, 238, 190, 0.72);
 }
 
+/* ---------- 第二章予告 ---------- */
+.chapter2-teaser {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(10px, 1.8svh, 18px);
+  overflow: hidden;
+  padding:
+    max(18px, env(safe-area-inset-top))
+    max(14px, env(safe-area-inset-right))
+    max(18px, env(safe-area-inset-bottom))
+    max(14px, env(safe-area-inset-left));
+  opacity: 0;
+  background: #020207;
+  transition: opacity 1s ease;
+}
+
+.chapter2-teaser[hidden] { display: none; }
+.chapter2-teaser.is-active { opacity: 1; }
+.chapter2-teaser.is-leaving { opacity: 0; }
+
+.chapter2-teaser__image-wrap {
+  position: relative;
+  flex: 0 1 auto;
+  width: min(72vw, 720px, 68svh);
+  aspect-ratio: 1 / 1;
+}
+
+.chapter2-teaser__base {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.5s ease;
+}
+
+.chapter2-teaser.is-active .chapter2-teaser__base { opacity: 1; }
+
+.chapter2-teaser__text {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  flex: 0 0 auto;
+  gap: 5px;
+  color: #fff7df;
+  text-align: center;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.92);
+}
+
+.chapter2-teaser__text > div {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.chapter2-teaser.show-title .chapter2-teaser__title,
+.chapter2-teaser.show-chapter .chapter2-teaser__chapter,
+.chapter2-teaser.show-status .chapter2-teaser__status {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.chapter2-teaser__title {
+  font-size: clamp(1rem, 3.2vw, 1.65rem);
+  letter-spacing: 0.14em;
+  text-indent: 0.14em;
+}
+
+.chapter2-teaser__chapter {
+  color: #f6dca2;
+  font-size: clamp(1.05rem, 3.6vw, 1.8rem);
+  letter-spacing: 0.32em;
+  text-indent: 0.32em;
+}
+
+.chapter2-teaser__status {
+  color: rgba(255, 247, 223, 0.78);
+  font-size: clamp(0.76rem, 2.2vw, 1rem);
+  letter-spacing: 0.28em;
+  text-indent: 0.28em;
+}
+
+
 @keyframes ending-card-in {
   from {
     opacity: 0;
@@ -682,11 +1132,41 @@ button { font: inherit; }
   }
 }
 
+@keyframes ending-opening-title-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 @media (min-width: 760px) {
   .advance-layer { padding-bottom: max(36px, env(safe-area-inset-bottom)); }
 }
 
 @media (max-width: 680px) {
+  .chapter2-teaser__image-wrap {
+    width: min(88vw, 720px, 64svh);
+  }
+
+  .ending-photo-stage {
+    padding: 0;
+  }
+
+  .ending-photo {
+    width: min(92vw, 1100px, 103.11svh);
+    height: auto;
+    padding: 6px;
+  }
+
+  .ending-photo-stage::after,
+  .ending-photo__vignette {
+    width: min(92vw, 1100px, 103.11svh);
+  }
+
+  .ending-lyric {
+    bottom: max(24px, env(safe-area-inset-bottom));
+    width: min(94vw, 680px);
+    font-size: clamp(15px, 4.2vw, 19px);
+  }
+
   .imagination-overlay {
     top: max(16px, env(safe-area-inset-top));
     left: 50%;
@@ -696,6 +1176,10 @@ button { font: inherit; }
   }
 
   .imagination-overlay.is-visible {
+    transform: translate(-50%, 0) scale(1);
+  }
+
+  .imagination-overlay.is-romako-reveal {
     transform: translate(-50%, 0) scale(1);
   }
 
@@ -738,4 +1222,37 @@ button { font: inherit; }
 @media (prefers-reduced-motion: reduce) {
   :root { --transition-duration: 1ms; }
   .advance-mark { animation: none !important; }
+  .chapter2-teaser,
+  .chapter2-teaser__base,
+  .chapter2-teaser__text > div,
+  .ending-opening-title,
+  .ending-complete {
+    animation: none !important;
+    transition: none !important;
+  }
+  .chapter2-teaser.is-active,
+  .chapter2-teaser__text > div { opacity: 1; }
+  .chapter2-teaser__text > div { transform: none; }
+  .ending-opening-title,
+  .ending-complete { opacity: 1; }
+  .ending-photo {
+    animation: none !important;
+    transform: translate(-50%, -50%) scale(1) !important;
+  }
+  .ending-photo,
+  .ending-photo-stage,
+  .ending-lyric { transition-duration: 1ms !important; }
+  .imagination-romako,
+  .imagination-haze,
+  .imagination-caption {
+    animation: none !important;
+    transition: none !important;
+  }
+  .imagination-romako.is-visible {
+    opacity: 0.72;
+    filter: blur(3px) brightness(1.02);
+    transform: scale(1);
+  }
+  .imagination-haze.is-active { opacity: 0.22; transform: scale(0.98); }
+  .imagination-caption.is-visible { opacity: 1; }
 }

@@ -6,7 +6,8 @@
   <meta name="theme-color" content="#000000">
   <meta name="description" content="バズーカ王国物語 ノベルゲーム画面">
   <title>物語｜バズーカ王国物語</title>
-  <link rel="stylesheet" href="story.css?v=20260718-chapter1-ending">
+  <link rel="stylesheet" href="story.css?v=20260806-final-stage-4">
+  <link rel="stylesheet" href="exploration.css?v=20260804-final-fix">
 </head>
 <body>
   <main id="novel-game" class="novel-game" aria-label="ノベルゲーム">
@@ -34,7 +35,9 @@
 
     <div id="scene-effect" class="scene-effect" aria-hidden="true"></div>
     <div id="imagination-overlay" class="imagination-overlay" aria-hidden="true">
-      <img id="imagination-image" class="imagination-image" alt="">
+      <img id="imagination-image" class="imagination-image imagination-romako" alt="">
+      <div id="imagination-haze" class="imagination-haze"></div>
+      <p id="imagination-caption" class="imagination-caption" aria-hidden="true"></p>
     </div>
     <div id="reaction-mark" class="reaction-mark" aria-hidden="true"></div>
 
@@ -53,6 +56,12 @@
         <span class="advance-mark" aria-hidden="true">▼</span>
       </section>
     </button>
+
+    <section id="exploration-ui" class="exploration-ui" hidden aria-label="地下探索の移動先">
+      <h2 id="exploration-location" class="exploration-location"></h2>
+      <div id="exploration-choices" class="exploration-choices" role="group" aria-label="移動先"></div>
+      <p id="exploration-status" class="exploration-status" aria-live="polite"></p>
+    </section>
 
     <p id="error-message" class="error-message" role="alert"></p>
 
@@ -76,11 +85,33 @@
     <section id="ending-roll" class="ending-roll" hidden aria-live="polite" aria-label="第一章エンディング">
       <div id="ending-visual" class="ending-roll__visual" aria-hidden="true"></div>
       <div id="ending-glow" class="ending-roll__glow" aria-hidden="true"></div>
+      <div id="ending-photo-stage" class="ending-photo-stage" hidden aria-hidden="true">
+        <img id="ending-photo-a" class="ending-photo ending-photo--a" alt="">
+        <img id="ending-photo-b" class="ending-photo ending-photo--b" alt="">
+        <div class="ending-photo__vignette"></div>
+      </div>
+      <p id="ending-lyric" class="ending-lyric" aria-live="polite"></p>
       <div id="ending-content" class="ending-roll__content"></div>
+      <section id="chapter2-teaser" class="chapter2-teaser" hidden aria-label="バズーカ王国物語 第二章 鋭意製作中">
+        <div class="chapter2-teaser__image-wrap">
+          <img
+            class="chapter2-teaser__base"
+            src="../assets/images/ending/chapter2_emblem_foreshadowing.png?v=20260720-teaser"
+            alt=""
+          >
+        </div>
+
+        <div class="chapter2-teaser__text">
+          <div class="chapter2-teaser__title">バズーカ王国物語</div>
+          <div class="chapter2-teaser__chapter">第二章</div>
+          <div class="chapter2-teaser__status">鋭意製作中</div>
+        </div>
+      </section>
       <button id="ending-skip" class="ending-roll__skip" type="button" hidden>SKIP</button>
     </section>
   </main>
 
-  <script src="story.js?v=20260719-dining-hall-bgm"></script>
+  <script src="exploration.js?v=20260805-active-search"></script>
+  <script src="story.js?v=20260806-final-stage-4"></script>
 </body>
 </html>

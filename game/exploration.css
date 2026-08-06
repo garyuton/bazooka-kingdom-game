@@ -1,0 +1,81 @@
+/* 第一章地下探索。既存ノベルUIの上へ、移動先だけを控えめに重ねる。 */
+.exploration-ui {
+  position: absolute;
+  z-index: 12;
+  left: 50%;
+  bottom: clamp(224px, 29vh, 300px);
+  width: min(92vw, 460px);
+  padding: 14px;
+  transform: translateX(-50%);
+  border: 1px solid rgba(214, 177, 91, 0.58);
+  border-radius: 14px;
+  background: rgba(4, 7, 10, 0.86);
+  box-shadow: 0 12px 38px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(6px);
+}
+
+.exploration-ui[hidden] {
+  display: none;
+}
+
+.exploration-location {
+  margin: 0 0 10px;
+  color: #f0d79c;
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+  font-size: clamp(0.88rem, 2.4vw, 1rem);
+  letter-spacing: 0.14em;
+  text-align: center;
+}
+
+.exploration-choices {
+  display: grid;
+  gap: 8px;
+}
+
+.exploration-choice {
+  min-height: 46px;
+  padding: 10px 14px;
+  border: 1px solid rgba(226, 198, 128, 0.54);
+  border-radius: 8px;
+  color: #fff8e7;
+  background: rgba(20, 23, 26, 0.94);
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.exploration-choice:hover,
+.exploration-choice:focus-visible {
+  outline: none;
+  border-color: #f1ce78;
+  background: rgba(54, 45, 29, 0.96);
+  box-shadow: 0 0 14px rgba(232, 194, 101, 0.24);
+}
+
+.exploration-status {
+  min-height: 1.4em;
+  margin: 9px 2px 0;
+  color: rgba(255, 255, 255, 0.64);
+  font-size: 0.76rem;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .exploration-ui {
+    bottom: max(216px, 31vh);
+    width: min(92vw, 420px);
+    padding: 11px;
+  }
+
+  .exploration-choice {
+    min-height: 44px;
+    padding-block: 8px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .exploration-choice {
+    transition: none;
+  }
+}
