@@ -544,6 +544,10 @@ const endingManager = {
   audio: new Audio(),
   rafId: null,
   resumeHandler: null,
+  resumeButton: null,
+  playbackCheckTimer: null,
+  lastAudioTime: 0,
+  lastAudioProgressAt: 0,
   skipDisplayTime: null,
   currentCard: "",
   isRunning: false,
@@ -571,10 +575,8 @@ const endingManager = {
     this.clearTeaser();
     this.clearEndingPresentation();
     cancelAnimationFrame(this.rafId);
-    if (this.resumeHandler) {
-      elements.ending.removeEventListener("click", this.resumeHandler);
-      this.resumeHandler = null;
-    }
+    this.clearPlaybackCheck();
+    this.clearResumeHandler();
 
     audioManager.playBgm(null);
     audioManager.stopSceneSe();
@@ -603,30 +605,109 @@ const endingManager = {
       const image = new Image();
       image.src = src;
     });
-    this.audio.play().then(() => {
+    this.startAudioPlayback();
+  },
+
+  /** ED曲が実際に進み始めたことを確認してから、既存タイムラインを開始します。 */
+  startAudioPlayback() {
+    let playPromise;
+    try {
+      // ユーザー操作から呼ばれた場合も、この同期位置でplay()を実行します。
+      playPromise = this.audio.play();
+    } catch (error) {
+      this.showPlaybackPrompt(error);
+      return;
+    }
+    this.confirmAudioPlayback(playPromise);
+  },
+
+  async confirmAudioPlayback(playPromise) {
+    try {
+      await playPromise;
+      await this.waitForAudioProgress();
+      if (!this.isRunning || this.finishing) return;
+      this.clearResumeHandler();
+      delete elements.ending.dataset.audioError;
+      this.currentCard = "";
+      this.lastAudioTime = this.audio.currentTime;
+      this.lastAudioProgressAt = performance.now();
+      cancelAnimationFrame(this.rafId);
       this.tick();
-    }).catch(() => {
-      this.showCard("tap-to-play", `
-        <div class="ending-card ending-card--quiet">
-          <p>画面をタップすると、第一章の余韻が流れ始めます。</p>
-        </div>
-      `, null, false);
-      elements.endingSkip.hidden = false;
-      this.resumeHandler = () => {
-        this.audio.play().then(() => {
-          elements.ending.removeEventListener("click", this.resumeHandler);
-          this.resumeHandler = null;
-          this.currentCard = "";
-          this.tick();
-        }).catch(() => {});
-      };
-      elements.ending.addEventListener("click", this.resumeHandler);
+    } catch (error) {
+      if (this.isRunning && !this.finishing) this.showPlaybackPrompt(error);
+    }
+  },
+
+  waitForAudioProgress(timeoutMs = 2200) {
+    this.clearPlaybackCheck();
+    const startedAt = performance.now();
+    const initialTime = this.audio.currentTime;
+    return new Promise((resolve, reject) => {
+      this.playbackCheckTimer = window.setInterval(() => {
+        if (!this.isRunning || this.finishing) {
+          this.clearPlaybackCheck();
+          reject(new DOMException("Ending playback was cancelled.", "AbortError"));
+          return;
+        }
+        if (!this.audio.paused && this.audio.currentTime > initialTime + 0.02) {
+          this.clearPlaybackCheck();
+          resolve();
+          return;
+        }
+        if (performance.now() - startedAt >= timeoutMs) {
+          this.clearPlaybackCheck();
+          reject(new DOMException("Ending audio did not begin advancing.", "AbortError"));
+        }
+      }, 50);
     });
+  },
+
+  showPlaybackPrompt(error) {
+    cancelAnimationFrame(this.rafId);
+    this.rafId = null;
+    this.clearPlaybackCheck();
+    this.clearResumeHandler();
+    this.audio.pause();
+    const errorName = error?.name || "PlaybackError";
+    elements.ending.dataset.audioError = errorName;
+    console.warn(`Ending audio playback needs user interaction (${errorName}).`);
+    this.showCard("tap-to-play", `
+      <div class="ending-card ending-card--quiet ending-card--resume">
+        <p>エンディング曲を再生します。</p>
+        <button class="ending-resume-button" type="button">タップしてエンディングを再生</button>
+      </div>
+    `, null, false);
+    elements.endingSkip.hidden = false;
+    this.resumeButton = elements.endingContent.querySelector(".ending-resume-button");
+    this.resumeHandler = () => this.startAudioPlayback();
+    this.resumeButton?.addEventListener("click", this.resumeHandler, { once: true });
+  },
+
+  clearResumeHandler() {
+    if (this.resumeButton && this.resumeHandler) {
+      this.resumeButton.removeEventListener("click", this.resumeHandler);
+    }
+    this.resumeButton = null;
+    this.resumeHandler = null;
+  },
+
+  clearPlaybackCheck() {
+    clearInterval(this.playbackCheckTimer);
+    this.playbackCheckTimer = null;
   },
 
   tick() {
     if (!this.isRunning) return;
     const time = this.audio.currentTime || 0;
+    if (time > this.lastAudioTime + 0.01) {
+      this.lastAudioTime = time;
+      this.lastAudioProgressAt = performance.now();
+    } else if (!this.audio.ended && (
+      this.audio.paused || performance.now() - this.lastAudioProgressAt > 2500
+    )) {
+      this.showPlaybackPrompt(new DOMException("Ending audio playback stopped advancing.", "AbortError"));
+      return;
+    }
     if (!this.audio.paused && time < 6) {
       this.audio.volume = Math.min(0.78, (time / 6) * 0.78);
     }
@@ -828,10 +909,8 @@ const endingManager = {
     cancelAnimationFrame(this.rafId);
     this.rafId = null;
     this.skipDisplayTime = null;
-    if (this.resumeHandler) {
-      elements.ending.removeEventListener("click", this.resumeHandler);
-      this.resumeHandler = null;
-    }
+    this.clearPlaybackCheck();
+    this.clearResumeHandler();
     this.audio.pause();
     this.audio.currentTime = 0;
     this.setGlow(false);
